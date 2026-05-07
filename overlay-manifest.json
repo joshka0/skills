@@ -1,0 +1,163 @@
+{
+  "generatedAt": "2026-04-23T08:37:43.464Z",
+  "roots": {
+    "shared": "shared/",
+    "providers": "providers/",
+    "providersCurrent": "providers-current/",
+    "mirrors": {
+      "foxctlPack": "mirrors/foxctl/pack",
+      "foxctlExternal": "mirrors/foxctl/external",
+      "mattPocock": "mirrors/mattpocock/skills",
+      "repopromptAgents": "mirrors/repoprompt/agents"
+    }
+  },
+  "decisions": {
+    "delegateCodex": "Collapsed to shared/general/delegate-codex using the Claude step-by-step version.",
+    "codexSwarm": "shared/general/codex-swarm is tmux canonical; shared/variants/zellij/codex-swarm preserves the Agents Zellij variant.",
+    "planBuild": "shared/general/plan-build is tmux canonical; shared/variants/zellij/plan-build preserves the Agents Zellij variant.",
+    "externalAliases": "external-* Codex aliases are preserved under shared/codex because frontmatter names differ; do not raw-symlink them to non-external names.",
+    "opencode": "Overlay intentionally pending due root mismatch and remaining agentctl-* entries in ~/.config/opencode/skill.",
+    "mattPocock": "Mirrored from https://github.com/mattpocock/skills. Active imports are non-deprecated, non-in-progress, non-personal skills only; exposed through shared/general and the supported provider overlays.",
+    "progressiveRouters": "Default overlays expose product-platform, design-family, release-bundles, and infra-bundles instead of every stack-specific checklist or design micro-skill.",
+    "repopromptAgents": "RepoPrompt rp-* skills were moved out of the active Agents overlay into mirrors/repoprompt/agents. Use repoprompt-pro-review by default unless the specialized RepoPrompt workflows are explicitly restored."
+  },
+  "externalNameMap": [
+    {
+      "dirName": "android-expo-eas-build-binary-readiness",
+      "skillName": "android-expo-eas-build-binary-readiness"
+    },
+    {
+      "dirName": "android-play-accessibility-age-rating-readiness",
+      "skillName": "android-play-accessibility-age-rating-readiness"
+    },
+    {
+      "dirName": "android-play-ai-ugc-safety-readiness",
+      "skillName": "android-play-ai-ugc-safety-readiness"
+    },
+    {
+      "dirName": "android-play-console-eas-automation-bridge",
+      "skillName": "android-play-console-eas-automation-bridge"
+    },
+    {
+      "dirName": "android-play-data-safety-permissions-readiness",
+      "skillName": "android-play-data-safety-permissions-readiness"
+    },
+    {
+      "dirName": "android-play-iap-subscriptions-readiness",
+      "skillName": "android-play-iap-subscriptions-readiness"
+    },
+    {
+      "dirName": "android-play-production-checklist",
+      "skillName": "android-play-production-checklist"
+    },
+    {
+      "dirName": "android-play-quality-prelaunch-readiness",
+      "skillName": "android-play-quality-prelaunch-readiness"
+    },
+    {
+      "dirName": "android-play-sensitive-category-readiness",
+      "skillName": "android-play-sensitive-category-readiness"
+    },
+    {
+      "dirName": "android-play-store-listing-metadata-readiness",
+      "skillName": "android-play-store-listing-metadata-readiness"
+    },
+    {
+      "dirName": "android-play-submission-packet-readiness",
+      "skillName": "android-play-submission-packet-readiness"
+    },
+    {
+      "dirName": "android-play-testing-track-readiness",
+      "skillName": "android-play-testing-track-readiness"
+    },
+    {
+      "dirName": "apple-accessibility-age-rating-readiness",
+      "skillName": "apple-accessibility-age-rating-readiness"
+    },
+    {
+      "dirName": "apple-ai-privacy-safety-readiness",
+      "skillName": "apple-ai-privacy-safety-readiness"
+    },
+    {
+      "dirName": "apple-asc-cli-automation-bridge",
+      "skillName": "apple-asc-cli-automation-bridge"
+    },
+    {
+      "dirName": "apple-build-binary-readiness",
+      "skillName": "apple-build-binary-readiness"
+    },
+    {
+      "dirName": "apple-iap-subscription-readiness",
+      "skillName": "apple-iap-subscription-readiness"
+    },
+    {
+      "dirName": "apple-metadata-storefront-readiness",
+      "skillName": "apple-metadata-storefront-readiness"
+    },
+    {
+      "dirName": "apple-production-checklist",
+      "skillName": "apple-production-checklist"
+    },
+    {
+      "dirName": "apple-submission-packet-readiness",
+      "skillName": "apple-submission-packet-readiness"
+    },
+    {
+      "dirName": "apple-testflight-release-readiness",
+      "skillName": "apple-testflight-release-readiness"
+    },
+    {
+      "dirName": "opentui",
+      "skillName": "opentui-tui-builder"
+    },
+    {
+      "dirName": "uniwind-excellence-rn",
+      "skillName": "uniwind-excellence-rn"
+    },
+    {
+      "dirName": "uniwind-rn-android",
+      "skillName": "uniwind-rn-android"
+    },
+    {
+      "dirName": "uniwind-rn-ios",
+      "skillName": "uniwind-rn-ios"
+    }
+  ],
+  "providers": {
+    "codex": {
+      "entries": 93,
+      "symlinks": 93,
+      "files": 0
+    },
+    "agents": {
+      "entries": 66,
+      "symlinks": 66,
+      "files": 0
+    },
+    "factory": {
+      "entries": 48,
+      "symlinks": 48,
+      "files": 0
+    },
+    "claude": {
+      "entries": 76,
+      "symlinks": 76,
+      "files": 0
+    },
+    "gemini": {
+      "entries": 45,
+      "symlinks": 45,
+      "files": 0
+    },
+    "gemini-antigravity": {
+      "entries": 32,
+      "symlinks": 32,
+      "files": 0
+    },
+    "opencode": {
+      "entries": 1,
+      "symlinks": 0,
+      "files": 1
+    }
+  }
+}

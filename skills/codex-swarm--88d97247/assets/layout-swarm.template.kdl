@@ -1,0 +1,74 @@
+// Codex Swarm: Multi-agent layout (reference template)
+// Claude generates actual layouts dynamically based on agent count.
+// This shows the 2x2 grid pattern for 3-4 agents.
+
+// --- 2 agents: vertical split ---
+// layout {
+//     tab name="swarm" {
+//         pane split_direction="vertical" {
+//             pane name="agent-01" {
+//                 command "bash"
+//                 args "-c" "/tmp/codex-swarm-XXXXX/agent-01/run.sh"
+//             }
+//             pane name="agent-02" {
+//                 command "bash"
+//                 args "-c" "/tmp/codex-swarm-XXXXX/agent-02/run.sh"
+//             }
+//         }
+//     }
+// }
+
+// --- 3-4 agents: 2x2 grid ---
+layout {
+    tab name="swarm" {
+        // Top row
+        pane split_direction="vertical" {
+            pane name="agent-01" {
+                command "bash"
+                args "-c" "{{SESSION_DIR}}/agent-01/run.sh"
+            }
+            pane name="agent-02" {
+                command "bash"
+                args "-c" "{{SESSION_DIR}}/agent-02/run.sh"
+            }
+        }
+        // Bottom row
+        pane split_direction="vertical" {
+            pane name="agent-03" {
+                command "bash"
+                args "-c" "{{SESSION_DIR}}/agent-03/run.sh"
+            }
+            pane name="agent-04" {
+                command "bash"
+                args "-c" "{{SESSION_DIR}}/agent-04/run.sh"
+            }
+        }
+    }
+}
+
+// --- 5-6 agents: 3x2 grid ---
+// layout {
+//     tab name="swarm" {
+//         pane split_direction="vertical" {
+//             pane name="agent-01" { command "bash"; args "-c" "..."; }
+//             pane name="agent-02" { command "bash"; args "-c" "..."; }
+//             pane name="agent-03" { command "bash"; args "-c" "..."; }
+//         }
+//         pane split_direction="vertical" {
+//             pane name="agent-04" { command "bash"; args "-c" "..."; }
+//             pane name="agent-05" { command "bash"; args "-c" "..."; }
+//             pane name="agent-06" { command "bash"; args "-c" "..."; }
+//         }
+//     }
+// }
+
+// --- 7+ agents: one tab per agent ---
+// layout {
+//     tab name="agent-01" {
+//         pane name="agent-01" { command "bash"; args "-c" "..."; }
+//     }
+//     tab name="agent-02" {
+//         pane name="agent-02" { command "bash"; args "-c" "..."; }
+//     }
+//     // ... one tab per agent
+// }

@@ -1,0 +1,1 @@
+../../shared/general/ruthless-test-strategy/SKILL.md

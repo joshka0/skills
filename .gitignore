@@ -1,0 +1,13 @@
+.DS_Store
+*.log
+
+# Never commit local secret material into the skills pack.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Keep imported mirrors self-contained, but do not commit nested Git metadata.
+mirrors/**/.git/

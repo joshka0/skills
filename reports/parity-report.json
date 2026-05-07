@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-04-23T08:38:25.386Z",
+  "providers": {
+    "codex": {
+      "activeSkillCount": 93,
+      "activeLooseFiles": [],
+      "providersCurrentSkillCount": 93,
+      "providersCurrentDiffs": [],
+      "proposedSkillCount": 93,
+      "proposedDiffs": []
+    },
+    "agents": {
+      "activeSkillCount": 66,
+      "activeLooseFiles": [
+        "gtr.md",
+        "rp-build-cli.md",
+        "rp-build.md",
+        "rp-investigate-cli.md",
+        "rp-investigate.md",
+        "rp-oracle-export-cli.md",
+        "rp-oracle-export.md",
+        "rp-refactor-cli.md",
+        "rp-refactor.md",
+        "rp-reminder-cli.md",
+        "rp-reminder.md",
+        "rp-review-cli.md",
+        "rp-review.md"
+      ],
+      "providersCurrentSkillCount": 66,
+      "providersCurrentDiffs": [],
+      "proposedSkillCount": 66,
+      "proposedDiffs": [
+        {
+          "name": "delegate-codex",
+          "active": "962b7cd8db3f",
+          "overlay": "0b4c5533f87b"
+        }
+      ]
+    },
+    "factory": {
+      "activeSkillCount": 48,
+      "activeLooseFiles": [],
+      "providersCurrentSkillCount": 48,
+      "providersCurrentDiffs": [],
+      "proposedSkillCount": 48,
+      "proposedDiffs": []
+    },
+    "claude": {
+      "activeSkillCount": 76,
+      "activeLooseFiles": [],
+      "providersCurrentSkillCount": 76,
+      "providersCurrentDiffs": [
+        {
+          "name": "peon-ping-config",
+          "active": "73aad7f7a8ab",
+          "overlay": "45105eda3aab"
+        },
+        {
+          "name": "peon-ping-toggle",
+          "active": "d3eb0307f3fb",
+          "overlay": "9b6e10d1c075"
+        }
+      ],
+      "proposedSkillCount": 76,
+      "proposedDiffs": [
+        {
+          "name": "peon-ping-config",
+          "active": "73aad7f7a8ab",
+          "overlay": "45105eda3aab"
+        },
+        {
+          "name": "peon-ping-toggle",
+          "active": "d3eb0307f3fb",
+          "overlay": "9b6e10d1c075"
+        }
+      ]
+    },
+    "gemini": {
+      "activeSkillCount": 45,
+      "activeLooseFiles": [],
+      "providersCurrentSkillCount": 45,
+      "providersCurrentDiffs": [],
+      "proposedSkillCount": 45,
+      "proposedDiffs": []
+    },
+    "gemini-antigravity": {
+      "activeSkillCount": 32,
+      "activeLooseFiles": [],
+      "providersCurrentSkillCount": 32,
+      "providersCurrentDiffs": [],
+      "proposedSkillCount": 32,
+      "proposedDiffs": []
+    }
+  }
+}

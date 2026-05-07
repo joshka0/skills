@@ -1,0 +1,10 @@
+// Codex Swarm: Single agent layout (reference template)
+// Claude generates actual layouts dynamically — this is for syntax reference.
+layout {
+    tab name="swarm" {
+        pane name="{{AGENT_ID}}" {
+            command "bash"
+            args "-c" "{{AGENT_DIR}}/run.sh"
+        }
+    }
+}
