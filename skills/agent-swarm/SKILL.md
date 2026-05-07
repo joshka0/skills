@@ -1,1 +1,0 @@
-../../shared/general/agent-swarm/SKILL.md

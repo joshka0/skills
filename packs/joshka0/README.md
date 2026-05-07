@@ -8,6 +8,7 @@ The actual skill bodies remain in their canonical locations:
 - `shared/` for local and curated shared skills
 - `mirrors/` for imported upstream or repo-local mirrors
 - `providers/` for active agent overlays
+- `bundles/` for compose inputs used to rebuild overlays
 - `providers-current/` for the latest active overlay snapshot
 
 This pack is meant to be a portable repo view, not a second copy of every skill.
@@ -41,9 +42,11 @@ The active pack is exposed through these provider overlays:
 
 ## Notes
 
-- `inventory.json` and `skills/` are historical/generated inventory artifacts
-  from the original consolidation pass. Use `shared/`, `mirrors/`,
-  `providers/`, and `providers-current/` as the current source of truth.
+- `archive/original-inventory/` contains historical/generated inventory
+  artifacts from the original consolidation pass.
+- `archive/full-overlays/` contains historical full provider overlay snapshots.
+  Use `shared/`, `mirrors/`, `bundles/`, `providers/`, and
+  `providers-current/` as the current source of truth.
 - `reports/skills-final-set-audit-2026-05-07.md` is the current pruning and
   final-set decision note.
 - `overlay-manifest.json` records durable source and promotion decisions.

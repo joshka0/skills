@@ -9,7 +9,7 @@ usage() {
   cat <<EOF
 Usage: $(basename "$0") [--apply]
 
-Repoint active skill roots to /Users/joshka/repos/skills provider overlays.
+Repoint active skill roots to this repo's provider overlays.
 
 Default mode is dry-run. Use --apply to make changes.
 OpenCode is intentionally excluded until its canonical root is decided.
@@ -39,6 +39,7 @@ providers=(
   "claude:$HOME/.claude/skills:$ROOT/providers/claude"
   "gemini:$HOME/.gemini/skills:$ROOT/providers/gemini"
   "gemini-antigravity:$HOME/.gemini/antigravity/skills:$ROOT/providers/gemini-antigravity"
+  "droid:$HOME/.droid/skills:$ROOT/providers/droid"
 )
 
 for spec in "${providers[@]}"; do

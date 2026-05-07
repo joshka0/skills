@@ -11,7 +11,7 @@ usage() {
 Usage: $(basename "$0") --provider <name> [--bundles core,release] [--full] [--apply]
 
 Compose a live provider overlay from bundle directories:
-  providers/<provider>-<bundle>
+  bundles/<provider>/<bundle>
 
 Examples:
   $(basename "$0") --provider claude --bundles core
@@ -60,15 +60,10 @@ if [[ ! -d "$TARGET" ]]; then
 fi
 
 if [[ "$BUNDLES" == "full" ]]; then
-  full_dir="$ROOT/providers/${PROVIDER}-full"
-  if [[ ! -d "$full_dir" ]]; then
-    echo "ERROR: full bundle missing: $full_dir" >&2
-    exit 1
-  fi
   known_bundles=(core release infra aliases)
   BUNDLES=""
   for bundle in "${known_bundles[@]}"; do
-    if [[ -d "$ROOT/providers/${PROVIDER}-${bundle}" ]]; then
+    if [[ -d "$ROOT/bundles/${PROVIDER}/${bundle}" ]]; then
       [[ -n "$BUNDLES" ]] && BUNDLES+=","
       BUNDLES+="$bundle"
     fi
@@ -83,7 +78,7 @@ declare -A seen=()
 for bundle in "${bundle_list[@]}"; do
   bundle="${bundle// /}"
   [[ -n "$bundle" ]] || continue
-  bundle_dir="$ROOT/providers/${PROVIDER}-${bundle}"
+  bundle_dir="$ROOT/bundles/${PROVIDER}/${bundle}"
   if [[ ! -d "$bundle_dir" ]]; then
     echo "ERROR: missing bundle directory: $bundle_dir" >&2
     exit 1

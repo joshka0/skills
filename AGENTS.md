@@ -10,6 +10,21 @@ tool-specific home variables.
 
 ## Pack Model
 
+Use this mental model when the directory names feel repetitive:
+
+```text
+shared/ and mirrors/        = source skill bodies
+providers/<provider>        = active installed views
+bundles/<provider>/<bundle> = compose inputs for active views
+providers-current/          = snapshot for parity checks
+archive/original-inventory/ = historical/generated inventory artifacts
+archive/full-overlays/      = historical full overlay snapshots
+```
+
+Do not treat every directory containing skill-looking folders as a source of
+truth. The active source of truth is `shared/`, `mirrors/`, and the active
+provider overlays in `providers/<provider>`.
+
 The pack has three layers:
 
 1. Canonical skill bodies:
@@ -51,7 +66,11 @@ Known provider-native exceptions:
 | `mirrors/mattpocock/skills` | Mirror of Matt Pocock's public skills repo. |
 | `mirrors/repoprompt/agents` | Archived RepoPrompt `rp-*` skills, inactive by default. |
 | `providers` | Active provider overlays consumed by local agents. |
+| `bundles/<provider>/<bundle>` | Bundle inputs used to compose provider overlays; not install roots. |
 | `providers-current` | Snapshot of the current active overlays. |
+| `archive/original-inventory` | Historical/generated export and source inventory from the first consolidation pass; do not edit as source. |
+| `archive/full-overlays` | Historical full provider overlay snapshots; rebuild broad current views from `bundles/`. |
+| `loose` | Historical loose non-`SKILL.md` files from the first consolidation pass. |
 | `packs/joshka0` | Human-readable pack notes and source/import audit. |
 | `reports` | Audit, pruning, parity, and centralization notes. |
 | `bin` | Overlay compose and root sync helpers. |

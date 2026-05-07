@@ -3,7 +3,9 @@
   "roots": {
     "shared": "shared/",
     "providers": "providers/",
+    "bundles": "bundles/",
     "providersCurrent": "providers-current/",
+    "archive": "archive/",
     "mirrors": {
       "foxctlPack": "mirrors/foxctl/pack",
       "foxctlExternal": "mirrors/foxctl/external",

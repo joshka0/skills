@@ -1,1 +1,0 @@
-../../shared/general/small-composable-code/SKILL.md

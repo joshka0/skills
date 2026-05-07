@@ -7,6 +7,7 @@ The pack contains:
 - locally authored and curated skills under `shared/`
 - imported upstream mirrors under `mirrors/`
 - active provider overlays under `providers/`
+- provider bundle inputs under `bundles/<provider>/<bundle>`
 - the current exported provider snapshot under `providers-current/`
 - reports and audit notes under `reports/`
 
@@ -26,7 +27,11 @@ agent that consumes that skill.
 | `mirrors/mattpocock/skills` | Mirror of Matt Pocock's public skills repository. |
 | `mirrors/repoprompt/agents` | Archived RepoPrompt `rp-*` agent skills, kept inactive by default. |
 | `providers` | Active symlink overlays used by local agents. |
+| `bundles/<provider>/<bundle>` | Compose inputs for rebuilding provider overlays; not install roots. |
 | `providers-current` | Snapshot of the active overlays after the latest pruning pass. |
+| `archive/original-inventory` | Historical/generated export and source inventory from the original consolidation pass; not an active source. |
+| `archive/full-overlays` | Historical full provider overlay snapshots; rebuild current broad views from `bundles/`. |
+| `loose` | Historical loose non-`SKILL.md` files from the original consolidation pass. |
 | `packs/joshka0` | Human-readable pack notes for publication or extraction into a standalone repo. |
 
 ## Active Provider Overlays

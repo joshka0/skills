@@ -1,0 +1,1 @@
+../../../../shared/general/chrome-extension-builder/SKILL.md

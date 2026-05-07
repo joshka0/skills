@@ -66,7 +66,7 @@ declare -A seen=()
 for bundle in "${bundle_list[@]}"; do
   bundle="${bundle// /}"
   [[ -n "$bundle" ]] || continue
-  bundle_dir="$ROOT/providers/codex-$bundle"
+  bundle_dir="$ROOT/bundles/codex/$bundle"
   if [[ ! -d "$bundle_dir" ]]; then
     echo "ERROR: missing bundle directory: $bundle_dir" >&2
     exit 1
