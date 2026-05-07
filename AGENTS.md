@@ -14,11 +14,10 @@ Use this mental model when the directory names feel repetitive:
 
 ```text
 shared/ and mirrors/        = source skill bodies
-providers/<provider>        = active installed views
+providers/<provider>        = active installed views with real files
 bundles/<provider>/<bundle> = compose inputs for active views
 providers-current/          = snapshot for parity checks
 archive/original-inventory/ = historical/generated inventory artifacts
-archive/full-overlays/      = historical full overlay snapshots
 ```
 
 Do not treat every directory containing skill-looking folders as a source of
@@ -34,14 +33,15 @@ The pack has three layers:
    - selected imported sources under `mirrors`
 2. Provider overlays:
    - `providers/<provider>`
-   - symlink-heavy directories that expose the correct skill set to each agent
+   - real copied skill directories/files that expose the correct skill set to each agent
 3. Installed agent roots:
    - agent-specific skill directories in `$HOME` that symlink to
      `providers/<provider>`
 
-Provider overlays should normally be symlinks to canonical skill bodies. Do not
-copy skill bodies into provider overlays unless the provider requires native
-files that cannot be represented as a shared symlink.
+Do not commit repo-internal symlinks. The repo should be self-contained and
+safe to browse with normal file tools. Symlinks belong only in agent home dirs,
+where `bin/sync-provider-roots.sh` points each agent's skill root at the
+matching `providers/<provider>` directory.
 
 Known provider-native exceptions:
 
@@ -59,7 +59,7 @@ Known provider-native exceptions:
 | --- | --- |
 | `shared/general` | Cross-agent shared skills and progressive router skills. |
 | `shared/codex` | Codex-oriented design, infra, quality, and platform skills. |
-| `shared/claude` | Claude-specific skills preserved for optional promotion. |
+| `shared/claude` | Claude-specific source skills. Currently used for the merged `peon-ping` skill. |
 | `shared/variants` | Intentional variants of shared workflows. |
 | `mirrors/foxctl/pack` | Imported foxctl workflow skills. |
 | `mirrors/foxctl/external` | Imported release, Uniwind, and OpenTUI skills. |
@@ -69,7 +69,6 @@ Known provider-native exceptions:
 | `bundles/<provider>/<bundle>` | Bundle inputs used to compose provider overlays; not install roots. |
 | `providers-current` | Snapshot of the current active overlays. |
 | `archive/original-inventory` | Historical/generated export and source inventory from the first consolidation pass; do not edit as source. |
-| `archive/full-overlays` | Historical full provider overlay snapshots; rebuild broad current views from `bundles/`. |
 | `loose` | Historical loose non-`SKILL.md` files from the first consolidation pass. |
 | `packs/joshka0` | Human-readable pack notes and source/import audit. |
 | `reports` | Audit, pruning, parity, and centralization notes. |
@@ -171,8 +170,8 @@ Compose another supported provider:
 ./bin/compose-provider-skills.sh --provider gemini --full --apply
 ```
 
-Keep `providers-current/*` aligned with the active `providers/*` overlays after
-major pruning or promotion passes.
+Keep `providers-current/*` aligned with the active `providers/*` overlays only
+when a parity snapshot is explicitly needed.
 
 ## Source And Import Notes
 
@@ -200,21 +199,21 @@ Current import stance:
 ## Editing Rules
 
 1. Edit canonical skill bodies in `shared/*` or the relevant `mirrors/*` source.
-2. Update provider overlays by adding or removing symlinks.
-3. Do not duplicate a skill body into multiple providers.
+2. Update bundle inputs under `bundles/<provider>/<bundle>` when the skill set changes.
+3. Use compose scripts to copy bundle contents into provider overlays.
 4. Keep router descriptions discoverable but compact.
 5. Move large family-specific guidance into `references/`.
 6. Preserve inactive imported sources unless a cleanup task explicitly removes
    them.
 7. Update pack/source notes when promoting or demoting skills.
 
-After changing symlinks, verify from the repo root:
+After changing skill sets, verify from the repo root:
 
 ```sh
-find -L providers providers-current shared mirrors -type l -print
+find . -type l -print
 ```
 
-No output means there are no broken symlinks.
+No output means the repo has no internal symlinks.
 
 ## Variants
 
@@ -233,7 +232,7 @@ Do not collapse variants without a semantic merge pass.
 
 ## Cautions
 
-- Do not raw-symlink Codex `external-*` aliases to non-`external-*` names when
+- Do not collapse Codex `external-*` aliases to non-`external-*` names when
   their `name:` frontmatter differs.
 - Keep Apple/Android release checklists out of default overlays unless release
   work is active; route through `release-bundles`.

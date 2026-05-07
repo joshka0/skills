@@ -11,26 +11,26 @@ The pack contains:
 - the current exported provider snapshot under `providers-current/`
 - reports and audit notes under `reports/`
 
-The pack is intentionally symlink-heavy. Provider overlays should point back to
-canonical shared or mirrored skill bodies, so one source edit updates every
-agent that consumes that skill.
+The pack stores real skill files and directories. Do not commit repo-internal
+symlinks. The only intended symlinks are the agent home roots created by
+`bin/sync-provider-roots.sh`, for example `~/.codex/skills ->
+<skills-repo>/providers/codex`.
 
 ## Pack Layout
 
 | Path | Role |
 | --- | --- |
-| `shared/general` | Canonical shared skills and progressive router skills. Some entries are symlinks to imported upstream mirrors. |
+| `shared/general` | Canonical shared skills and progressive router skills. |
 | `shared/codex` | Codex-oriented UI, design, Kubernetes, Terraform, and quality skills. |
-| `shared/claude` | Preserved Claude-specific workflows that are not active defaults. |
+| `shared/claude` | Claude-specific source skills. Currently used for the merged `peon-ping` skill. |
 | `mirrors/foxctl/pack` | Skills imported from the local `foxctl` skills pack. |
 | `mirrors/foxctl/external` | Release, Uniwind, and OpenTUI skills imported from the local `foxctl` external skills set. |
 | `mirrors/mattpocock/skills` | Mirror of Matt Pocock's public skills repository. |
 | `mirrors/repoprompt/agents` | Archived RepoPrompt `rp-*` agent skills, kept inactive by default. |
-| `providers` | Active symlink overlays used by local agents. |
+| `providers` | Active provider skill sets used by local agents. |
 | `bundles/<provider>/<bundle>` | Compose inputs for rebuilding provider overlays; not install roots. |
 | `providers-current` | Snapshot of the active overlays after the latest pruning pass. |
 | `archive/original-inventory` | Historical/generated export and source inventory from the original consolidation pass; not an active source. |
-| `archive/full-overlays` | Historical full provider overlay snapshots; rebuild current broad views from `bundles/`. |
 | `loose` | Historical loose non-`SKILL.md` files from the original consolidation pass. |
 | `packs/joshka0` | Human-readable pack notes for publication or extraction into a standalone repo. |
 
@@ -42,7 +42,7 @@ Current active overlay counts:
 | --- | ---: | --- |
 | `codex` | 53 | Includes `.system` plus active shared skills. |
 | `agents` | 53 | Includes provider-native Agent Vault and Maestri skills. |
-| `claude` | 51 | Active Claude overlay. |
+| `claude` | 52 | Active Claude overlay with merged `peon-ping`. |
 | `factory` | 50 | Active Factory overlay. |
 | `gemini` | 50 | Active Gemini overlay. |
 | `gemini-antigravity` | 52 | Includes provider-native HeroUI skills. |
@@ -82,13 +82,14 @@ provider-native skill notes.
 ## Maintenance Rules
 
 - Edit canonical skill bodies in `shared/` or the relevant `mirrors/` source.
-- Keep provider overlays as symlinks where possible.
+- Keep repo contents as real files/directories, not symlinks.
+- Use compose scripts to copy bundle contents into provider overlays.
 - Do not promote imported or archived skills into active defaults without
   recording the decision in `overlay-manifest.json` and the current audit note.
-- Re-check symlinks after changing overlays:
+- Re-check that the repo has no internal symlinks:
 
 ```sh
-find -L providers providers-current shared mirrors -type l -print
+find . -type l -print
 ```
 
-No output means there are no broken symlinks.
+No output means the repo is self-contained.

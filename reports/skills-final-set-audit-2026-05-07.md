@@ -122,8 +122,9 @@ Matt Pocock's skills are now part of the wanted set.
 | Status | Skill/Group | Description | Notes |
 | --- | --- | --- | --- |
 | keep | `agent-vault-cli`, `agent-vault-http` | Agent Vault credential broker skills. | Providers/agents-specific; keep where supported. |
+| keep | `peon-ping` | Merged Claude Code notification toggle/config skill. | Claude-only; keep in Claude core. |
 | drop | RepoPrompt `rp-*` skills | RepoPrompt build/investigate/refactor/review/oracle workflows. | Moved out of active Agents overlay to `mirrors/repoprompt/agents`; use `repoprompt-pro-review` by default. |
-| drop | Claude-only skills: `forge`, `gitbutler`, `peon-*`, `ralph-*`, `review-rp`, `plan-build-rp`, `prompt-repeat` | Claude-specific helpers and workflows. | Dropped from active default; sources remain under `shared/claude`. |
+| drop | Claude-only skills: `forge`, `gitbutler`, `ralph-*`, `review-rp`, `plan-build-rp`, `prompt-repeat` | Claude-specific helpers and workflows. | Dropped from active default. |
 | drop | `codex-swarm`, `delegate-codex`, `plan-build` | Zellij/tmux Codex delegation and planning variants. | Dropped from active default; use `agent-swarm` and `codex-goal`. |
 
 ## Drop Or Keep Inactive
@@ -149,7 +150,7 @@ Matt Pocock's skills are now part of the wanted set.
 
 ## Verification Notes
 
-- No broken symlinks found under `providers`, `shared`, or `mirrors`.
+- No internal repo symlinks remain; provider home symlinks are managed by `bin/sync-provider-roots.sh`.
 - Matt Pocock imported skills are present in `codex`, `agents`, `factory`,
   `claude`, `gemini`, `gemini-antigravity`, and `droid`.
 - Progressive router skills are present in the active supported provider overlays:

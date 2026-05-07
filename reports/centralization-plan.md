@@ -1,5 +1,9 @@
 # Skills Centralization Plan
 
+Superseded on 2026-05-07: the repo now stores real copied skill directories and
+files. The only intended symlinks are agent home roots pointing at
+`providers/*`, created by `bin/sync-provider-roots.sh`.
+
 Generated from the active provider roots after retiring agentctl skill references.
 
 ## Current Canonical Sources

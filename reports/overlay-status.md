@@ -1,5 +1,9 @@
 # Provider Overlay Status
 
+Superseded on 2026-05-07: repo-internal symlink overlays were replaced with
+real copied skill directories/files. Only agent home roots should be symlinks
+to this repo's `providers/*` directories.
+
 This file records the central overlay structure created under `/Users/joshka/repos/skills`.
 
 ## Created Structure
@@ -9,10 +13,10 @@ This file records the central overlay structure created under `/Users/joshka/rep
 - `shared/claude/` contains Claude-specific skills.
 - `shared/variants/zellij/` preserves Zellij-specific variants of skills whose canonical version is now tmux-oriented.
 - `shared/variants/legacy/` preserves non-canonical legacy wording variants.
-- `mirrors/foxctl/pack` symlinks to `/Users/joshka/repos/personal/foxctl/configs/skills-pack`.
-- `mirrors/foxctl/external` symlinks to `/Users/joshka/repos/personal/foxctl/configs/skills-external`.
+- `mirrors/foxctl/pack` contains a copied import from the local foxctl skills pack.
+- `mirrors/foxctl/external` contains a copied import from the local foxctl external skills set.
 - `providers-current/` is a by-hash mirror of the pre-migration provider roots from the latest inventory.
-- `providers/` is the live condensed symlink-only overlay.
+- `providers/` is the live condensed copied overlay.
 - `bin/sync-provider-roots.sh` repoints supported provider roots to `providers/*`.
 
 Active provider roots are now symlinks to `providers/*`, except OpenCode.
@@ -21,12 +25,13 @@ Active provider roots are now symlinks to `providers/*`, except OpenCode.
 
 | Provider overlay | Entries | Notes |
 |---|---:|---|
-| `providers/codex` | 93 | Hash parity with active Codex root. |
-| `providers/agents` | 66 | One intentional skill-content change: `delegate-codex` moves to the shared Claude-derived canonical version. Loose `.md` files are not included as active skills. |
-| `providers/factory` | 48 | Hash parity with active Factory root. |
-| `providers/claude` | 76 | Matches intended Claude structure. `peon-ping-*` hash comparison differs because active skills use file symlinks into Homebrew while the central snapshot is dereferenced. |
-| `providers/gemini` | 45 | Hash parity with active `~/.gemini/skills`. |
-| `providers/gemini-antigravity` | 32 | Hash parity with active `~/.gemini/antigravity/skills`. |
+| `providers/codex` | 53 | Copied active Codex overlay. |
+| `providers/agents` | 53 | Copied active Agents overlay. |
+| `providers/factory` | 50 | Copied active Factory overlay. |
+| `providers/claude` | 52 | Copied active Claude overlay with merged `peon-ping`. |
+| `providers/gemini` | 50 | Copied active Gemini overlay. |
+| `providers/gemini-antigravity` | 52 | Copied active Gemini Antigravity overlay. |
+| `providers/droid` | 30 | Copied active Droid overlay. |
 | `providers/opencode` | 1 | Placeholder only. OpenCode root paths are inconsistent and still need cleanup. |
 
 Machine-readable details are in `overlay-manifest.json` and `reports/parity-report.json`.

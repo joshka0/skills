@@ -10,7 +10,7 @@ inactive preserved sources.
 | Category | Path | Status | Notes |
 | --- | --- | --- | --- |
 | Local shared skills | `shared/general`, `shared/codex` | active or routed | Canonical home for local joshka0 skills and progressive router skills. |
-| Claude-specific local skills | `shared/claude` | preserved, not active default | Kept for reference and selective promotion. |
+| Claude-specific local skills | `shared/claude` | partially active | Contains the merged `peon-ping` skill for Claude Code notifications. |
 | Foxctl pack import | `mirrors/foxctl/pack` | partially active | Imported from the local foxctl skills pack. Focused foxctl skills are active; broad aliases are inactive. |
 | Foxctl external import | `mirrors/foxctl/external` | routed | Apple, Android, Uniwind, and OpenTUI skills. Exposed through `release-bundles` and `product-platform`. |
 | Matt Pocock import | `mirrors/mattpocock/skills` | partially active | Mirrored from `https://github.com/mattpocock/skills` at commit `733d312884b3878a9a9cff693c5886943753a741`. |
@@ -19,7 +19,7 @@ inactive preserved sources.
 
 ## Active Matt Pocock Imports
 
-These upstream skills are linked through `shared/general` and active in the
+These upstream skills are copied into `shared/general` and active in the
 supported provider overlays:
 
 The mirror is committed as ordinary files in this pack. Its nested upstream
@@ -211,7 +211,6 @@ providers/gemini-antigravity/heroui-pro-design-taste
 These are preserved in the repo but removed from active defaults:
 
 ```text
-shared/claude/*
 shared/general/codex-swarm
 shared/general/delegate-codex
 shared/general/plan-build

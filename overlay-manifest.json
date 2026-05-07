@@ -17,7 +17,7 @@
     "delegateCodex": "Collapsed to shared/general/delegate-codex using the Claude step-by-step version.",
     "codexSwarm": "shared/general/codex-swarm is tmux canonical; shared/variants/zellij/codex-swarm preserves the Agents Zellij variant.",
     "planBuild": "shared/general/plan-build is tmux canonical; shared/variants/zellij/plan-build preserves the Agents Zellij variant.",
-    "externalAliases": "external-* Codex aliases are preserved under shared/codex because frontmatter names differ; do not raw-symlink them to non-external names.",
+    "externalAliases": "external-* Codex aliases are preserved under shared/codex because frontmatter names differ; do not collapse them to non-external names.",
     "opencode": "Overlay intentionally pending due root mismatch and remaining agentctl-* entries in ~/.config/opencode/skill.",
     "mattPocock": "Mirrored from https://github.com/mattpocock/skills. Active imports are non-deprecated, non-in-progress, non-personal skills only; exposed through shared/general and the supported provider overlays.",
     "progressiveRouters": "Default overlays expose product-platform, design-family, release-bundles, and infra-bundles instead of every stack-specific checklist or design micro-skill.",
@@ -127,34 +127,39 @@
   ],
   "providers": {
     "codex": {
-      "entries": 93,
-      "symlinks": 93,
-      "files": 0
+      "entries": 53,
+      "symlinks": 0,
+      "files": 53
     },
     "agents": {
-      "entries": 66,
-      "symlinks": 66,
-      "files": 0
+      "entries": 53,
+      "symlinks": 0,
+      "files": 53
     },
     "factory": {
-      "entries": 48,
-      "symlinks": 48,
-      "files": 0
+      "entries": 50,
+      "symlinks": 0,
+      "files": 50
     },
     "claude": {
-      "entries": 76,
-      "symlinks": 76,
-      "files": 0
+      "entries": 52,
+      "symlinks": 0,
+      "files": 52
     },
     "gemini": {
-      "entries": 45,
-      "symlinks": 45,
-      "files": 0
+      "entries": 50,
+      "symlinks": 0,
+      "files": 50
     },
     "gemini-antigravity": {
-      "entries": 32,
-      "symlinks": 32,
-      "files": 0
+      "entries": 52,
+      "symlinks": 0,
+      "files": 52
+    },
+    "droid": {
+      "entries": 30,
+      "symlinks": 0,
+      "files": 30
     },
     "opencode": {
       "entries": 1,

@@ -74,6 +74,18 @@ IFS=',' read -r -a bundle_list <<<"$BUNDLES"
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
+copy_entry() {
+  local src="$1"
+  local dst="$2"
+
+  if [[ -d "$src" ]]; then
+    mkdir -p "$dst"
+    cp -R -L "$src"/. "$dst"/
+  else
+    cp -L "$src" "$dst"
+  fi
+}
+
 declare -A seen=()
 for bundle in "${bundle_list[@]}"; do
   bundle="${bundle// /}"
@@ -89,11 +101,7 @@ for bundle in "${bundle_list[@]}"; do
       continue
     fi
     seen["$name"]=1
-    if [[ -L "$path" ]]; then
-      ln -s "$(readlink "$path")" "$tmpdir/$name"
-    else
-      cp -a "$path" "$tmpdir/$name"
-    fi
+    copy_entry "$path" "$tmpdir/$name"
   done < <(find "$bundle_dir" -mindepth 1 -maxdepth 1 -print0 | sort -z)
 done
 

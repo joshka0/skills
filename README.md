@@ -18,7 +18,7 @@ There are four active concepts:
 | --- | --- | --- |
 | Canonical local skills | `shared/` | Skills authored or curated in this pack. Edit here first. |
 | Imported sources | `mirrors/` | Upstream or repo-local imported skills. Edit only when intentionally patching an import. |
-| Provider overlays | `providers/<provider>` | Active skill sets installed into Codex, Claude, Factory, Gemini, Droid, and Agents. Mostly symlinks. |
+| Provider overlays | `providers/<provider>` | Active skill sets installed into Codex, Claude, Factory, Gemini, Droid, and Agents. Real copied skill directories/files. |
 | Bundle inputs | `bundles/<provider>/<bundle>` | Compose inputs for rebuilding an active provider overlay. Not installed directly. |
 
 Everything else is secondary:
@@ -27,7 +27,6 @@ Everything else is secondary:
 | --- | --- |
 | `providers-current/` | Snapshot of the latest active overlays. Useful for parity checks, not an install root. |
 | `archive/original-inventory/` | Historical/generated deduped export and inventory from the original consolidation pass. Do not edit it as source. |
-| `archive/full-overlays/` | Historical full provider overlay snapshots. Rebuild current broad views from `bundles/`. |
 | `bundles/` | Provider overlay bundle inputs. Used by compose scripts, not installed directly. |
 | `loose/` | Historical loose non-`SKILL.md` files found during the original consolidation pass. |
 | `reports/` | Audit notes, overlap reports, and pruning decisions. |
@@ -58,7 +57,7 @@ Use:
 ## Editing Workflow
 
 1. Edit canonical skill bodies under `shared/` or the relevant source under `mirrors/`.
-2. Update provider overlays by adding or removing symlinks under `providers/<provider>`.
+2. Update bundle inputs under `bundles/<provider>/<bundle>` when the skill set changes.
 3. If rebuilding an overlay from bundles, use:
 
 ```sh
@@ -66,13 +65,14 @@ Use:
 ./bin/compose-codex-skills.sh --bundles core --apply
 ```
 
-4. Verify symlinks:
+4. Verify the repo has no internal symlinks:
 
 ```sh
-find -L providers providers-current shared mirrors -type l -print
+find . -type l -print
 ```
 
-No output means there are no broken symlinks.
+No output means the repo is self-contained. Home-dir symlinks are managed by
+`bin/sync-provider-roots.sh`, not stored inside this repo.
 
 ## Progressive Disclosure
 
