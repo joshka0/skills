@@ -105,6 +105,11 @@ for bundle in "${bundle_list[@]}"; do
   done < <(find "$bundle_dir" -mindepth 1 -maxdepth 1 -print0 | sort -z)
 done
 
+# Preserve .routed symlink if it exists (points to ../codex-routed).
+if [[ -L "$TARGET/.routed" ]]; then
+  cp -a "$TARGET/.routed" "$tmpdir/.routed"
+fi
+
 count="$(find "$tmpdir" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
 echo "Provider: $PROVIDER"
 echo "Bundles: $BUNDLES"
@@ -117,11 +122,14 @@ if [[ "$APPLY" != "1" ]]; then
   exit 0
 fi
 
-find "$TARGET" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+find "$TARGET" -mindepth 1 -maxdepth 1 ! -name '.routed' -exec rm -rf {} +
 while IFS= read -r -d '' path; do
   name="$(basename "$path")"
+  if [[ "$name" == ".routed" ]]; then
+    continue
+  fi
   mv "$path" "$TARGET/$name"
-done < <(find "$tmpdir" -mindepth 1 -maxdepth 1 -print0)
+done < <(find "$tmpdir" -mindepth 1 -maxdepth 1 ! -name '.routed' -print0)
 
 echo
 echo "Updated $TARGET"
