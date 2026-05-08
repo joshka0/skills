@@ -1,0 +1,167 @@
+# Deployment
+
+Deploy Expo apps to iOS App Store, Android Play Store, and web hosting using EAS
+(Expo Application Services).
+
+For deep Apple/Android readiness checklists (metadata, store listing, IAP,
+accessibility, age ratings, etc.), use the `release-bundles` skill instead. This
+reference covers the EAS deployment workflow itself.
+
+## Quick Start
+
+### Install EAS CLI
+
+```bash
+npm install -g eas-cli
+eas login
+```
+
+### Initialize EAS
+
+```bash
+npx eas-cli@latest init
+```
+
+This creates `eas.json` with build profiles.
+
+## Build Commands
+
+### Production Builds
+
+```bash
+# iOS App Store build
+npx eas-cli@latest build -p ios --profile production
+
+# Android Play Store build
+npx eas-cli@latest build -p android --profile production
+
+# Both platforms
+npx eas-cli@latest build --profile production
+```
+
+### Submit to Stores
+
+```bash
+# iOS: Build and submit to App Store Connect
+npx eas-cli@latest build -p ios --profile production --submit
+
+# Android: Build and submit to Play Store
+npx eas-cli@latest build -p android --profile production --submit
+
+# Shortcut for iOS TestFlight
+npx testflight
+```
+
+## Web Deployment
+
+Deploy web apps using EAS Hosting:
+
+```bash
+# Deploy to production
+npx expo export -p web
+npx eas-cli@latest deploy --prod
+
+# Deploy PR preview
+npx eas-cli@latest deploy
+```
+
+## EAS Configuration
+
+Standard `eas.json` for production deployments:
+
+```json
+{
+  "cli": {
+    "version": ">= 16.0.1",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "resourceClass": "m-medium"
+      }
+    },
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "your@email.com",
+        "ascAppId": "1234567890"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
+      }
+    }
+  }
+}
+```
+
+## Platform-Specific Notes
+
+### iOS
+
+- Use `npx testflight` for quick TestFlight submissions
+- Configure Apple credentials via `eas credentials`
+- For deep readiness checks (metadata, ASO, IAP, privacy), use `release-bundles`
+
+### Android
+
+- Set up Google Play Console service account
+- Configure tracks: internal → closed → open → production
+- For deep readiness checks (store listing, data safety, IAP), use `release-bundles`
+
+### Web
+
+- EAS Hosting provides preview URLs for PRs
+- Production deploys to your custom domain
+- For CI/CD automation, use `cicd` mode
+
+## Automated Deployments
+
+Use EAS Workflows for CI/CD (see `references/cicd-workflows.md`):
+
+```yaml
+# .eas/workflows/release.yml
+name: Release
+on:
+  push:
+    branches: [main]
+jobs:
+  build-ios:
+    type: build
+    params:
+      platform: ios
+      profile: production
+  submit-ios:
+    type: submit
+    needs: [build-ios]
+    params:
+      platform: ios
+      profile: production
+```
+
+## Version Management
+
+EAS manages version numbers automatically with `appVersionSource: "remote"`:
+
+```bash
+# Check current versions
+eas build:version:get
+
+# Manually set version
+eas build:version:set -p ios --build-number 42
+```
+
+## Monitoring
+
+```bash
+eas build:list        # List recent builds
+eas build:view        # Check build status
+eas submit:list       # View submission status
+```

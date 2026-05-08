@@ -4,30 +4,39 @@ Read only the skill that matches the design task.
 
 ## Core
 
-- `shared/codex/frontend-design/SKILL.md` - build distinctive frontend UI.
-- `shared/codex/critique/SKILL.md` - UX/visual critique.
-- `shared/codex/audit/SKILL.md` - accessibility/performance/theme/responsive audit.
-- `shared/codex/harden/SKILL.md` - real-use edge cases and error states.
-- `shared/codex/polish/SKILL.md` - final alignment/spacing/detail pass.
+- `.routed/frontend-design/SKILL.md` - build distinctive frontend UI.
+- `.routed/ui-critique/SKILL.md` - UX/visual critique.
+- `.routed/ui-audit/SKILL.md` - accessibility/performance/theme/responsive audit.
 
-## Focused Moves
+## Improvement Modes
 
-- `shared/codex/adapt/SKILL.md` - adapt across screens/platforms.
-- `shared/codex/animate/SKILL.md` - purposeful motion.
-- `shared/codex/bolder/SKILL.md` - stronger visual impact.
-- `shared/codex/clarify/SKILL.md` - UX copy and labels.
-- `shared/codex/colorize/SKILL.md` - strategic color.
-- `shared/codex/delight/SKILL.md` - tasteful surprise/personality.
-- `shared/codex/distill/SKILL.md` - remove visual complexity.
-- `shared/codex/extract/SKILL.md` - reusable components and tokens.
-- `shared/codex/normalize/SKILL.md` - align with existing system.
-- `shared/codex/onboard/SKILL.md` - onboarding/empty/first-run states.
-- `shared/codex/optimize/SKILL.md` - UI performance.
-- `shared/codex/quieter/SKILL.md` - reduce overstimulation.
-- `shared/codex/teach-impeccable/SKILL.md` - capture durable design context.
+Use `.routed/ui-improve/SKILL.md` with the relevant mode:
+
+- `mode=normalize` - align with existing design system.
+- `mode=polish` - final alignment/spacing/detail pass.
+- `mode=resilience` - real-use edge cases and error states.
+- `mode=performance` - UI performance optimization.
+- `mode=adaptation` - adapt across screens/platforms.
+- `mode=onboarding` - onboarding/empty/first-run states.
+- `mode=copy` - UX copy and labels.
+- `mode=extract-system` - reusable components and tokens.
+
+## Tuning Modes
+
+Use `.routed/ui-tune/SKILL.md` with the relevant mode:
+
+- `mode=bolder` - stronger visual impact.
+- `mode=quieter` - reduce overstimulation.
+- `mode=colorize` - strategic color.
+- `mode=distill` - remove visual complexity.
+- `mode=delight` - tasteful surprise/personality.
+- `mode=animate` - purposeful motion.
+
+## Context Setup
+
+- `.routed/teach-context/SKILL.md` with `domain=design` - capture durable design context.
 
 ## Product Taste
 
-- `shared/general/emil-design-eng/SKILL.md` - product/UI polish taste.
-- `shared/general/userinterface-wiki/SKILL.md` - broad UI reference, inactive by
-  default unless explicitly requested.
+- `references/emil-design-eng.md` - product/UI polish taste.
+- `.routed/userinterface-wiki/SKILL.md` - broad web UI reference, inactive by default.

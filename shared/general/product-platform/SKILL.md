@@ -1,13 +1,11 @@
 ---
 name: product-platform
 description: >-
-  Router for product/platform skills. Covers: building-native-ui,
-  expo-dev-client, expo-deployment, expo-cicd-workflows, expo-api-routes,
-  expo-tailwind-setup, upgrading-expo, uniwind, uniwind-excellence-rn,
-  uniwind-rn-ios, uniwind-rn-android, migrate-nativewind-to-uniwind,
-  native-data-fetching, use-dom, chrome-extension-builder, opentui,
-  opentui-tui-builder, emil-design-eng, design-family, local-dev, local-hop,
-  smolvm-local-dev, and local-secrets.
+  Router for product/platform skills. Covers: building-native-ui, expo-platform
+  (SDK upgrades, API routes, dev clients, EAS workflows, deployment, DOM
+  components), react-native-platform, uniwind, mobile-rn, opentui,
+  migrate-nativewind-to-uniwind, native-data-fetching, chrome-extension-builder,
+  design-family, and local-dev.
 ---
 
 # Product Platform

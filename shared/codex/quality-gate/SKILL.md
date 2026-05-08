@@ -22,6 +22,10 @@ Use this skill when you need an unbiased, repeatable quality decision that does 
 4. Use deterministic policy defaults unless user overrides.
 5. If uncertainty is high, downgrade confidence and explain why.
 
+## Posture
+
+This skill decides readiness. It may recommend fixes, but it does not require patching unless the user explicitly asked for a fix loop.
+
 ## Default Policy
 
 - Block severities: `critical`, `high`
@@ -40,15 +44,14 @@ Use this skill when you need an unbiased, repeatable quality decision that does 
    - Warnings above budget -> `needs-changes`
    - Non-blocking warnings only -> `approved-with-known-risks`
    - No material issues -> `approved`
-5. If the gate is not clean, patch the issues that should be fixed before ship.
-6. After the quality gate agents have completed, run a CodeRabbit prompt-only pass against the committed diff:
+5. If the gate is not clean and the user requested a fix loop, patch the blocking issues.
+6. Optionally, if CodeRabbit is available, run a prompt-only pass against the committed diff:
    - `coderabbit review --prompt-only -t committed --base <base-target> > cr_reviews.txt`
-   - Expect this step to take time. A single CodeRabbit pass may take roughly 3 to 15 minutes.
    - Treat `cr_reviews.txt` as review input, not as ground truth.
    - Ignore false positives.
    - Ignore purely doc-formatting, lint-only, or styling-only issues unless they hide a real correctness, readability, or maintainability problem.
-7. Patch the valid issues, commit the changes, and repeat the CodeRabbit pass until no actionable issues remain.
-8. Once the review loop is clean, run the normal application checks for the repo.
+7. Patch the valid issues and re-run the CodeRabbit pass. Repeat at most once more. Do not loop indefinitely. If issues persist after two passes, report them as known risks rather than continuing.
+8. Once the review loop is clean, run the normal application checks for the repo. Skip if the user did not request a full verification loop.
    - Prefer the repo's standard verification commands, for example `pnpm` checks, `tsgo`, `mix`, and similar project-native checks.
    - Run the smallest complete set that gives a trustworthy final signal for the changed area.
 9. Produce final gate output (decision, rationale, summary, recommendations, gate note).
@@ -65,8 +68,7 @@ Use this skill when you need an unbiased, repeatable quality decision that does 
 - Keep the loop deterministic:
   - review
   - triage
-  - patch
-  - commit
+  - patch (only if the user requested a fix loop)
   - re-review
 - Do not churn on waived issues.
 - Do not block ship on cosmetic documentation nits, lint-only churn, or formatting-only noise unless the user explicitly asks for that standard.

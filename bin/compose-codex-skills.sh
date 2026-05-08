@@ -73,6 +73,11 @@ copy_entry() {
 
 copy_entry "$TARGET/.system" "$tmpdir/.system"
 
+# Preserve .routed symlink if it exists (points to ../codex-routed).
+if [[ -L "$TARGET/.routed" ]]; then
+  cp -a "$TARGET/.routed" "$tmpdir/.routed"
+fi
+
 declare -A seen=()
 for bundle in "${bundle_list[@]}"; do
   bundle="${bundle// /}"
@@ -103,14 +108,14 @@ if [[ "$APPLY" != "1" ]]; then
   exit 0
 fi
 
-find "$TARGET" -mindepth 1 -maxdepth 1 ! -name '.system' -exec rm -rf {} +
+find "$TARGET" -mindepth 1 -maxdepth 1 ! -name '.system' ! -name '.routed' -exec rm -rf {} +
 while IFS= read -r -d '' path; do
   name="$(basename "$path")"
-  if [[ "$name" == ".system" ]]; then
+  if [[ "$name" == ".system" || "$name" == ".routed" ]]; then
     continue
   fi
   mv "$path" "$TARGET/$name"
-done < <(find "$tmpdir" -mindepth 1 -maxdepth 1 ! -name '.system' -print0)
+done < <(find "$tmpdir" -mindepth 1 -maxdepth 1 ! -name '.system' ! -name '.routed' -print0)
 
 echo
 echo "Updated $TARGET"
