@@ -1,98 +1,92 @@
 ---
 name: maestri
-description: Communicate with nearby coding agents and read/write connected sticky notes in Maestri. Use when the user asks to collaborate, delegate tasks, ask another agent, get information from a connected agent, or work with shared notes. Also use when the user mentions another agent by name.
+description: Send exact text to connected Maestri agents or terminals and read their responses. Also read and write connected sticky notes. Use when the user's intent is to collaborate with another agent on the canvas, run a command in a connected shell, ask/tell/check another canvas participant, or create/update a note.
 user-invocable: false
 ---
 
 # Maestri Inter-Agent Communication
 
-Maestri is a spatial workspace for nearby coding agents, sticky notes, and browser portals. Use the `maestri` CLI to coordinate with connected agents, preserve shared context in notes, and inspect or drive connected portals.
+You're running inside Maestri, a spatial workspace with other coding agents,
+shells, sticky notes, and browser portals nearby. Connected participants,
+including shell terminals, exchange text through the `maestri` CLI.
 
-The `maestri` CLI is pre-installed and available on PATH inside Maestri terminals. If `maestri` is not found on PATH, use `"$MAESTRI_CLI"` instead; this environment variable points to the full binary path.
+Connected notes can be read and written through the `maestri` CLI.
 
-Always run `maestri list` first to get exact agent, note, and portal names.
+## Commands
 
-## Floors
+- `maestri list` - list connected agents, shell terminals, notes, and portals
+- `maestri ask "Name" "text"` - send exact text to a connected participant and wait for its response
+- `maestri check "Name"` - read the participant's current terminal output on demand
+- `maestri note create ["content"]` - create a new note on the canvas and link it to this terminal
+- `maestri note read "Note Name"` - read the full note with line numbers
+- `maestri note read "Note Name" 10 20` - read 20 lines starting from line 10
+- `maestri note write "Note Name" "content"` - replace a note's content entirely
+- `maestri note edit "Note Name" "old text" "new text"` - replace a substring within a note
 
-Floors are Maestri's workspace isolation layer for parallel work. The Maestri docs describe them as instant isolated copies of a workspace, optionally backed by a git branch and APFS copy-on-write clones. Use floors for another branch, PR review, risky experiment, or parallel task where the canvas, terminals, file trees, notes, and agent context should not interfere with the current floor.
+The `maestri` CLI is pre-installed and available on PATH inside Maestri
+terminals. If `maestri` is not found on PATH, use `"$MAESTRI_CLI"` instead; this
+environment variable always points to the full binary path.
 
-Current CLI status: `maestri` does not expose floor creation or switching commands. Create, rename, switch, and land floors through the Maestri UI. Agents should not invent `maestri floor ...` commands.
+Always run `maestri list` first to get the exact participant and note names.
 
-Suggest a new floor when:
+## `ask` Is Exact Transport
 
-- the user wants to try risky work while preserving current context
-- work should happen on a separate branch or isolated copy
-- several agents need their own terminals, notes, portals, and file tree without crowding the current canvas
-- a PR review or bug fix should not disturb the active development layout
+The command name `ask` is misleading. Treat it as `send` or `exec`: Maestri sends
+the exact text argument to the connected target. It does not rewrite the text,
+wrap it in an LLM prompt, or protect the target from extra prose.
 
-Stay on the current floor when the task only needs a quick note, portal action, or question to a connected agent.
+Recipient behavior depends on the target:
 
-## Agents
+- **Shell/terminal target**: the text is entered into the shell. Send only the
+  command or shell input that should literally run. Every extra sentence or
+  newline may be executed. Do not append explanations such as "this may prompt"
+  after the command; tell the user outside `maestri ask`.
+- **AI-agent target**: the text is delivered to that already-running agent as
+  its next input. Natural-language task packets are appropriate only because the
+  recipient is an AI agent, not because Maestri is interpreting the text.
 
-- `maestri list` — list connected agents, notes, and portals
-- `maestri ask "Agent Name" "your prompt"` — send a prompt to a connected agent and get the response
-- `maestri check "Agent Name"` — read the agent's current terminal output on demand
+Before sending to a shell target, use `maestri check "Name"` when prompt state is
+unclear. For commands that may request a PIN, password, sudo confirmation, or
+hardware-key touch, send only the command, then let the user interact directly
+with that shell. Never send secrets through `maestri ask`.
 
-Use `ask` for bounded collaboration: code review, investigation, comparison, verification, or focused implementation guidance. The response returns when the other agent finishes, not after the full timeout.
+## Waiting
 
-Scale command timeout to task size:
+The response from `ask` returns as soon as the target finishes responding. Scale
+the Bash tool timeout to the estimated completion time:
 
-- Simple question: 30s
-- Normal review or investigation: 5 min
-- Long debugging or broad codebase analysis: 10 min
+- **60000ms** (1 min) - quick questions, status checks, simple lookups, short shell commands
+- **300000ms** (5 min) - small focused tasks or commands
+- **600000ms** (10 min) - reviews, multi-step tasks, larger commands
+- **1200000ms** (20 min) - debugging sessions, complex investigations, multi-file refactors
 
-Use `check` when you only need to inspect what an agent is currently showing, especially after a prior request.
+If the timeout expires before the target responds, do not resend the text. Run
+`maestri check "Name"` to see current progress, then wait again with an
+appropriate timeout. Never interrupt an agent that is still working, and do not
+edit files that another agent is actively modifying.
 
-## Notes
+Use `check` when you only need to inspect what a participant is currently
+showing without sending input. Run `maestri help` to see all available commands.
+If the user is having connection or setup issues, run `maestri debug`.
 
-- `maestri note read "Note Name"` — read the full note with line numbers
-- `maestri note read "Note Name" 10 20` — read 20 lines starting from line 10
-- `maestri note create "content"` — create a note and link it to this terminal
-- `maestri note write "Note Name" "content"` — replace a note's content entirely
-- `maestri note edit "Note Name" "old text" "new text"` — replace a substring within a note
+## Connected Notes
 
-When a note already has content, prefer `edit` over `write` to avoid losing existing text.
-Changes are reflected in the Maestri canvas in real-time. Notes support markdown formatting.
-Notes can be chained together. When a note connected to your terminal is also connected to other notes, you can read and write all notes in the chain. Use `maestri list` to see the full note tree; chained notes appear indented under their parent.
+Use `maestri note create` to create a new note on the canvas; it appears to the
+left of your terminal and is automatically connected. Optional initial content
+can be provided.
 
-Important: by default, a note's name is derived from its first line. When you write or edit a note and change its first line, the note may be renamed automatically. Run `maestri list` after writing to a note to check for name changes. If the user has set a custom name for a note, the name stays stable regardless of content changes.
+Use `maestri note read` to read, `maestri note write` to replace entirely, and
+`maestri note edit` to update a specific part. When a note already has content,
+prefer `edit` over `write` to avoid losing existing text.
 
-## Portals
+Changes are reflected in the Maestri canvas in real time. Notes support markdown
+formatting. Notes can be chained together. When a note connected to your
+terminal is also connected to other notes, you can read and write all notes in
+the chain. Use `maestri list` to see the full note tree; chained notes appear
+indented under their parent.
 
-Portals are browser surfaces connected to the Maestri canvas.
-
-- `maestri portal create URL "Name"` — create a new portal and link it to this terminal
-- `maestri portal edit "Portal" --url URL` — update an existing portal URL
-- `maestri portal info "Portal"` — get current URL, title, and viewport
-- `maestri portal snapshot "Portal"` — read accessibility tree refs such as `@e1`
-- `maestri portal screenshot "Portal"` — capture a screenshot
-- `maestri portal navigate "Portal" "url"` — navigate to a URL
-- `maestri portal wait "Portal" @e3 5000` — wait for an element to appear
-- `maestri portal click "Portal" @e3` — click by accessibility ref, CSS selector, or `x,y`
-- `maestri portal fill "Portal" @e2 "text"` — clear an input and set text
-- `maestri portal type "Portal" "text"` — type into the focused element
-- `maestri portal key "Portal" "Enter"` — press a key
-- `maestri portal scroll "Portal" down 300 @e5` — scroll the container holding a ref
-- `maestri portal hover "Portal" @e3` — hover an element
-- `maestri portal drag "Portal" @e3 @e7` — drag between refs or coordinates
-- `maestri portal text "Portal" @e1` — get element text
-- `maestri portal html "Portal"` — get page HTML
-- `maestri portal evaluate "Portal" "js"` — evaluate JavaScript
-
-Prefer `snapshot` before interaction so clicks and fills use stable refs. Prefer ref-based scroll (`@e5`) over coordinate scroll; use coordinates only for inaccessible iframes or canvas-like content. Use `wait` after navigation or actions that trigger async UI changes.
-
-## Workflow
-
-1. Run `maestri list`.
-2. Pick the connected agent, note, or portal by exact name.
-3. For agents, use `check` before interrupting with `ask` if status is unclear.
-4. For notes, read before edit/write.
-5. For portals, inspect with `info` or `snapshot` before acting.
-6. After edits or portal navigation, re-run `maestri list`, `note read`, `portal info`, or `portal snapshot` as appropriate.
-
-## Troubleshooting
-
-- `maestri debug` — diagnose connection issues.
-- If `maestri` is missing from PATH, use `"$MAESTRI_CLI"`.
-- If a note name stops resolving, run `maestri list`; it may have been renamed from its first line.
-- If a portal ref fails, run `maestri portal snapshot "Portal"` again and use the new ref.
+Important: by default, a note's name is derived from its first line of text.
+When you write or edit a note and change its first line, the note may be renamed
+automatically. Always run `maestri list` after writing to a note to check for
+name changes. If the user has set a custom name for a note, the name stays
+stable regardless of content changes.
