@@ -56,6 +56,7 @@ Timestamped backups were left beside each original root during the initial cutov
 - `plan-build`: `shared/general/plan-build` is the tmux canonical version; `shared/variants/zellij/plan-build` preserves the Agents/Zellij variant.
 - Codex `external-*` aliases are preserved in `shared/codex/` because their `name:` frontmatter differs from the shared foxctl-external skill names.
 - Foxctl-owned skills are not copied into `shared/`; overlays point through `mirrors/foxctl/*`.
+- `go-lang`: active default router for Go work; detailed language guidance is split into routed child skills for design, concurrency, errors, testing, packages/API, and performance.
 
 ## Known Follow-Ups
 

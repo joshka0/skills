@@ -1,6 +1,6 @@
 ---
 name: maestri-portal
-description: Automate browser portals in Maestri — navigate pages, click elements, fill forms, take screenshots, and read the accessibility tree. Use when working with web portals, testing web UIs, or when the user asks to interact with a browser.
+description: Use a browser portal on the Maestri canvas to navigate the web, interact with pages, fill forms, and inspect content. Use when the user asks to browse a URL, test a web UI, or interact with a website.
 user-invocable: false
 ---
 

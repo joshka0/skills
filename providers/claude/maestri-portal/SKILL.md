@@ -1,6 +1,6 @@
 ---
 name: maestri-portal
-description: Automate browser portals in Maestri — navigate pages, click elements, fill forms, take screenshots, and read the accessibility tree. Use when working with web portals, testing web UIs, or when the user asks to interact with a browser.
+description: Use a browser portal on the Maestri canvas to navigate the web, interact with pages, fill forms, and inspect content. Use when the user asks to browse a URL, test a web UI, or interact with a website.
 user-invocable: false
 ---
 
@@ -9,6 +9,17 @@ user-invocable: false
 Portals are embedded browser nodes on the Maestri canvas. You can automate them to navigate pages, click elements, fill forms, take screenshots, and inspect the DOM — all without requiring window focus.
 
 Portal name is always required. Run `maestri list` to see connected portal names.
+
+## Creating a portal
+
+`maestri portal create URL ["Name"]` — create a new portal on the canvas, open it at the given URL, and automatically connect it to your terminal. The portal appears to the right of your terminal. An optional name can be provided; if omitted it defaults to "Portal".
+
+```
+maestri portal create http://localhost:3000
+maestri portal create https://example.com "Docs"
+```
+
+After creating, run `maestri list` to confirm the portal name, then use it with all other portal commands.
 
 ## Editing a portal
 
@@ -61,7 +72,9 @@ viewport: 780x520  url: https://example.com  title: Example
 - `maestri portal check "Portal" @e6` / `uncheck` — toggle checkbox
 
 ### Scrolling
-- `maestri portal scroll "Portal" down 300` — scroll down 300px (up/down/left/right)
+- `maestri portal scroll "Portal" down 300` — scroll down 300px from viewport center (up/down/left/right)
+- `maestri portal scroll "Portal" down 300 400,250` — scroll the container under point (400,250)
+- `maestri portal scroll "Portal" down 300 @e5` — scroll the container under element @e5
 - `maestri portal scrollintoview "Portal" @e10` — scroll element into view
 
 ### Reading

@@ -165,6 +165,7 @@ Core local skills kept active by default:
 ```text
 agent-swarm
 codex-goal
+go-lang
 gtr
 local-dev
 local-secrets
@@ -185,11 +186,23 @@ product-platform
 design-family
 release-bundles
 infra-bundles
+go-lang
 ```
 
 Detailed local skills reachable through routers include the product/platform,
-design, Kubernetes, and Terraform skill families under `shared/general` and
-`shared/codex`.
+design, Kubernetes, Terraform, and Go language families under `shared/general`
+and `shared/codex`.
+
+Go language router children:
+
+```text
+go-lang-design
+go-lang-concurrency
+go-lang-errors
+go-lang-testing
+go-lang-packages-api
+go-lang-performance
+```
 
 ## Provider-Native Notes
 

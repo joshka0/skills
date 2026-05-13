@@ -70,6 +70,7 @@ of every detailed checklist:
 - `design-family`
 - `release-bundles`
 - `infra-bundles`
+- `go-lang`
 
 Each router description includes the child skill names it covers. The detailed
 map lives in that router's `references/skill-map.md` file.

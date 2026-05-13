@@ -1,6 +1,6 @@
 ---
 name: maestri
-description: Communicate with nearby coding agents and read/write connected sticky notes in Maestri. Use when the user asks to collaborate, delegate tasks, ask another agent, get information from a connected agent, or work with shared notes. Also use when the user mentions another agent by name.
+description: Send messages to connected AI agents on the Maestri canvas and get their responses. Also read and write connected sticky notes. Use when the user's intent is to collaborate with another agent on the canvas. Look for actions like 'ask [name] to...', 'tell [name] to...', 'check on [name]', or 'create/update a note'.
 user-invocable: false
 ---
 
@@ -23,8 +23,14 @@ Connected notes can be read and written through the `maestri` CLI.
 
 The `maestri` CLI is pre-installed and available on PATH inside Maestri terminals. If `maestri` is not found on PATH (e.g., custom shell setups that reset PATH), use `"$MAESTRI_CLI"` instead — this environment variable always points to the full binary path.
 Always run `maestri list` first to get the exact agent and note names.
-The response from `ask` returns as soon as the other agent finishes. Always run `ask` as a background command so you get automatically notified when the response arrives and can continue working in the meantime. Only run it in the foreground if your tools don't support background execution — in that case, scale the timeout to the complexity of the request: **30000ms** (30s) for simple questions, **300000ms** (5 min) for most requests like code reviews, and **600000ms** (10 min) for long investigations and debugging sessions.
+The response from `ask` returns as soon as the other agent finishes. Scale the Bash tool timeout to the estimated completion time:
+- **60000ms** (1 min) — quick questions, status checks, simple lookups
+- **300000ms** (5 min) — delegating a small, focused task (a single file change, a quick refactor)
+- **600000ms** (10 min) — code reviews, multi-step tasks, larger delegations
+- **1200000ms** (20 min) — debugging sessions, complex investigations, multi-file refactors
+If the timeout expires before the agent responds, do NOT re-send the prompt. Run `maestri check "Agent Name"` to see their progress, then wait again with an appropriate timeout. Never interrupt an agent that is still working, and do not edit files that the other agent is actively modifying — wait for them to finish first.
 Use `check` to read what an agent is currently showing without sending a prompt — useful to check if a previous request completed or to see its current state.
+Run `maestri help` to see all available commands. If the user is having connection or setup issues, run `maestri debug` to diagnose the problem.
 
 ## Connected Notes
 

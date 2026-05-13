@@ -20,7 +20,8 @@
     "externalAliases": "external-* Codex aliases are preserved under shared/codex because frontmatter names differ; do not collapse them to non-external names.",
     "opencode": "Overlay intentionally pending due root mismatch and remaining agentctl-* entries in ~/.config/opencode/skill.",
     "mattPocock": "Mirrored from https://github.com/mattpocock/skills. Active imports are non-deprecated, non-in-progress, non-personal skills only; exposed through shared/general and the supported provider overlays.",
-    "progressiveRouters": "Default overlays expose product-platform, design-family, release-bundles, and infra-bundles instead of every stack-specific checklist or design micro-skill.",
+    "progressiveRouters": "Default overlays expose product-platform, design-family, release-bundles, infra-bundles, and go-lang instead of every stack-specific checklist, design micro-skill, or language subskill.",
+    "goLang": "go-lang is the active Go router; detailed Go guidance lives in routed child skills go-lang-design, go-lang-concurrency, go-lang-errors, go-lang-testing, go-lang-packages-api, and go-lang-performance.",
     "repopromptAgents": "RepoPrompt rp-* skills were moved out of the active Agents overlay into mirrors/repoprompt/agents. Use repoprompt-pro-review by default unless the specialized RepoPrompt workflows are explicitly restored."
   },
   "externalNameMap": [
