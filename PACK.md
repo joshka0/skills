@@ -71,6 +71,7 @@ of every detailed checklist:
 - `release-bundles`
 - `infra-bundles`
 - `go-lang`
+- `effect-framework`
 
 Each router description includes the child skill names it covers. The detailed
 map lives in that router's `references/skill-map.md` file.

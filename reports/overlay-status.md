@@ -57,6 +57,7 @@ Timestamped backups were left beside each original root during the initial cutov
 - Codex `external-*` aliases are preserved in `shared/codex/` because their `name:` frontmatter differs from the shared foxctl-external skill names.
 - Foxctl-owned skills are not copied into `shared/`; overlays point through `mirrors/foxctl/*`.
 - `go-lang`: active default router for Go work; detailed language guidance is split into routed child skills for design, concurrency, errors, testing, packages/API, and performance.
+- `effect-framework`: active default router for Effect TypeScript work; detailed framework guidance is split into routed child skills for architecture, services/layers, runtime/resources, errors, concurrency/streams, testing, and migration.
 
 ## Known Follow-Ups
 

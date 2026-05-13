@@ -165,6 +165,7 @@ Core local skills kept active by default:
 ```text
 agent-swarm
 codex-goal
+effect-framework
 go-lang
 gtr
 local-dev
@@ -187,11 +188,12 @@ design-family
 release-bundles
 infra-bundles
 go-lang
+effect-framework
 ```
 
 Detailed local skills reachable through routers include the product/platform,
-design, Kubernetes, Terraform, and Go language families under `shared/general`
-and `shared/codex`.
+design, Kubernetes, Terraform, Go language, and Effect framework families under
+`shared/general` and `shared/codex`.
 
 Go language router children:
 
@@ -202,6 +204,18 @@ go-lang-errors
 go-lang-testing
 go-lang-packages-api
 go-lang-performance
+```
+
+Effect framework router children:
+
+```text
+effect-framework-architecture
+effect-framework-services-layers
+effect-framework-runtime-resources
+effect-framework-errors
+effect-framework-concurrency-streams
+effect-framework-testing
+effect-framework-migration
 ```
 
 ## Provider-Native Notes
