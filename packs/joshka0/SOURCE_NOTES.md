@@ -166,6 +166,7 @@ Core local skills kept active by default:
 agent-swarm
 codex-goal
 effect-framework
+elixir-lang
 go-lang
 gtr
 local-dev
@@ -189,11 +190,12 @@ release-bundles
 infra-bundles
 go-lang
 effect-framework
+elixir-lang
 ```
 
 Detailed local skills reachable through routers include the product/platform,
-design, Kubernetes, Terraform, Go language, and Effect framework families under
-`shared/general` and `shared/codex`.
+design, Kubernetes, Terraform, Go language, Effect framework, and Elixir
+language families under `shared/general` and `shared/codex`.
 
 Go language router children:
 
@@ -216,6 +218,17 @@ effect-framework-errors
 effect-framework-concurrency-streams
 effect-framework-testing
 effect-framework-migration
+```
+
+Elixir language router children:
+
+```text
+elixir-lang-otp-design
+elixir-lang-supervision-processes
+elixir-lang-concurrency-pipelines
+elixir-lang-fault-observability
+elixir-lang-testing
+elixir-lang-performance-interop
 ```
 
 ## Provider-Native Notes
