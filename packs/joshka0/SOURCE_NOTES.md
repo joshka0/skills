@@ -179,6 +179,7 @@ repoprompt-pro-review
 ruthless-test-strategy
 small-composable-code
 smolvm-local-dev
+zero-tech-debt
 ```
 
 Progressive disclosure routers:

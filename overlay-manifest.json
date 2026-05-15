@@ -24,6 +24,7 @@
     "goLang": "go-lang is the active Go router; detailed Go guidance lives in routed child skills go-lang-design, go-lang-concurrency, go-lang-errors, go-lang-testing, go-lang-packages-api, and go-lang-performance.",
     "effectFramework": "effect-framework is the active Effect v4 router; detailed Effect guidance lives in routed child skills for architecture, services/layers, runtime/resources, errors, concurrency/streams, testing, and migration.",
     "elixirLang": "elixir-lang is the active Elixir router; detailed Elixir guidance lives in routed child skills for OTP design, supervision/processes, concurrency/pipelines, fault/observability, testing, and performance/interop.",
+    "zeroTechDebt": "zero-tech-debt is an active local workflow for reworking a change from the intended end state, deleting dead compatibility paths and accidental complexity.",
     "repopromptAgents": "RepoPrompt rp-* skills were moved out of the active Agents overlay into mirrors/repoprompt/agents. Use repoprompt-pro-review by default unless the specialized RepoPrompt workflows are explicitly restored."
   },
   "externalNameMap": [

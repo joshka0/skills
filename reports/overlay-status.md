@@ -59,6 +59,7 @@ Timestamped backups were left beside each original root during the initial cutov
 - `go-lang`: active default router for Go work; detailed language guidance is split into routed child skills for design, concurrency, errors, testing, packages/API, and performance.
 - `effect-framework`: active default router for Effect TypeScript work; detailed framework guidance is split into routed child skills for architecture, services/layers, runtime/resources, errors, concurrency/streams, testing, and migration.
 - `elixir-lang`: active default router for Elixir/OTP work; detailed language guidance is split into routed child skills for OTP design, supervision/processes, concurrency/pipelines, fault/observability, testing, and performance/interop.
+- `zero-tech-debt`: active local workflow for reshaping a change around the intended final UX and architecture while deleting dead compatibility paths.
 
 ## Known Follow-Ups
 
