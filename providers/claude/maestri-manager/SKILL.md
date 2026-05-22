@@ -1,6 +1,6 @@
 ---
 name: maestri-manager
-description: Create new connected agent terminals on the Maestri canvas and assign them roles. Use when the user asks to assemble a team, delegate parallel work, or spin up additional agents or terminals to help.
+description: Create new connected agent terminals on the Maestri canvas and assign them roles. Use when the user asks to assemble a team, delegate parallel work, or spin up additional agents or terminals to help, or to invoke Maestro Mode.
 user-invocable: false
 ---
 
@@ -89,9 +89,17 @@ Bake collaboration discoverability into the prompt:
 maestri role create "Code Reviewer" "Review code for correctness, style, and safety. Never edit files — only respond with findings. Run `maestri list` to see who else is on the team and any shared notes you should read."
 ```
 
-### `maestri role edit "Name" --prompt "..."`
+### `maestri role show "Name"`
 
-Updates a role preset. If a live teammate is using this role, their session restarts with the new prompt.
+Prints a role's full prompt. `maestri role list` only shows a truncated preview.
+
+### `maestri role edit "Name" "old text" "new text"`
+
+Replaces a substring inside a role's prompt.
+
+### `maestri role write "Name" "full new prompt"`
+
+Replaces a role's prompt entirely.
 
 ### `maestri role assign "Recruit Name" "Role Name"`  (or `--none` to clear)
 

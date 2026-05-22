@@ -179,6 +179,7 @@ repoprompt-pro-review
 ruthless-test-strategy
 small-composable-code
 smolvm-local-dev
+thermo-nuclear-code-quality-review
 zero-tech-debt
 ```
 
