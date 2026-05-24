@@ -1,6 +1,6 @@
 ---
 name: code-quality
-description: Create, modify, review, refactor, and test code through small composable design and behavior-focused tests. Use when writing code, reviewing sprawl, refactoring, applying TDD, designing testable interfaces, or deciding whether an abstraction, dependency, file split, or mock is justified.
+description: Create, modify, review, refactor, and test code through small composable design and behavior-focused tests. Covers regression test creation, ruthless test strategy, shoehorn migration, TDD, sprawl review, and interface design. Use when writing code, reviewing sprawl, refactoring, applying TDD, designing testable interfaces, creating regression tests, evaluating test strategy, migrating `as` assertions, or deciding whether an abstraction, dependency, file split, or mock is justified.
 ---
 
 # Code Quality
@@ -13,7 +13,9 @@ Use this skill as the default foundation for code-writing, refactoring, and test
 - `review-sprawl` — identify unnecessary files, abstractions, dependencies, coupling, or generated complexity.
 - `refactor` — simplify touched code while preserving behavior.
 - `tdd` — use red-green-refactor with one behavior test at a time.
-- `test-strategy` — choose behavior-focused tests, boundaries, and mocks.
+- `test-strategy` — choose behavior-focused tests, boundaries, mocks, and test patterns.
+- `regression` — create a deterministic regression test for a fixed bug or difficult issue. Read `references/regression-tests.md`.
+- `migrate-shoehorn` — migrate test files from `as` type assertions to @total-typescript/shoehorn. Read `references/migrate-to-shoehorn.md`.
 
 ## First
 
@@ -25,6 +27,9 @@ Identify the active mode and read only the relevant reference:
 - `references/interface-design.md` for testable public interfaces.
 - `references/deep-modules.md` for small interfaces over deep implementation.
 - `references/refactoring.md` for post-green cleanup candidates.
+- `references/regression-tests.md` for deterministic regression test creation workflow.
+- `references/ruthless-test-strategy.md` for test evaluation, pattern selection, pruning, and suite strategy.
+- `references/migrate-to-shoehorn.md` for shoehorn migration patterns and workflow.
 
 ## Hard Rules
 

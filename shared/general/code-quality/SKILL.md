@@ -13,7 +13,7 @@ Use this skill as the default foundation for code-writing, refactoring, and test
 - `review-sprawl` — identify unnecessary files, abstractions, dependencies, coupling, or generated complexity.
 - `refactor` — simplify touched code while preserving behavior.
 - `tdd` — use red-green-refactor with one behavior test at a time.
-- `test-strategy` — choose behavior-focused tests, boundaries, and mocks.
+- `test-strategy` — choose behavior-focused tests, boundaries, mocks, and test patterns.
 - `regression` — create a deterministic regression test for a fixed bug or difficult issue. Read `references/regression-tests.md`.
 - `migrate-shoehorn` — migrate test files from `as` type assertions to @total-typescript/shoehorn. Read `references/migrate-to-shoehorn.md`.
 
@@ -28,7 +28,7 @@ Identify the active mode and read only the relevant reference:
 - `references/deep-modules.md` for small interfaces over deep implementation.
 - `references/refactoring.md` for post-green cleanup candidates.
 - `references/regression-tests.md` for deterministic regression test creation workflow.
-- `references/ruthless-test-strategy.md` for test evaluation, pruning, and suite strategy.
+- `references/ruthless-test-strategy.md` for test evaluation, pattern selection, pruning, and suite strategy.
 - `references/migrate-to-shoehorn.md` for shoehorn migration patterns and workflow.
 
 ## Hard Rules

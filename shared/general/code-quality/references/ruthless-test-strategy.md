@@ -67,11 +67,29 @@ without meaningful assertions.
 2. Define the observable behavior in plain language.
 3. Pick the smallest useful boundary: pure function, domain service, API, DB
    transaction, message handler, UI interaction, contract, or user journey.
-4. Use realistic inputs, including boundary, invalid, malicious, historical,
+4. Pick the right pattern for the risk:
+   - table-driven examples for clear input/output behavior
+   - domain invariant tests for business, policy, permission, and trust rules
+   - property-based tests for round-trip, idempotence, preservation, ordering,
+     narrowing, monotonicity, and safety guarantees
+   - state-machine tests for lifecycle transitions, terminal states, retries,
+     and audit history
+   - fuzz tests for untrusted or complex input boundaries
+   - fault-injection tests for dependency failure, partial writes, stale caches,
+     permission errors, and non-zero subprocess exits
+   - golden-file tests for stable, reviewable generated output
+   - integration tests for real storage, process, framework, queue, cache, API,
+     or filesystem boundaries
+   - contract tests for independently evolving producers and consumers
+   - mutation tests for critical code with coverage but uncertain assertion
+     strength
+   - CI smoke and regression gates for must-never-break flows and historical
+     bugs
+5. Use realistic inputs, including boundary, invalid, malicious, historical,
    concurrency, retry, old-data, and timezone cases when relevant.
-5. Assert outcomes, not implementation chatter.
-6. Make failures useful with behavior-named tests and precise assertions.
-7. Keep the test cheap enough for the right feedback stage.
+6. Assert outcomes, not implementation chatter.
+7. Make failures useful with behavior-named tests and precise assertions.
+8. Keep the test cheap enough for the right feedback stage.
 
 ## Output Style
 

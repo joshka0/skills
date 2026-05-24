@@ -10,7 +10,11 @@ theater. A test earns its place only when it protects real behavior at an
 acceptable cost.
 
 For the full strategy, examples, suite review templates, pruning templates, and
-subagent prompts, read [references/strategy.md](references/strategy.md).
+subagent prompts, read [references/strategy.md](references/strategy.md). For a
+catalog of concrete testing patterns such as table-driven, property-based,
+state-machine, fuzz, fault-injection, golden-file, integration, contract,
+mutation, smoke, and regression testing, read
+[references/testing-patterns.md](references/testing-patterns.md).
 
 ## Prime Directive
 
@@ -76,11 +80,16 @@ without meaningful assertions.
 2. Define the observable behavior in plain language.
 3. Pick the smallest useful boundary: pure function, domain service, API, DB
    transaction, message handler, UI interaction, contract, or user journey.
-4. Use realistic inputs, including boundary, invalid, malicious, historical,
+4. Pick the right pattern for the risk: examples for clear behavior,
+   properties for invariant-heavy transforms, state-machine tests for lifecycle
+   rules, fuzzing for hostile input, fault injection for dependency failure,
+   contract tests for independently evolving boundaries, and smoke/regression
+   gates for release confidence.
+5. Use realistic inputs, including boundary, invalid, malicious, historical,
    concurrency, retry, old-data, and timezone cases when relevant.
-5. Assert outcomes, not implementation chatter.
-6. Make failures useful with behavior-named tests and precise assertions.
-7. Keep the test cheap enough for the right feedback stage.
+6. Assert outcomes, not implementation chatter.
+7. Make failures useful with behavior-named tests and precise assertions.
+8. Keep the test cheap enough for the right feedback stage.
 
 ## Thermonuclear Test Review Add-On
 

@@ -198,6 +198,33 @@ Resilience tests should cover retries, circuit breakers, timeouts, partial
 outages, queue backlogs, dead-letter behavior, external dependency failure,
 recovery after restart, idempotency, and consistency after failure.
 
+For a deeper decision catalog covering table-driven tests, domain invariants,
+property tests, state machines, fuzzing, fault injection, golden files,
+integration tests, contract tests, mutation testing, and CI smoke/regression
+gates, read [testing-patterns.md](testing-patterns.md).
+
+## Pattern Selection Rules
+
+- Use table-driven unit tests when examples are clear and repeated structure
+  would reduce noise.
+- Use domain invariant tests when invalid state or invalid transitions would be
+  harmful.
+- Use property-based tests when a rule must hold across many generated inputs.
+- Use state-machine tests when lifecycle transitions, terminal states, retries,
+  and audit history matter.
+- Use fuzz tests for untrusted, nested, binary, compressed, or user-controlled
+  input boundaries.
+- Use fault-injection tests when dependency failure, partial writes, retries,
+  stale cache, permissions, or subprocess exits must fail safely.
+- Use golden files only when output diffs are stable, meaningful, and reviewed.
+- Use integration tests when mocks hide real behavior at a storage, process,
+  framework, queue, cache, or API boundary.
+- Use contract tests when a producer and consumer evolve independently.
+- Use mutation testing for critical logic with high coverage but uncertain
+  assertion strength.
+- Use smoke and regression gates to protect must-never-break flows and known
+  historical bugs at the right CI stage.
+
 ## Commonly Missed High-Value Areas
 
 - Authorization: allowed and forbidden users, roles, tenants, disabled users,
