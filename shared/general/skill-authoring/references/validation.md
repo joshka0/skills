@@ -13,8 +13,8 @@ Run these checks before finalizing a new or changed skill.
 
 - No absolute user paths (`/Users/...`, `/home/...`) unless the skill is explicitly personal-scoped.
 - No live credentials, tokens, or API keys in any file.
-- No "Remember: You are..." pep talks or identity reinforcement; the skill should contain instructions, not motivation.
-- No "MANDATORY PREPARATION" blocks; use normal heading structure and workflow steps instead.
+- No identity pep talks such as "remember you are..." framing; the skill should contain instructions, not motivation.
+- No all-caps mandatory-prep blocks; use normal heading structure and workflow steps instead.
 - No duplicate full content across `shared`, `bundles`, `providers`, and `archive`.
 
 ## References and links
@@ -40,7 +40,7 @@ Run these checks before finalizing a new or changed skill.
 ```sh
 # From repo root
 grep -r '/Users/' shared/ mirrors/ --include='*.md' -l
-grep -ri 'MANDATORY PREPARATION' shared/ mirrors/ --include='*.md' -l
-grep -ri 'Remember: You are' shared/ mirrors/ --include='*.md' -l
+grep -ri 'MANDATORY[[:space:]]PREPARATION' shared/ mirrors/ --include='*.md' -l
+grep -ri 'Remember:[[:space:]]*You are' shared/ mirrors/ --include='*.md' -l
 find . -type l -print
 ```

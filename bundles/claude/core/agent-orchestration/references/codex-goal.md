@@ -1,8 +1,9 @@
 # Codex Goal Reference
 
-Detailed reference for the `goal` mode of agent-orchestration. Covers goal file
-structure, verification criteria, monitoring, phased workflows, and loop
-control for Codex CLI `/goal` objectives.
+Detailed reference for the `goal` mode of agent-orchestration. The canonical
+multi-phase lifecycle skill is `goal-protocol`; this file preserves the
+Codex-specific `/goal` file structure, verification criteria, monitoring,
+phased workflows, and loop control details.
 
 ## When To Use `/goal`
 

@@ -86,6 +86,16 @@ copy_entry() {
   fi
 }
 
+remove_nested_same_name_copy() {
+  local dst="$1"
+  local name="$2"
+  local nested="$dst/$name"
+
+  if [[ -f "$dst/SKILL.md" && -d "$nested" && -f "$nested/SKILL.md" ]]; then
+    rm -rf "$nested"
+  fi
+}
+
 declare -A seen=()
 for bundle in "${bundle_list[@]}"; do
   bundle="${bundle// /}"
@@ -102,13 +112,9 @@ for bundle in "${bundle_list[@]}"; do
     fi
     seen["$name"]=1
     copy_entry "$path" "$tmpdir/$name"
+    remove_nested_same_name_copy "$tmpdir/$name" "$name"
   done < <(find "$bundle_dir" -mindepth 1 -maxdepth 1 -print0 | sort -z)
 done
-
-# Preserve .routed symlink if it exists (points to ../codex-routed).
-if [[ -L "$TARGET/.routed" ]]; then
-  cp -a "$TARGET/.routed" "$tmpdir/.routed"
-fi
 
 count="$(find "$tmpdir" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
 echo "Provider: $PROVIDER"
@@ -122,14 +128,11 @@ if [[ "$APPLY" != "1" ]]; then
   exit 0
 fi
 
-find "$TARGET" -mindepth 1 -maxdepth 1 ! -name '.routed' -exec rm -rf {} +
+find "$TARGET" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 while IFS= read -r -d '' path; do
   name="$(basename "$path")"
-  if [[ "$name" == ".routed" ]]; then
-    continue
-  fi
   mv "$path" "$TARGET/$name"
-done < <(find "$tmpdir" -mindepth 1 -maxdepth 1 ! -name '.routed' -print0)
+done < <(find "$tmpdir" -mindepth 1 -maxdepth 1 -print0)
 
 echo
 echo "Updated $TARGET"

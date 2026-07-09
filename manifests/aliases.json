@@ -1,0 +1,207 @@
+{
+  "agent-swarm": {
+    "canonical": "agent-orchestration",
+    "status": "reference-or-mode",
+    "reason": "Swarm coordination is a mode of the agent-orchestration router."
+  },
+  "audit-k8s": {
+    "canonical": "k8s-op",
+    "status": "reference-or-mode",
+    "reason": "Kubernetes audit is a mode of k8s-op."
+  },
+  "audit-terraform": {
+    "canonical": "terraform-op",
+    "status": "reference-or-mode",
+    "reason": "Terraform audit is a mode of terraform-op."
+  },
+  "beam": {
+    "canonical": "elixir-lang",
+    "status": "alias",
+    "reason": "BEAM/OTP architecture work routes through elixir-lang."
+  },
+  "browser-bridge": {
+    "canonical": "local-http-browser-use",
+    "status": "alias",
+    "reason": "Local browser bridge workflows route through local-http-browser-use."
+  },
+  "code-council": {
+    "canonical": "goal-protocol",
+    "status": "reference-or-mode",
+    "reason": "Implementation blueprints and CODE_DOSSIER.md traceability are goal-protocol blueprint/review modes."
+  },
+  "codex-goal": {
+    "canonical": "goal-protocol",
+    "status": "reference-or-mode",
+    "reason": "Codex /goal creation, monitoring, and review are goal-protocol create/status/review modes."
+  },
+  "codex-swarm": {
+    "canonical": "agent-orchestration",
+    "status": "reference-or-mode",
+    "reason": "Codex swarm work is routed through agent-orchestration; the zellij variant remains source material, not default active routing."
+  },
+  "agent-collaboration": {
+    "canonical": "collaboration-protocol",
+    "status": "alias",
+    "reason": "Multi-agent collaboration routes through collaboration-protocol."
+  },
+  "collaboration-ledger": {
+    "canonical": "collaboration-protocol",
+    "status": "alias",
+    "reason": "Collaboration ledgers are maintained by collaboration-protocol."
+  },
+  "collaboration-meta": {
+    "canonical": "collaboration-protocol",
+    "status": "alias",
+    "reason": "Collaboration meta workflows route through collaboration-protocol."
+  },
+  "debug-k8s": {
+    "canonical": "k8s-op",
+    "status": "reference-or-mode",
+    "reason": "Kubernetes debugging is a mode of k8s-op."
+  },
+  "delegate-codex": {
+    "canonical": "agent-orchestration",
+    "status": "reference-or-mode",
+    "reason": "Single-agent delegation is a mode of agent-orchestration."
+  },
+  "drift-terraform": {
+    "canonical": "terraform-op",
+    "status": "reference-or-mode",
+    "reason": "Terraform drift work is a mode of terraform-op."
+  },
+  "effect-v4": {
+    "canonical": "effect-framework",
+    "status": "alias",
+    "reason": "Effect v4 architecture work routes through effect-framework."
+  },
+  "goal-council": {
+    "canonical": "goal-protocol",
+    "status": "reference-or-mode",
+    "reason": "Goal convergence, stress-test, review, pivot, and compact are goal-protocol modes."
+  },
+  "goal-factory": {
+    "canonical": "goal-protocol",
+    "status": "alias",
+    "reason": "Goal factory workflows route through goal-protocol lifecycle modes."
+  },
+  "goal-ledger": {
+    "canonical": "goal-protocol",
+    "status": "alias",
+    "reason": "GOAL_LEDGER.md is the durable operational memory maintained by goal-protocol."
+  },
+  "goal-orchestrator": {
+    "canonical": "goal-protocol",
+    "status": "reference-or-mode",
+    "reason": "Tickets, waves, ORCHESTRATION.md, execution, and status are goal-protocol orchestrate/run/status modes."
+  },
+  "goal-system": {
+    "canonical": "goal-protocol",
+    "status": "alias",
+    "reason": "Goal system workflows route through goal-protocol lifecycle modes."
+  },
+  "golang": {
+    "canonical": "go-lang",
+    "status": "alias",
+    "reason": "Common name for Go language work."
+  },
+  "hard-cut": {
+    "canonical": "zero-tech-debt",
+    "status": "reference-or-mode",
+    "reason": "Hard contract replacement is a zero-tech-debt mode."
+  },
+  "http-browser-use": {
+    "canonical": "local-http-browser-use",
+    "status": "alias",
+    "reason": "HTTP browser bridge workflows route through local-http-browser-use."
+  },
+  "infra-router": {
+    "canonical": "infra-bundles",
+    "status": "alias",
+    "reason": "Infrastructure bundle routing is handled by infra-bundles."
+  },
+  "local-browser-bridge": {
+    "canonical": "local-http-browser-use",
+    "status": "alias",
+    "reason": "Local browser bridge workflows route through local-http-browser-use."
+  },
+  "migrate-to-shoehorn": {
+    "canonical": "code-quality",
+    "status": "reference-or-mode",
+    "reason": "Shoehorn migration is a testing/type-cleanup reference under code-quality."
+  },
+  "mirrors/foxctl": {
+    "canonical": null,
+    "status": "vendor-source",
+    "reason": "Foxctl sources are mirrored/imported vendor material; selected provider exposure should be explicit rather than discovered by broad scans."
+  },
+  "mirrors/repoprompt/agents": {
+    "canonical": "repoprompt-pro-review",
+    "status": "vendor-source",
+    "reason": "RepoPrompt rp-* skills are archived vendor workflows; repoprompt-pro-review is the active local workflow."
+  },
+  "mobile-store-readiness": {
+    "canonical": "release-bundles",
+    "status": "alias",
+    "reason": "Mobile store release readiness is routed through release-bundles."
+  },
+  "multi-agent-collaboration": {
+    "canonical": "collaboration-protocol",
+    "status": "alias",
+    "reason": "Multi-agent collaboration routes through collaboration-protocol."
+  },
+  "otp": {
+    "canonical": "elixir-lang",
+    "status": "alias",
+    "reason": "OTP architecture work routes through elixir-lang."
+  },
+  "providers/codex/.system": {
+    "canonical": null,
+    "status": "system-installed",
+    "reason": "OpenAI/provider system skills are installed surface area, not authored source for this pack."
+  },
+  "regression-tests": {
+    "canonical": "code-quality",
+    "status": "reference-or-mode",
+    "reason": "Regression-test creation is covered by code-quality references."
+  },
+  "red-team-collaboration": {
+    "canonical": "collaboration-protocol",
+    "status": "alias",
+    "reason": "Adversarial multi-agent convergence routes through collaboration-protocol."
+  },
+  "shared/variants": {
+    "canonical": null,
+    "status": "needs-human-review",
+    "reason": "Variant source roots intentionally preserve alternate workflow wording and duplicate names; keep them out of active routing until a variant manifest is introduced."
+  },
+  "ship-k8s": {
+    "canonical": "k8s-op",
+    "status": "reference-or-mode",
+    "reason": "Kubernetes shipping is a mode of k8s-op."
+  },
+  "ship-terraform": {
+    "canonical": "terraform-op",
+    "status": "reference-or-mode",
+    "reason": "Terraform shipping is a mode of terraform-op."
+  },
+  "small-composable-code": {
+    "canonical": "code-quality",
+    "status": "reference-or-mode",
+    "reason": "Small composable code guidance lives under the code-quality family."
+  },
+  "tdd": {
+    "canonical": "code-quality",
+    "status": "reference-or-mode",
+    "reason": "TDD is a testing mode covered by code-quality references."
+  },
+  "thermo-nuclear-review": {
+    "canonical": "thermo-nuclear-code-quality-review",
+    "status": "alias",
+    "reason": "Short alias for the strict maintainability review skill."
+  },
+  "thermonuclear-review": {
+    "canonical": "thermo-nuclear-code-quality-review",
+    "status": "alias",
+    "reason": "Common spelling alias for the strict maintainability review skill."
+  }
+}

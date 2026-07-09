@@ -56,6 +56,7 @@ Timestamped backups were left beside each original root during the initial cutov
 - `plan-build`: `shared/general/plan-build` is the tmux canonical version; `shared/variants/zellij/plan-build` preserves the Agents/Zellij variant.
 - Codex `external-*` aliases are preserved in `shared/codex/` because their `name:` frontmatter differs from the shared foxctl-external skill names.
 - Foxctl-owned skills are not copied into `shared/`; overlays point through `mirrors/foxctl/*`.
+- `code-council`, `goal-council`, and `goal-orchestrator`: active council-suite skills imported from `~/Downloads/skills-claude` and exposed to Claude and Codex overlays.
 - `codex-goal`: active direct skill for Codex CLI `/goal` objectives; also reachable through the `agent-orchestration` router.
 - `go-lang`: active default router for Go work; detailed language guidance is split into routed child skills for design, concurrency, errors, testing, packages/API, and performance.
 - `effect-framework`: active default router for Effect TypeScript work; detailed framework guidance is split into routed child skills for architecture, services/layers, runtime/resources, errors, concurrency/streams, testing, and migration.

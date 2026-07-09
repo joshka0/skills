@@ -5,6 +5,10 @@ description: "Create, refine, run, and monitor Codex CLI /goal objectives for pe
 
 # Codex Goal
 
+> Canonical lifecycle skill: use `goal-protocol` for new multi-phase goals.
+> This skill remains as the focused compatibility entrypoint for Codex CLI
+> `/goal` file creation and monitoring.
+
 Use this skill to turn broad engineering work into a verifiable Codex CLI
 `/goal` objective stored in a goal file. A good goal behaves like a contract:
 clear scope, explicit constraints, measurable completion criteria, and focused

@@ -1,9 +1,9 @@
 ---
 name: agent-orchestration
-description: "Coordinate coding agents — swarm subagents for parallel work, delegate single tasks, run Codex CLI agents in tmux, or manage persistent /goal objectives. Covers agent-swarm, codex-swarm, delegate-codex, and codex-goal workflows."
+description: "Coordinate coding agents — swarm subagents for parallel work, delegate single tasks, run Codex CLI agents in tmux, run collaboration-protocol with Herdr, or manage persistent goal-protocol /goal objectives. Covers collaboration-protocol, agent-swarm, codex-swarm, delegate-codex, goal-protocol, and codex-goal workflows."
 args:
   - name: mode
-    description: "swarm | delegate | codex-swarm | goal"
+    description: "collaboration | swarm | delegate | codex-swarm | goal"
     required: true
 ---
 
@@ -16,10 +16,11 @@ launch, monitor, intervene. Never let parallelism outrank coherence.
 
 | Mode | Purpose | Detail Reference |
 |------|---------|-----------------|
+| `collaboration` | Coordinate multi-agent convergence with a ledger, explicit roles, adversarial review, and Herdr comms | `collaboration-protocol` |
 | `swarm` | Coordinate multiple subagents for parallel scoped work | `references/swarm-guide.md` |
 | `delegate` | Quick single-task delegation, no tmux, no layout | `references/codex-swarm.md` § Delegate |
 | `codex-swarm` | Orchestrate Codex CLI agents in tmux panes with JSONL monitoring | `references/codex-swarm.md` § Codex Swarm |
-| `goal` | Turn broad work into a verifiable Codex `/goal` objective | `references/codex-goal.md` |
+| `goal` | Turn broad work into a durable goal-protocol `/goal` objective | `references/codex-goal.md` |
 
 ## Shared Hard Rules
 
@@ -31,6 +32,8 @@ launch, monitor, intervene. Never let parallelism outrank coherence.
 - **Primary agent is supervisor** — launch, monitor, intervene.
 - **Agents must not run git commands.** Only code changes. Version control afterward.
 - **Sandbox agents cannot install packages, run dev servers, or access the network.** Route those tasks to non-sandboxed agents.
+- **For collaborative convergence, keep a ledger and Herdr comms map.** Assign
+  an explicit critical/adversarial reviewer before accepting the synthesis.
 
 ## Context Gate
 
