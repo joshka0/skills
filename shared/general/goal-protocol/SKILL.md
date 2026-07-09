@@ -1,192 +1,51 @@
 ---
 name: goal-protocol
-description: >
-  Create, converge, blueprint, orchestrate, run, review, and hand off durable
-  agent goals. Use for Codex /goal files, goal-council convergence,
-  code-council implementation dossiers, goal-orchestrator tickets and waves,
-  and multi-agent execution that needs a persistent GOAL_LEDGER.md.
-category: planning
-priority: default
+description: "Run a traceable durable-goal lifecycle from convergence through blueprint, human-gated design, tickets, and handoff. Use when users invoke /goal, /goal-council, /code-council, /goal-orchestrator, six-phase, or need a GOAL_LEDGER.md."
 ---
 
 # Goal Protocol
 
-Use this skill to manage a goal from vague intent to verified implementation
-without losing context between agents, sessions, or subagents.
+Own one durable goal from decision through verified handoff. Its operational memory is `GOAL_LEDGER.md`, with `GOAL.md`, `CODE_DOSSIER.md`, tickets, and reports as phase artifacts.
 
-The durable operational source of truth is `GOAL_LEDGER.md`.
+## Route
 
-## Contract
+| Mode | Select when | Read |
+| --- | --- | --- |
+| `converge` | A long-horizon goal, `/goal`, or `/goal-council` needs a measurable contract, dissent, review, or pivot | `references/convergence.md` |
+| `blueprint` | An approved goal or `/code-council` needs a traced implementation dossier before production code | `references/implementation-dossier.md` |
+| `six-phase` | The user explicitly requests six-phase, phased approval, or a trial-implement-then-revert design pass | `references/six-phase.md` |
+| `orchestrate` | An approved goal/dossier or `/goal-orchestrator` needs tickets, waves, execution, or replanning | `references/orchestration.md` |
+| `ledger` | An existing durable goal needs `/goal` status, verification, compacting, or an agent handoff | `references/ledger-handoff.md` |
 
-Every non-trivial goal gets a goal folder:
+Select exactly one mode. Start with `converge` for a new goal and `ledger` for an existing goal whose requested phase is unclear. Combine modes only for an explicit lifecycle sequence.
 
-```text
-docs/goals/<goal-slug>/
-  GOAL_LEDGER.md
-  GOAL.md
-  CODE_DOSSIER.md
-  ORCHESTRATION.md
-  tickets/
-  reports/
-  decisions/
-  context/
-```
+## Do not use when
 
-Small repos may use `goals/<goal-slug>/` or `.goal/<goal-slug>/` when there is
-no docs convention.
-
-## Use When
-
-- User asks for a Codex `/goal` prompt, goal file, or long-running objective.
-- User asks to make a fuzzy goal concrete.
-- User wants goal-council, code-council, or goal-orchestrator behavior.
-- User wants durable shared context for agents or subagents.
-- User asks for tickets, waves, execution plans, status, review, pivot, compact,
-  or handoff.
-- Work spans multiple phases, sessions, or agents.
-
-## Do Not Use When
-
-- The task is a single small edit that can be completed directly.
-- The user only wants brainstorming and no persistent artifact.
-- The work depends on secrets, production deploys, destructive operations, or
-  human-only taste decisions at every step.
-- Progress and completion cannot be verified objectively.
-
-## Modes
-
-- `create`: draft `GOAL.md` and initialize `GOAL_LEDGER.md`.
-- `converge`: refine `GOAL.md` until metrics, anti-goals, assumptions,
-  constraints, review cadence, dissent, and pivot triggers are explicit.
-- `blueprint`: create or update `CODE_DOSSIER.md`.
-- `orchestrate`: create or update `ORCHESTRATION.md` and tickets.
-- `run`: execute tickets/waves or dispatch subagents.
-- `status`: read the ledger and report current phase, blockers, and next action.
-- `review`: compare progress against goal, dossier, orchestration, and tickets.
-- `pivot`: create a vNext goal while preserving learning.
-- `compact`: produce a portable summary.
-- `handoff`: produce an agent-ready continuation packet.
-
-## Always Read First
-
-1. Locate the goal folder.
-2. Read `GOAL_LEDGER.md` if it exists.
-3. Read only the phase-relevant artifact:
-   - `GOAL.md` for `create`, `converge`, `review`, or `pivot`.
-   - `CODE_DOSSIER.md` for `blueprint` or implementation correctness.
-   - `ORCHESTRATION.md` and the assigned ticket for `orchestrate`, `run`, or
-     `status`.
-4. Resume from the ledger current phase. Do not restart unless explicitly asked.
-
-If no ledger exists, create one before substantial multi-phase work.
-
-## Ledger Discipline
-
-- Keep `Current Snapshot` short and current.
-- Append a `Ledger Entry` after every material change.
-- Log material decisions as `D###`, assumptions as `A###`, risks as `R###`,
-  validations as `V###`, and handoffs as `H###`.
-- Never delete old ledger entries.
-- Correct history by appending a superseding entry.
-- No ticket, code change, interface, test, or wave may exist without a traceable
-  parent ID.
-- Subagents may write reports, but the supervisor integrates ledger updates
-  unless that responsibility is explicitly delegated.
-
-## Traceability IDs
-
-Use the ID scheme from `references/ledger-schema.md`. Prefer existing IDs when
-artifacts already define them.
+- A one-shot PRD, issue slice, or reviewed implementation plan is wanted; `planning-workflow` owns that artifact.
+- The task is live agent dispatch without a durable goal contract; `agent-orchestration` owns that transport.
 
 ## Workflow
 
-1. Intake: classify the request, create or locate the goal folder, and establish
-   the ledger.
-2. Goal contract: create or update `GOAL.md`; do not lock it until metrics,
-   anti-goals, assumptions, constraints, dissent, milestones, review cadence,
-   and pivot triggers are present.
-3. Code blueprint: for implementation goals, create or update
-   `CODE_DOSSIER.md` with traceable features, behaviors, structures,
-   interfaces, tests, locations, invariants, and verification.
-4. Orchestration: create tickets and `ORCHESTRATION.md`; every ticket must be
-   independently completable, self-contained, verifiable, wave-safe, and traced.
-5. Execution: hand subagents a ticket path, goal folder path, relevant parent
-   IDs, allowed scope, done criteria, escalation triggers, and report target.
-6. Review: compare actual results against goal success criteria, dossier
-   invariants/tests, orchestration wave gates, and ticket done criteria.
-7. Compact/handoff: report authoritative artifacts, current phase, active
-   decision, open risks/questions, next action, latest validation, and what not
-   to redo.
+1. Locate the goal root. Read `GOAL_LEDGER.md` first when it exists; support root-level legacy artifacts on intake, but write new durable work under `docs/goals/<goal-slug>/` unless repository convention says otherwise.
+2. Select one mode and read only its reference. Resolve current repository conventions and verification commands before making a phase decision.
+3. Update the phase artifact, its gate, and the ledger together. Append decisions, assumptions, risks, validations, and handoffs; supersede history instead of rewriting it.
+4. Report the current gate, traced parent IDs, validation evidence, next action, and the exact blocker or human decision when work cannot advance.
 
-## Hard Rules
+## Hard rules
 
-- Ledger first. No multi-phase work without `GOAL_LEDGER.md`.
-- Resume, do not restart.
-- No untraced work.
-- No hidden assumptions.
-- No ticket that requires conversation memory.
-- No same-wave overlapping file edits without explicit coordination.
-- Stop after three failed attempts at the same check and summarize the blocker.
-- Do not add dependencies, alter public APIs, change schemas, or expand scope
-  without updating the ledger and affected dossier first.
-- Never mark complete without validation evidence or an explicit reason
-  validation could not run.
+- Resume the current ledger phase; do not restart a durable goal without explicit direction.
+- Every ticket, behavior, structure, interface, test, location, invariant, and wave has a traceable parent ID.
+- Do not blueprint an unconverged goal, ticket an unapproved dossier, or run an unapproved wave.
+- Keep same-wave edits file-disjoint unless the ledger names a coordinator and integration order.
+- A six-phase pass stops at each human gate; hand edits are authoritative.
+- Do not mark a phase complete without verification evidence or a recorded reason it could not run.
+- After three failed attempts at the same check, stop and append the blocker rather than repeating it.
 
-## References
+## Stop conditions
 
-Read only what the task needs:
-
-- `references/ledger-schema.md` for ledger fields, ID rules, and examples.
-- `references/codex-goal.md` for Codex `/goal` files and stop conditions.
-- `references/goal-council.md` for convergence, review, stress-test, and pivot.
-- `references/code-council.md` for implementation dossiers and traceability.
-- `references/goal-orchestrator.md` for tickets, waves, status, and execution.
-- `references/quality-gates.md` for gates, red team, verification, and handoff.
-
-## Assets
-
-- `assets/goal-ledger.template.md`
-- `assets/goal-file.template.md`
-- `assets/code-dossier.template.md`
-- `assets/orchestration.template.md`
-- `assets/ticket.template.md`
+- Route backwards when a parent artifact or gate is missing, revised, or contradicted by current evidence.
+- Stop for user approval when the selected mode requires a human choice, especially a six-phase gate or an unresolved preserved dissent.
 
 ## Output
 
-For creation:
-
-```text
-Goal folder: docs/goals/<goal-slug>/
-Goal file: docs/goals/<goal-slug>/GOAL.md
-Ledger: docs/goals/<goal-slug>/GOAL_LEDGER.md
-Start command: /goal docs/goals/<goal-slug>/GOAL.md
-```
-
-For status:
-
-```md
-## Status
-Phase:
-Current artifact:
-Current ticket/wave:
-Blocker:
-Next action:
-Latest validation:
-Risks:
-```
-
-For handoff:
-
-```md
-# Goal Handoff
-
-Goal folder:
-Read first:
-Current phase:
-Current decision:
-Assigned work:
-Allowed scope:
-Done criteria:
-Escalation triggers:
-Ledger update required:
-```
+Return the selected mode, authoritative artifacts, current gate, traced decision, validation, next action, and any required human decision or handoff.

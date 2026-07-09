@@ -1,57 +1,26 @@
 ---
 name: peon-ping
-description: Toggle and configure peon-ping sound notifications for Claude Code. Use when the user wants to mute, unmute, pause, resume, change volume, set active sound pack, configure pack rotation, or toggle sound categories.
-user_invocable: true
+description: "Control the installed Claude Code peon-ping notification hook without exposing its full configuration. Use when the user names peon-ping, sound mute/resume, volume, sound pack, rotation, or notification category."
 ---
 
 # peon-ping
 
-Toggle and configure peon-ping sounds.
+Operate the installed notification hook through its live command surface and change only the requested configuration field.
 
-## Config location
+## Workflow
 
-`${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/peon-ping/config.json`
+1. Resolve the Claude configuration directory from its environment variable or `$HOME` default and confirm the hook script exists.
+2. Use the hook's live help or pack-list command for current actions and available pack names.
+3. For a requested setting, read only the relevant configuration field, validate the requested value against current options, and update that field without replacing unrelated settings.
+4. Re-read safe status or run the requested toggle action to verify the result.
 
-## Toggle sounds
+## Hard rules
 
-Run:
+- Do not dump the full configuration or report unrelated settings.
+- Do not guess packs, categories, commands, or config schema; installed hook help is authoritative.
+- Report setting names and status, never unrelated configuration values.
+- Stop if the hook/config is absent or the requested value is not supported by current live output.
 
-```bash
-bash "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/hooks/peon-ping/peon.sh toggle
-```
+## Output
 
-Report the command output to the user. Expected outputs include:
-
-- `peon-ping: sounds paused`
-- `peon-ping: sounds resumed`
-
-## List available packs
-
-Run:
-
-```bash
-bash "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/hooks/peon-ping/peon.sh packs list
-```
-
-## Configure settings
-
-Read and edit the config JSON directly. Available settings:
-
-- `enabled`: master on/off switch.
-- `volume`: sound volume, `0.0` to `1.0`.
-- `active_pack`: current sound pack, such as `peon`, `sc_kerrigan`, or `glados`.
-- `pack_rotation`: list of packs to rotate through per session. Empty list uses `active_pack`.
-- `pack_rotation_mode`: `random` or `round-robin`.
-- `categories`: individual sound-category toggles:
-  - `session.start`
-  - `task.acknowledge`
-  - `task.complete`
-  - `task.error`
-  - `input.required`
-  - `resource.limit`
-  - `user.spam`
-- `annoyed_threshold`: rapid prompt count that triggers `user.spam`.
-- `annoyed_window_seconds`: rapid prompt time window.
-- `silent_window_seconds`: suppress `task.complete` sounds for short tasks.
-
-After editing, summarize the exact setting names changed without printing unrelated config.
+Report the requested operation, changed setting name or toggle result, and live verification.

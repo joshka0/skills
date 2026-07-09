@@ -1,39 +1,47 @@
 ---
 name: product-platform
-description: >-
-  Router for product/platform skills. Covers: building-native-ui, expo-platform
-  (SDK upgrades, API routes, dev clients, EAS workflows, deployment, DOM
-  components), react-native-platform, uniwind, mobile-rn, opentui,
-  migrate-nativewind-to-uniwind, native-data-fetching, chrome-extension-builder,
-  design-family, and local-dev.
+description: "Route product platform work to mobile, expo-platform, uniwind-migration, terminal-ui, or chrome-extension-builder. Use when an Expo/RN platform, Expo SDK, NativeWind migration, OpenTUI interface, or browser extension needs an owner."
 ---
 
 # Product Platform
 
-Use this as the small entrypoint for product and app-platform work.
+Route one product surface at a time; this router carries only cross-surface selection and safety rules.
 
-## Rule
+## Route
 
-Do not load every product/platform skill. Identify the surface first, then read
-only the matching target skill from `references/skill-map.md`.
+| Target | Select when | Read or hand off |
+| --- | --- | --- |
+| `mobile` | An Expo or React Native screen, native dependency, navigation, safe-area, list, or device-feel decision changes | `references/mobile.md` |
+| `expo-platform` | An Expo SDK upgrade, dev client, DOM island, API route, EAS workflow, or deployment needs platform evidence | `references/expo-platform.md` |
+| `uniwind-migration` | A project replaces NativeWind or removes its compatibility/configuration layer | `references/uniwind-migration.md` |
+| `terminal-ui` | An OpenTUI renderer, keyboard flow, terminal layout, output, or terminal recovery rule changes | `references/terminal-ui.md` |
+| `browser-extension` | A browser extension surface, MV3 worker, content UI, permission, storage, or message contract changes | `chrome-extension-builder` |
 
-## Routing
+Select exactly one target and read only its reference or hand off to the named child. Combine targets only for an explicit pass sequence.
 
-1. Identify the surface:
-   - Expo or React Native app
-   - Uniwind or mobile styling
-   - browser extension
-   - terminal UI
-   - API/data fetching
-   - product platform setup
-2. Read `references/skill-map.md`.
-3. Load only the listed detailed skill files that match the active surface.
-4. Combine with `local-dev`, `local-secrets`, or `smolvm-local-dev` only when
-   the task touches local runtime, secrets, or isolation.
+## Precedence
 
-## Defaults
+`uniwind` owns installed Uniwind setup and styling decisions; this router owns NativeWind-to-Uniwind migration. `design-family` owns interface-design intent, `code-quality` owns generic source diagnosis, and `local-dev` owns local runtime setup.
 
-- New repos default private and GitLab CI/CD-aware.
-- Prefer worktrees for parallel work.
-- Prefer isolated VM setup when installing or evaluating risky tooling.
-- Keep product stack guidance scoped to the current surface.
+## Workflow
+
+1. Inspect the repository's installed platform packages, native/configuration files, target surfaces, and verification commands.
+2. Select one target. For version-sensitive platform facts, inspect local configuration first, then live tool status/help, then primary documentation.
+3. Preserve the target platform's ownership, lifecycle, permission, or device boundary before changing implementation.
+4. Run the narrow platform check that proves the selected surface and report residual risk.
+
+## Hard rules
+
+- Do not turn a product route into a broad framework tutorial or auto-load a second router.
+- Do not introduce a native build, platform upgrade, permission, deployment, or remote API behavior without installed-project evidence.
+- Keep platform-specific UI, state, and security decisions at their actual adapter boundary; hand generic concerns to their first owner.
+- Mark unavailable platform/version evidence as unconfirmed rather than guessing.
+
+## Stop conditions
+
+- Ask for direction when a product decision materially changes supported platforms, data exposure, store delivery, or native-build ownership.
+- Report blocked verification when the relevant device, native toolchain, or platform configuration cannot be inspected.
+
+## Output
+
+Return the selected target, local facts inspected, resulting platform decision, focused verification, and residual risk.

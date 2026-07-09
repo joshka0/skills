@@ -1,43 +1,36 @@
 ---
 name: release-bundles
-description: >-
-  Router for mobile release skills. Covers: apple-production-checklist,
-  apple-build-binary-readiness, apple-testflight-release-readiness,
-  apple-metadata-storefront-readiness, apple-iap-subscription-readiness,
-  apple-ai-privacy-safety-readiness, apple-accessibility-age-rating-readiness,
-  apple-submission-packet-readiness, apple-asc-cli-automation-bridge,
-  android-play-production-checklist, android-expo-eas-build-binary-readiness,
-  android-play-quality-prelaunch-readiness,
-  android-play-store-listing-metadata-readiness,
-  android-play-data-safety-permissions-readiness,
-  android-play-iap-subscriptions-readiness, android-play-ai-ugc-safety-readiness,
-  android-play-accessibility-age-rating-readiness,
-  android-play-testing-track-readiness, android-play-submission-packet-readiness,
-  android-play-console-eas-automation-bridge, and
-  android-play-sensitive-category-readiness.
+description: "Route Apple App Store and Android Google Play release work to maintained checklist bodies. Use when a task names TestFlight, a Play testing track, store submission, release metadata, or release automation."
 ---
 
 # Release Bundles
 
-Use this as the small entrypoint for mobile release readiness.
+Select one proven platform checklist body for a mobile release risk.
 
-## Rule
+## Route
 
-Select the platform and release risk, then read only the matching section in
-`references/skill-map.md`. Do not load the full Apple and Android checklist set
-unless the user asks for a complete release audit.
+1. Identify Apple, Android, or both.
+2. Identify one surface: binary, testing, metadata, privacy/safety, subscriptions, accessibility/age rating, submission, automation, or a regulated category.
+3. Read only the matching target in `references/skill-map.md`. Its paths are repo-relative imported bodies under `mirrors/foxctl/external`.
+4. For Expo/EAS workflow context, hand off to `product-platform` only when the build workflow—not store release readiness—is the open decision.
 
-## Routing
+## Shared workflow
 
-1. Identify platform: Apple, Android, or both.
-2. Identify surface: binary, metadata, privacy, subscriptions, testing, or
-   submission packet.
-3. Read the matching skill path from `references/skill-map.md`.
-4. For Expo/EAS commands, route through `product-platform` if build workflow
-   context is needed.
+1. Resolve version-sensitive store rules from repository configuration, then live store or CLI output, then current primary documentation.
+2. Keep release findings evidence-driven and tied to the selected target.
+3. Mark uncertainty rather than guessing when current sources are unavailable.
 
-## Defaults
+## Hard rules
 
-- Use current store rules and current CLI output as source of truth.
-- Keep release checks evidence-driven.
-- Keep app secrets under `local-secrets`.
+- Do not substitute a neighboring checklist when the requested platform/risk target is absent.
+- Do not copy volatile store rules or checklist content into this router.
+- Keep app-secret handling under `local-secrets`; never include values in release evidence.
+
+## Stop conditions
+
+- Stop and report the missing target when the map cannot resolve one exact platform/risk body.
+- Ask for direction when Apple and Android release decisions require different target bodies and the user did not request both.
+
+## Output
+
+Return the selected target, release evidence, current-source checks, and any missing-target or cross-family handoff.

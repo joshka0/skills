@@ -1,25 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+set -eu
 
-INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command')
+command -v jq >/dev/null 2>&1 || {
+  echo "BLOCKED: guardrail prerequisite jq is unavailable" >&2
+  exit 2
+}
 
-DANGEROUS_PATTERNS=(
-  "git push"
-  "git reset --hard"
-  "git clean -fd"
-  "git clean -f"
-  "git branch -D"
-  "git checkout \."
-  "git restore \."
-  "push --force"
-  "reset --hard"
-)
+input=$(cat)
+command=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
 
-for pattern in "${DANGEROUS_PATTERNS[@]}"; do
-  if echo "$COMMAND" | grep -qE "$pattern"; then
-    echo "BLOCKED: '$COMMAND' matches dangerous pattern '$pattern'. The user has prevented you from doing this." >&2
+case "$command" in
+  *"git push"*|*"git reset --hard"*|*"git clean -f"*|*"git branch -D"*|*"git checkout ."*|*"git restore ."*|*"push --force"*)
+    echo "BLOCKED: destructive Git invocation requires explicit user action" >&2
     exit 2
-  fi
-done
+    ;;
+esac
 
 exit 0

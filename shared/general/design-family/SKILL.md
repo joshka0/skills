@@ -1,38 +1,47 @@
 ---
 name: design-family
-description: >-
-  Router for design skills. Covers: frontend-design, ui-critique, ui-audit,
-  ui-improve (normalize, polish, resilience, performance, adaptation, onboarding,
-  copy, extract-system), ui-tune (bolder, quieter, colorize, distill, delight,
-  animate), teach-context, emil-design-eng, and userinterface-wiki.
+description: "Shape production interfaces through build, review, and improve modes. Use when users request frontend design, UI audit, UI critique, UI improve, UI tune, or userinterface-wiki guidance."
 ---
 
 # Design Family
 
-Use this as the small entrypoint for design work.
+Choose one production-interface decision and load only its selected guidance.
 
-## Rule
+## Route
 
-Pick the design job first, then read only the matching skill from
-`references/skill-map.md`. Do not stack multiple design skills unless the user
-explicitly asks for a pass sequence.
+| Mode | Select when | Read |
+| --- | --- | --- |
+| `build` | A new or redesigned production UI needs an intentional visual direction | `references/build.md` |
+| `review` | The user names a UI audit or critique of an existing surface | `references/review.md` |
+| `improve` | The user names UI improve/tune or one concrete quality or expressive outcome | `references/improve.md` |
 
-## Routing
+Select exactly one mode by default. Read only its reference. For any selected mode that changes or judges interaction, motion, accessibility, responsive behavior, dynamic layout, or data typography, also read `references/standards.md`.
 
-1. Build or redesign a surface -> use `frontend-design`.
-2. Review existing UI -> use `ui-critique` or `ui-audit`.
-3. Fix quality issues -> use `ui-improve` with the relevant mode.
-4. Tune expressive direction -> use `ui-tune` with the relevant mode.
-5. Capture design context -> use `teach-context domain=design`.
-6. UI polish and animation taste -> read `references/emil-design-eng.md`.
+## Do not use when
 
-## Pass Order
+- `product-platform` owns Expo, React Native, styling-adapter, native API, or platform implementation decisions.
+- `prototype` owns a throwaway state-model harness or competing UI variants created only to answer one question.
 
-When a full design pass is requested, use this order:
+## Shared workflow
 
-1. `ui-critique`
-2. `frontend-design`
-3. `ui-improve mode=resilience`
-4. `ui-improve mode=polish`
+1. Inspect the target, user goal, current design system, real content, and all relevant states before proposing a direction.
+2. State the selected mode, intended user outcome, and any material brand, platform, or accessibility assumption.
+3. Resolve version-sensitive platform behavior from repository state, live tooling, then current primary documentation; mark uncertainty instead of guessing.
+4. Verify the result through the affected user flow, including the states and input methods the selected work changes.
 
-Use `ui-tune` modes only when the critique identifies that specific need.
+## Hard rules
+
+- Build around a deliberate purpose, tone, hierarchy, and differentiator; do not ship a generic template or decorative effect without a product reason.
+- Reuse established tokens and patterns. Extract a shared primitive only after real reuse proves a stable concept.
+- Preserve one clear next action and reveal complexity progressively rather than making every control equally prominent.
+- Motion must explain feedback, state, or spatial continuity; it must not delay work, obscure focus, or become decoration.
+- A review reports evidence and priorities; it does not become an unrequested implementation pass.
+
+## Stop conditions
+
+- Ask for direction when the work could be either a production change or a throwaway prototype and that choice changes the artifact.
+- Hand off when a platform implementation constraint, rather than an interface decision, determines the result.
+
+## Output
+
+Return the selected mode, target and user outcome, evidence, smallest justified change or finding, verification, and unresolved risk or handoff.
