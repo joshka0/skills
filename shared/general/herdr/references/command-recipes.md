@@ -1,13 +1,24 @@
 # Herdr command recipes
 
-Read this only after the active workflow selects a workspace, tab, pane, or wait operation. Confirm the installed CLI help before applying a command.
+Read this only when the task needs exact syntax for one selected discovery, workspace/tab, pane, agent, or wait operation. Confirm the relevant installed CLI help before applying a command; do not load unrelated recipes.
+
+## Discover relevant live state
+
+```sh
+herdr status
+herdr workspace list
+herdr tab list --workspace <workspace-id>
+herdr pane list --workspace <workspace-id>
+herdr agent list
+```
+
+Use only the reads needed to resolve the requested surface and target.
 
 ## Create or focus a work surface
 
 ```sh
 herdr workspace create --cwd <path> --label <name> --focus
 herdr workspace focus <workspace-id>
-herdr tab list --workspace <workspace-id>
 herdr tab create --workspace <workspace-id> --cwd <path> --label <task> --focus
 herdr tab focus <tab-id>
 ```
@@ -17,7 +28,6 @@ Use a workspace for a repo family or durable mission, a tab for an independent t
 ## Inspect and operate a pane
 
 ```sh
-herdr pane list --workspace <workspace-id>
 herdr pane read <pane-id> --source recent --lines <count>
 herdr pane split <pane-id> --direction <right|down> --cwd <path> --focus
 herdr pane run <pane-id> '<command>'
@@ -30,7 +40,6 @@ herdr pane send-keys <pane-id> enter
 ## Exchange work with an agent
 
 ```sh
-herdr agent list
 herdr agent read <target> --source recent --lines <count>
 herdr agent send <target> '<literal message>'
 herdr agent wait <target> --status idle --timeout <milliseconds>

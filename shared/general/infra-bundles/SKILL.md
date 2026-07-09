@@ -1,6 +1,6 @@
 ---
 name: infra-bundles
-description: "Route Kubernetes and infrastructure-as-code work to a risk-specific operating surface. Use when a task names Kubernetes, OpenTofu, Terraform, a cluster, state, a plan, drift, or infrastructure recovery."
+description: "Route Kubernetes and IaC desired/live work through kubernetes-operations, kubernetes-platform, iac-operations, or iac-platform. Use when a task names a Kubernetes cluster, Terraform/OpenTofu state, a Terraform/OpenTofu plan, IaC drift, infrastructure recovery, or a Kubernetes rollout."
 ---
 
 # Infrastructure Bundles
@@ -13,10 +13,16 @@ Choose one infrastructure risk surface, then load only its selected reference.
 | --- | --- | --- |
 | `kubernetes-operations` | The task is an audit, failure, network, observability, security, delivery, recovery, or migration operation on a workload or cluster | `references/kubernetes-operations.md` |
 | `kubernetes-platform` | The task changes workload posture, probes, resources, storage, platform ownership, or rollout design | `references/kubernetes-platform.md` |
-| `iac-operations` | The task is an audit, plan, failure, delivery, recovery, migration, drift, security, or cost operation on declared infrastructure | `references/iac-operations.md` |
-| `iac-platform` | The task changes module, provider, backend, state, IAM, or infrastructure ownership design | `references/iac-platform.md` |
+| `iac-operations` | The task is a Terraform/OpenTofu audit, plan, failure, delivery, recovery, migration, drift, security, or cost operation on declared infrastructure | `references/iac-operations.md` |
+| `iac-platform` | The task changes a Terraform/OpenTofu module, provider, backend, state, IAM, or infrastructure ownership design | `references/iac-platform.md` |
 
 Select one target by default. Combine targets only when a requested change has both an operating action and a platform-design decision; state their order and separate evidence.
+
+## Neighbor precedence
+
+- Kubernetes/IaC desired-state, live-state, delivery, recovery, and platform decisions belong here.
+- Source-code diagnosis belongs to `code-quality`; hand off when the proof or change is in application source rather than Kubernetes/IaC declared or live state.
+- Product or implementation planning belongs to its planning owner until a Kubernetes/IaC desired or live behavior is the actual decision.
 
 ## Workflow
 

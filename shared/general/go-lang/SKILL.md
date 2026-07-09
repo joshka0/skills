@@ -1,6 +1,6 @@
 ---
 name: go-lang
-description: "Apply a compact Go decision policy for public contracts, goroutine lifetimes, and verification evidence. Use when an exported Go API, error boundary, goroutine, race, benchmark, or module change needs a deliberate decision."
+description: "Apply a compact Go decision policy for public contracts, goroutine lifetimes, and verification evidence. Use when an exported Go API, error boundary, goroutine, race, benchmark, or Go performance regression needs a decision; non-Go diagnosis belongs to code-quality."
 ---
 
 # Go Language
@@ -13,9 +13,13 @@ Choose one mode for a Go package or change. This suite keeps only the pack's dur
 | --- | --- | --- |
 | `public-contract` | An exported type, function, package boundary, error behavior, or module compatibility changes | `references/public-contract.md` |
 | `goroutine-lifetime` | A goroutine, channel, cancellation path, worker limit, or concurrent failure path changes | `references/goroutine-lifetime.md` |
-| `verification-evidence` | A Go test, race risk, benchmark, profile, allocation claim, or performance regression needs proof | `references/verification-evidence.md` |
+| `verification-evidence` | A Go test, race risk, benchmark, profile, allocation claim, or Go performance regression needs proof | `references/verification-evidence.md` |
 
 Select exactly one mode. Start with `public-contract` when the request has no more specific route; combine modes only for a user-requested pass sequence.
+
+## Precedence
+
+`go-lang` owns a performance regression or verification claim when the artifact is Go. `code-quality` owns non-Go source-code diagnosis; `infra-bundles` owns Kubernetes or infrastructure-as-code desired/live failures.
 
 ## Workflow
 

@@ -9,25 +9,14 @@ Operate Herdr's local workspace, pane, and agent transport without guessing live
 
 ## Route
 
-Read `references/command-recipes.md` only when creating, focusing, splitting, or waiting on Herdr surfaces; otherwise inspect the installed CLI help for the exact subcommand.
+Read `references/command-recipes.md` only when the task needs exact CLI syntax for a Herdr discovery, workspace/tab, pane, agent, or wait operation. Read only the selected recipe; otherwise inspect installed CLI help for the exact subcommand.
 
 ## Workflow
 
-1. Verify the installed command shape, then inspect live state:
-
-   ```sh
-   herdr --help
-   herdr status
-   herdr workspace list
-   herdr agent list
-   ```
-
+1. Verify the installed command shape with `herdr --help`, then use the selected recipe to inspect relevant live state.
 2. Resolve workspace, tab, pane, and agent IDs from those reads. Use named sessions only when the user names one.
-3. Read a target before acting. Select the transport deliberately:
-   - `herdr agent send <target> <text>` sends literal agent text.
-   - `herdr pane run <pane-id> <command>` executes shell text and submits Enter.
-   - `herdr pane send-text <pane-id> <text>` only types; follow with `herdr pane send-keys <pane-id> enter` when submission is intended.
-4. After sending, wait or read again to confirm the target's state and surface any confirmation, block, or continuation prompt.
+3. Read a target before acting. Select the transport deliberately: agent send delivers literal agent text; pane run executes shell text and submits it; pane send-text only types, so submit separately when intended.
+4. For a send or pane-command action, wait or read again to confirm the target's state and surface any confirmation, block, or continuation prompt.
 5. Keep cross-agent requests self-contained: task, context to read first, allowed scope, prohibitions, and expected return shape.
 
 ## Hard rules
@@ -48,4 +37,4 @@ Read `references/command-recipes.md` only when creating, focusing, splitting, or
 
 ## Output
 
-Report the target resolved, transport used, observed post-send state, and any blocker or needed user choice.
+Report the resolved target, action, and any blocker or needed user choice. If the action sent text or executed a command, also report the transport and observed post-action state.

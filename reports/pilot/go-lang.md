@@ -1,61 +1,83 @@
-# Pilot acceptance — go-lang
+# Pilot acceptance — go-lang (revision)
+
+## Verdict
+
+**PACKAGE-CONFORMS.** The user explicitly decided to keep one merged Go entry, with the door open to cut it if the narrow owner proves unnecessary. Catalog checks remain deferred because bundle/provider composition is outside this task.
 
 ## Result
 
 - Canonical home: `shared/general/go-lang`
-- Archetype: `suite`
-- Active instructions: 42 lines / 2,689 bytes; three selected references: 19 lines each; package total: 99 lines / 6,606 bytes.
-- Net shrink: 99 active package lines versus 476 lines across the seven replaced Go packages.
+- Archetype: mode suite with `public-contract`, `goroutine-lifetime`, and `verification-evidence`.
+- Final package: 103 text lines / 6,886 bytes; seven replaced packages: 476 text lines.
+- Net shrink: 373 lines.
 - Validator: `PASS: shared/general/go-lang (suite)`
-- Composition status: intentionally deferred by pilot scope; `bundles/` and `providers/` were not edited or composed.
 
-## Checklist
+## Collision matrix
+
+| Claimed phrase or artifact | First owner | Nearest competitor | Discriminator / precedence |
+| --- | --- | --- | --- |
+| exported Go API or error boundary | `go-lang` → `public-contract` | `code-quality` architecture/refactor | Go caller-facing support and error-inspection contract. |
+| goroutine, channel, cancellation, race | `go-lang` → `goroutine-lifetime` | `code-quality` diagnose | Go lifetime/ownership/concurrency decision, not generic diagnosis. |
+| benchmark or Go performance regression | `go-lang` → `verification-evidence` | `code-quality` diagnose | Go artifact wins; non-Go diagnosis goes to `code-quality`. |
+| Kubernetes/IaC desired-live failure | `infra-bundles` | `go-lang` / `code-quality` | Infrastructure operating evidence, not language verification. |
+
+The description carries the Go-specific performance precedence before load; `code-quality` carries the complementary non-Go rule.
+
+## A34 preservation ledger
+
+| Replaced source | Qualifying non-default delta | Disposition |
+| --- | --- | --- |
+| old `go-lang` router | Surface selection and repository/live-doc volatility order | Kept in `SKILL.md` route and workflow; old routed-child catalog dropped. |
+| `go-lang-design` | Consumer-side interfaces, concrete defaults, deliberate exported embedding/constructors | Kept in `references/public-contract.md`; pattern catalog dropped as generic. |
+| `go-lang-errors` | Intentional error inspection and dependency-boundary translation | Kept in `references/public-contract.md`. |
+| `go-lang-packages-api` | Export/support commitment, package caller role, additive compatibility posture | Kept in `references/public-contract.md`. |
+| `go-lang-concurrency` | Goroutine owner, stop path, cancellation, bounded work, channel-close and ordering ownership | Kept in `references/goroutine-lifetime.md`. |
+| `go-lang-performance` | Baseline-first measurement and comparable verification before complexity | Kept in `references/verification-evidence.md`; static tool-command catalog dropped under volatility policy. |
+| `go-lang-testing` | Observable behavior, deterministic concurrency evidence, race and benchmark proof | Kept in `references/verification-evidence.md`; framework/tool catalog dropped as generic/volatile. |
+
+## A35 archive-in-place originals
+
+The pre-rewrite originals exist at `archive/triage-2026-07/shared/general/go-lang/`, `.../go-lang-concurrency/`, `.../go-lang-design/`, `.../go-lang-errors/`, `.../go-lang-packages-api/`, `.../go-lang-performance/`, and `.../go-lang-testing/`.
+
+## Acceptance checklist
 
 | Item | Result | Evidence |
 | --- | --- | --- |
-| A01 | PASS | The retained delta is a compact, opinionated Go decision policy: public contracts are intentional, goroutines have owned lifetimes, and performance claims need comparable evidence. |
-| A02 | PASS | Exported-contract, concurrency-lifetime, and verification decisions recur across Go changes; the merged kill list retains one conditional Go owner, though the zero-usage caveat remains a follow-up. |
-| A03 | PASS | `code-quality` owns generic implementation, tests, and diagnosis; this suite owns only Go-specific contract, lifetime, and toolchain-evidence decisions. The six child skills are modes/references, not standalone owners. |
-| A04 | PASS | Classified as a mode suite with three modes for one Go package/change lifecycle. |
-| A05 | PASS | `shared/general/go-lang` matches `name: go-lang`; the validator confirmed unique canonical naming. |
-| A06 | PASS | Frontmatter contains only `name` and a one-line `description`. |
-| A07 | PASS | The description is one physical line (226 characters by the validator's measurement) and passed the suite 320-character mechanical gate. |
-| A08 | PASS | It states the Go decision capability and ends with six concrete signals: exported API, error boundary, goroutine, race, benchmark, and module change. |
-| A09 | PASS | The description and route separate Go API/lifetime/evidence decisions from `code-quality`'s generic code-shape, test, gate, architecture, and diagnosis modes. |
-| A10 | PASS | No greedy trigger, persona, or implicit interaction activation remains. |
-| A11 | PASS | `SKILL.md` is 42 lines / 2,689 bytes, below the suite 120-line / 10 KiB cap. |
-| A12 | PASS | The active body contains selection, workflow, durable hard rules, stop conditions, output, and selected-reference routing only. |
-| A13 | PASS | The route table gives one condition and one resolving reference for each mode, and instructs the executor to read only the selected reference. |
-| A14 | PASS | Each reference is 19 lines (<250); the 99-line package is below both the 800-line standard cap and 1,200-line consolidated-owner cap. |
-| A15 | PASS | The active package has no duplicated tutorial body or provider/bundle copy; replaced bodies are historical archive records, not active instructional sources. |
-| A16 | PASS | The three modes share the lifecycle of making or reviewing a Go package change and fall within the two-to-eight mode range. |
-| A17 | PASS | `public-contract`, `goroutine-lifetime`, and `verification-evidence` are distinct kebab-case modes with exact files; `public-contract` is the stated default. |
-| A18 | N/A | This is a mode suite, not a router. |
-| A19 | N/A | This is a mode suite with internal selected references, not routed child skills. |
-| A20 | PASS | The active workflow requires repository state, live `go version` and installed help/docs, then primary Go documentation for version-sensitive behavior. |
-| A21 | PASS | API lists, static command matrices, compatibility tables, and generic Go tutorials were removed; references retain only decision procedures. |
-| A22 | N/A | No volatile version, API, pricing, or tool value is pinned as a pack constraint. |
-| A23 | PASS | No credential-shaped value exists in the package; the targeted secret-pattern scan returned no matches. |
-| A24 | PASS | The package does not perform secret discovery or output; it prescribes no environment dump or value-bearing diagnostic. |
-| A25 | PASS | No literal user home path remains; the validator's portability check passed. |
-| A26 | N/A | The package stores no machine-specific fact; installed toolchain and repository state are discovered live. |
-| A27 | N/A | The package has no scripts. |
-| A28 | N/A | The package has no assets or provider metadata. |
-| A29 | PASS | The workflow and hard rules protect concrete Go commitments—export scope, goroutine ownership, error boundary, and measured performance—without generic coaching or filler. |
-| A30 | DEFERRED | Pilot scope explicitly forbids bundle/provider edits; canonical-to-installed parity and exposure will be checked during composition. |
-| A31 | DEFERRED | All three local reference paths resolve and the validator checked for repo-internal symlinks; compose dry runs and installed-view checks are deferred by scope. |
-| A32 | PASS | Compared with the passing `code-quality` golden suite: one exact route table, a default mode, shared active policy, and short selected references. Rubric requirements controlled where the examples were silent. |
-| A33 | PASS | The consolidation is strictly smaller than the seven replaced packages (99 < 476) and below every applicable absolute cap. |
-
-## Archive moves
-
-- `shared/general/go-lang` → `archive/triage-2026-07/shared/general/go-lang`
-- `shared/general/go-lang-concurrency` → `archive/triage-2026-07/shared/general/go-lang-concurrency`
-- `shared/general/go-lang-design` → `archive/triage-2026-07/shared/general/go-lang-design`
-- `shared/general/go-lang-errors` → `archive/triage-2026-07/shared/general/go-lang-errors`
-- `shared/general/go-lang-packages-api` → `archive/triage-2026-07/shared/general/go-lang-packages-api`
-- `shared/general/go-lang-performance` → `archive/triage-2026-07/shared/general/go-lang-performance`
-- `shared/general/go-lang-testing` → `archive/triage-2026-07/shared/general/go-lang-testing`
+| A01 | PASS | The narrow delta is a pack decision policy for Go public contracts, lifetime ownership, and proof boundaries—not a Go tutorial. |
+| A02 | PASS | User explicitly decided KEEP: one merged Go owner remains despite zero observed use, with a later CUT decision left open. |
+| A03 | PASS | Collision matrix separates Go artifact work from code-quality and infrastructure owners. |
+| A04 | PASS | Exactly one mode suite. |
+| A05 | PASS | Canonical directory/name match; validator confirms uniqueness. |
+| A06 | PASS | Minimal frontmatter. |
+| A07 | PASS | One-line, two-sentence suite description within 320 characters. |
+| A08 | PASS | Description states Go decision policy and concrete Go-artifact signals plus non-Go handoff. |
+| A09 | PASS | Collision matrix establishes Go performance precedence and neighboring handoffs. |
+| A10 | PASS | No greedy catch-all Go claim or implicit interaction behavior. |
+| A11 | PASS | Validator passed suite budget. |
+| A12 | PASS | Active file contains route, common workflow, durable rules, stops, output, and precedence only. |
+| A13 | PASS | Three exact selected references resolve. |
+| A14 | PASS | 103-line package and each reference are within hard budgets. |
+| A15 | DEFERRED | Canonical package is non-duplicated; bundle/provider copies remain outside scope. |
+| A16 | PASS | Three modes share Go package decision lifecycle. |
+| A17 | PASS | Distinct kebab-case routes select one reference by default. |
+| A18 | N/A | Not a router. |
+| A19 | N/A | Not a router. |
+| A20 | PASS | Repository state, live Go tools, then primary docs govern volatile details. |
+| A21 | PASS | Generic language tutorial and static command catalog were removed. |
+| A22 | N/A | No pinned volatile pack constraint. |
+| A23 | PASS | No secret-bearing content. |
+| A24 | PASS | Verification output uses evidence rather than secret discovery. |
+| A25 | PASS | No literal user home path. |
+| A26 | PASS | Missing source/toolchain evidence blocks version-level claims. |
+| A27 | PASS | No scripts. |
+| A28 | PASS | No assets or provider metadata. |
+| A29 | PASS | Rules preserve public contract, concurrency, error, and measurement invariants without filler. |
+| A30 | DEFERRED | Canonical/bundle/provider parity awaits permitted composition. |
+| A31 | DEFERRED | Compose dry run and installed-view checks await that pass; validator covers local links and symlinks. |
+| A32 | PASS | Revised against both converged reviews, the code-quality golden suite, and the updated rubric. |
+| A33 | PASS | 103 < 476 and under the package cap. |
+| A34 | PASS | Preservation ledger above accounts for all seven merged Go sources. |
+| A35 | PASS | Archive-in-place originals are listed above. |
 
 ## Validation evidence
 
@@ -63,7 +85,3 @@
 $ bin/validate-skill.sh shared/general/go-lang suite
 PASS: shared/general/go-lang (suite)
 ```
-
-## Follow-up
-
-The triage evidence recorded no direct Go-skill invocation. Retain this deliberately narrow owner for the approved pilot, then reassess it after actual Go work or the next usage sweep; CUT remains appropriate if this policy does not recur.

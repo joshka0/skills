@@ -1,11 +1,10 @@
 # Refactor
 
-Use this mode for behavior-preserving refactoring or an explicitly requested clean-slate pass.
+Use this mode for behavior-preserving refactoring only.
 
-1. State the intended end state before preserving the historical path.
-2. Search real callers before retaining a wrapper, mode, alias, fallback, compatibility branch, or duplicate type.
-3. Delete unsupported compatibility paths with evidence. Move a shared rule to its canonical owner instead of scattering checks through callers.
-4. Keep a single clear flow unless distinct product concepts prove they need separate ownership.
-5. Verify behavior and any navigation, permission, persistence, or contract assumption affected by deletion.
+1. State the behavior that must remain unchanged and inspect its callers, tests, and current owner.
+2. Simplify local structure, move a shared rule to its canonical owner, and keep distinct product concepts separate.
+3. Preserve supported compatibility paths; if their removal is needed, stop and route the user to `clean-slate` with explicit authorization.
+4. Verify the preserved behavior through its public surface.
 
-Do not create a generic framework for a one-feature refactor. When a caller still depends on legacy behavior, report the migration decision rather than silently breaking it.
+Do not create a generic framework for a one-feature refactor. Report a migration decision rather than silently breaking a caller.
