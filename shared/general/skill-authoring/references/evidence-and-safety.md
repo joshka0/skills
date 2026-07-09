@@ -1,5 +1,7 @@
 # Evidence and safety contract
 
+This is a maintained operational split of the repository's current rubric, not an independent normative source. Reconcile any drift to the repository rubric before acceptance.
+
 ## Volatility and source of truth
 
 Treat a fact as volatile when it can meaningfully change within twelve months or across installed versions. This includes package APIs, SDK behavior, CLI flags, event schemas, provider capabilities, model names, prices, store rules, compliance requirements, compatibility matrices, and release procedures.

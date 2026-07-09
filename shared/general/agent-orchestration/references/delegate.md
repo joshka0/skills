@@ -6,4 +6,4 @@ Write a packet before dispatching. It names the objective, current context to re
 
 Give the agent only the context needed to act. Ask it to stop and report rather than widen scope, change a public contract, make an external side effect, or guess missing repository facts. Keep version control and publication with the supervisor unless explicitly delegated.
 
-On return, compare the evidence with the packet, choose accept, request changes, reject, or integrate manually, and record the smallest useful follow-up.
+On return, compare the evidence with the packet, choose accept, request changes, reject, or integrate manually, and record the smallest useful follow-up. If the packet came from a durable goal, return the evidence and status to its `GOAL_LEDGER.md` owner.

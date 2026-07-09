@@ -1,6 +1,6 @@
 # Existence and ownership contract
 
-This is the normative first section of the pack rubric. The words **MUST**, **MUST NOT**, **SHOULD**, and **MAY** are normative. If a golden example conflicts with this contract, this contract wins.
+This is a maintained operational split of the repository's current rubric, which remains the single normative source. The words **MUST**, **MUST NOT**, **SHOULD**, and **MAY** carry that rubric's force; reconcile any drift before accepting a package. If a golden example conflicts with the rubric, the rubric wins.
 
 ## Operating model
 

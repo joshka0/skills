@@ -91,7 +91,7 @@
 | A29 | PASS | Native-build, device boundary, migration, terminal restoration, and permission rules are concrete and proportionate. |
 | A30 | DEFERRED | Canonical/bundle/provider parity awaits the explicitly deferred composition phase. |
 | A31 | DEFERRED | Local references and no-internal-symlink checks pass; compose and installed-view checks await composition. |
-| A32 | PASS | Rewritten against the full rubric, Go suite golden package/report, and infra router pilot; rubric controls shape. |
+| A32 | PASS | Rechecked against accepted pilot artifacts `reports/pilot/code-quality.md` (selective active/reference routing) and `reports/pilot/herdr.md` (compact concrete safety rules); the router-specific five-target contract is then checked against the rubric. |
 | A33 | PASS | 92 is strictly smaller than the 13,991 router-owned source lines and below every absolute cap. |
 | A34 | PASS | The ledger accounts for every product source, the CUT, and both retained boundaries. |
 | A35 | PASS | Exact pre-rewrite originals, including the in-place router and retained child, are listed in the archive inventory. |

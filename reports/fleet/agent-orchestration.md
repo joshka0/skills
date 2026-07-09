@@ -1,13 +1,18 @@
-# Fleet acceptance — agent-orchestration
+# Fleet acceptance — agent-orchestration (revision pass)
+
+## Verdict
+
+**PACKAGE-CONFORMS.** This revision makes the suite solely responsible for live dispatch: it launches bounded packets, monitors returned evidence, reviews, and integrates. Durable-goal approval and ledger state stay with `goal-protocol`; non-goal collaboration now has its own durable ledger. A15's bundle/provider clause, A30, and A31 are **DEFERRED** because composition is out of scope; A19 is not applicable to a suite.
 
 ## Result
 
-- Verdict: **PACKAGE-CONFORMS**. All canonical-package checks pass; composition checks are intentionally deferred.
 - Canonical home: `shared/general/agent-orchestration`
-- Archetype: consolidated mode suite
-- Final package: 56-line / 4,157-byte active body; six selected references (7–13 lines each); **114 text lines / 9,557 bytes** total.
-- Replaced-source total: **2,301 text lines / 70,891 bytes** across six exact archived packages; net shrink is 2,187 lines (95.0%).
-- Modes: `delegate`, `swarm`, `collaborate`, `delta-brief`, `goal-handoff`, and `mux-adapter` (six, below the 10-mode consolidated-owner limit).
+- Archetype: consolidated live-dispatch mode suite
+- Modes: `delegate`, `swarm`, `collaborate`, `delta-brief`, and `mux-adapter` (five coherent live-coordination modes).
+- Final package: 55-line / 4,273-byte active body; five selected references (9–13 lines); **110 text lines / 9,846 bytes** total.
+- Source corpus: 1,807 all-text lines across the original owner and absorbed live-dispatch skills plus the 634-line archived Zellij `plan-build` transport source whose narrow durable delta is now merged; 110 < **2,441**. The 494-line `codex-goal` original is transferred to `goal-protocol`, not counted as this suite's replacement shrink. All-text counts include archived `.kdl` transport templates.
+- `goal-handoff` and its reference are removed. The metadata-visible legacy `codex-goal` trigger and `GOAL.md` file contract now belong to `goal-protocol`.
+- Revision snapshot: the prior 114-line active package was moved intact to `archive/triage-2026-07/revision-pass/shared/general/agent-orchestration/` before rebuild.
 - Validator: `PASS: shared/general/agent-orchestration (suite)`
 - Composition status: `bundles/` and `providers/` were intentionally not edited or composed in this wave.
 
@@ -15,15 +20,16 @@
 
 | Claimed signal | First owner | Nearest competitor | Discriminator / handoff |
 | --- | --- | --- | --- |
-| `/delegate-codex` or one live agent assignment | `agent-orchestration` → `delegate` | `planning-workflow` → `agent-brief` | This suite owns active dispatch, supervisor review, and integration; planning-workflow owns a saved one-shot brief without live transport. |
+| `/delegate-codex` or one live agent assignment | `agent-orchestration` → `delegate` | `planning-workflow` → `agent-brief` | This suite owns active dispatch, evidence review, and integration; planning-workflow owns a saved one-shot brief without transport. |
 | `/swarm` or parallel agent work | `agent-orchestration` → `swarm` | `gtr` | This suite divides, supervises, and integrates bounded tasks; `gtr` owns a requested Git Worktree Runner operation. |
-| `Zellij swarm` or named terminal mux | `agent-orchestration` → `mux-adapter` plus the selected dispatch mode | archived `codex-swarm` variant | The retained delta is a safe live-capability adapter, not a separate mux workflow, model choice, or terminal-command manual. |
-| `collaboration-protocol` or adversarial convergence | `agent-orchestration` → `collaborate` | `goal-protocol` → `converge` | This mode coordinates a live decision; `goal-protocol` owns durable-goal artifacts, phase gates, and `GOAL_LEDGER.md`. |
-| `delta brief` or an in-flight agent with stale context | `agent-orchestration` → `delta-brief` | `planning-workflow` → `agent-brief` | This mode updates an existing recipient after a settled change; planning-workflow creates a durable fresh-start artifact. |
-| `codex-goal` or an autonomous-task preflight | `agent-orchestration` → `goal-handoff` | `goal-protocol` → `ledger` | The legacy phrase reaches objective/scope/stop-condition eligibility here; handoff then gives the durable lifecycle and current goal-command behavior to goal-protocol. |
-| Herdr or Maestri workspace, pane, participant, or message transport | `herdr` or `maestri` | `agent-orchestration` → `collaborate` | The private leaves own live targets and command syntax; this suite only owns the cross-agent collaboration contract. |
+| `Zellij swarm` or named terminal mux | `agent-orchestration` → `mux-adapter` plus selected dispatch mode | archived `codex-swarm` / `plan-build` variants | The retained delta is a live-discovered transport adapter and persistent-session continuation, not a separate mux workflow, model choice, or keystroke manual. |
+| `collaboration-protocol` or adversarial convergence | `agent-orchestration` → `collaborate` | `goal-protocol` → `converge` | This mode owns live collaboration and its non-goal durable ledger; goal-protocol owns a collaboration already inside a durable goal lifecycle. |
+| `delta brief` or an in-flight agent with stale context | `agent-orchestration` → `delta-brief` | `planning-workflow` → `agent-brief` | This mode updates an existing recipient after a settled change; planning-workflow creates a fresh-start artifact. |
+| `codex-goal`, `/goal`, or `GOAL.md` | `goal-protocol` → `goal-file` | `agent-orchestration` | A durable goal contract and start handoff are not live dispatch modes; this suite receives only approved packets to execute. |
+| approved goal packet / live wave | `agent-orchestration` → `delegate` or `swarm` | `goal-protocol` → `orchestrate` | Goal-protocol approves parent-traced packets and wave state; this suite performs the live dispatch and returns evidence for ledger update. |
+| Herdr or Maestri workspace, pane, participant, or message transport | `herdr` or `maestri` | `agent-orchestration` → `collaborate` | The private leaves own live targets and command syntax; this suite owns the collaboration and dispatch contract. |
 
-The description retains the six metadata-visible legacy signals: `/delegate-codex`, `/swarm`, `collaboration-protocol`, `delta brief`, `codex-goal`, and `Zellij swarm`.
+The description retains six metadata-visible selection signals: `/delegate-codex`, `/swarm`, `collaboration-protocol`, `delta brief`, `Zellij swarm`, and live agent dispatch.
 
 ## A34 preservation ledger
 
@@ -32,76 +38,74 @@ The description retains the six metadata-visible legacy signals: `/delegate-code
 | prior `agent-orchestration` | One supervisor owns division, review, integration, and verified dependent progress | Kept in `SKILL.md` workflow and hard rules. |
 | prior `agent-orchestration` | File-disjoint parallel work, explicit coordination for overlap, and isolated work surfaces | Kept in `SKILL.md` hard rules and `references/swarm.md`. |
 | prior `agent-orchestration` | A packet needs scope, non-goals, verification, stop, and handoff before assignment | Kept in `SKILL.md` workflow and `references/delegate.md` / `references/swarm.md`. |
-| prior `agent-orchestration` | Collaboration needs a ledger-like decision record and independent critical review | Merged into `collaborate` at `references/collaborate.md`; durable ledger ownership hands off to `goal-protocol`. |
-| prior `agent-orchestration` | Agent sandbox and Codex CLI limitations | Replaced by `SKILL.md` live-capability verification; the old fixed provider claims are volatile. |
-| prior `agent-orchestration` references | Codex `/goal` suitability, objective verification, scope, verification, and stop-condition posture | Merged into `goal-handoff` at `references/goal-handoff.md`; durable lifecycle mechanics hand off to `goal-protocol`. |
-| prior `agent-orchestration` references | tmux/Codex swarm monitoring, work-surface isolation, and task-packet supervision | Kept only as durable policy in `references/mux-adapter.md` and `references/swarm.md`; model flags, JSON event names, terminal commands, and auto-commit/PR ceremony are dropped as volatile or outside the dispatch boundary. |
+| prior `agent-orchestration` | Fixed Codex/sandbox capability assertions | Replaced by `SKILL.md` live-capability verification; the old provider claims are volatile. |
+| prior `agent-orchestration` goal reference and prior `goal-handoff` | Objective eligibility, `GOAL.md` fields, goal-file/start handoff, and durable lifecycle | Moved to `goal-protocol/references/goal-file.md`; it is no longer a non-live mode in this suite. |
 | `collaboration-protocol` | Explicit roles, independent work, adversarial review, evidence-backed synthesis, and preserved dissent | Kept in `references/collaborate.md`. |
-| `collaboration-protocol` | Durable `COLLABORATION_LEDGER.md` lifecycle | Handed to `goal-protocol`, which owns durable ledger artifacts; a compact live decision record remains in `references/collaborate.md`. |
+| `collaboration-protocol` | Non-goal `docs/collaboration/<slug>/COLLABORATION_LEDGER.md` with a mutable snapshot and append-only decision, dissent, validation, and handoff logs | Kept in `references/collaborate.md`; goal-associated collaboration instead uses its existing `GOAL_LEDGER.md`. |
 | `collaboration-protocol` | Herdr discovery, literal send, pane execution, wait, and submit semantics | Handed to the `herdr` private-tool leaf; copying its version-sensitive CLI manual would violate the private-transport boundary. |
 | `collaboration-protocol` | No secret transport and coordinated same-wave edits | Kept in `SKILL.md` hard rules. |
 | `delta-brief` | Durable source first; identify stale recipients rather than messaging fresh sessions | Kept in `references/delta-brief.md`. |
 | `delta-brief` | Five-part update: change, old-to-new, rule, redo area, and what stands | Kept in `references/delta-brief.md`. |
 | `delta-brief` worked example | Product-specific consent narrative and full example transcript | Dropped as one-off illustrative prose; the differentiated reusable handoff contract remains. |
-| `codex-goal` | Objective eligibility, bounded scope, evidence, stop conditions, and risky-operation exclusion | Kept in `references/goal-handoff.md`. |
-| `codex-goal` | Goal files, `/goal` commands, config flags, loop monitoring, phase templates, and output schema | Handed to `goal-protocol`; commands and flags are version-sensitive, while durable phase behavior belongs to that owner. |
-| Zellij `codex-swarm` | Explicit mux selection, completion visibility, packet transport, and isolated concurrent mutation | Kept as the optional `references/mux-adapter.md` policy. |
-| Zellij `codex-swarm` assets | Layout KDL, runner shell, fixed model flag, JSONL schema, fixed session paths, worktree/branch cleanup, and automatic review/PR loop | Dropped: version- and environment-specific mechanics, plus version-control and publishing actions outside this suite's user-approved dispatch boundary. Exact originals remain archived. |
-| legacy `delegate-codex` wording | Lightweight one-agent dispatch, bounded prompt, evidence review, and supervisor-controlled version control | Merged into `references/delegate.md` and `SKILL.md` hard rules. |
-| legacy `delegate-codex` wording | Fixed Codex command, model flag, worktree commands, paths, JSON event names, and sandbox capability assertions | Dropped as volatile provider/mux implementation detail; current capability must be discovered live. |
+| Zellij `codex-swarm` and legacy `delegate-codex` | Bounded literal packet transport, supervisor-visible completion, isolated concurrent mutation, and supervisor-controlled version control | Kept in `references/delegate.md`, `references/swarm.md`, and `references/mux-adapter.md`. |
+| Zellij `codex-swarm` assets and legacy delegate mechanics | Model flag, JSON event schema, layout/runner commands, fixed paths, worktree/branch cleanup, and automatic review/PR loop | Dropped as volatile or outside the user-approved live-dispatch boundary. Exact originals remain archived. |
+| Zellij `plan-build` | Live-discovered persistent-session continuation and injection of only the new bounded revision, feedback, or decision delta | Merged into `references/mux-adapter.md`. |
+| Zellij `plan-build` | Escape dismissal, carriage-return submission, input clear, screen-dump monitoring, pane keystrokes, fixed session paths, model/runner commands, and input protocol | Dropped as version-sensitive or nonessential; installed help and observable live capability are the source of truth. |
 
 ## A35 archive-in-place originals
 
-| Original package | Exact archive location | Original text lines |
+| Original or revision snapshot | Exact archive location | Text lines |
 | --- | --- | ---: |
-| in-place owner `shared/general/agent-orchestration` | `archive/triage-2026-07/shared/general/agent-orchestration/` | 918 |
-| `shared/general/collaboration-protocol` | `archive/triage-2026-07/shared/general/collaboration-protocol/` | 183 |
-| `shared/general/delta-brief` | `archive/triage-2026-07/shared/general/delta-brief/` | 57 |
-| `shared/general/codex-goal` | `archive/triage-2026-07/shared/general/codex-goal/` | 494 |
-| `shared/variants/zellij/codex-swarm` | `archive/triage-2026-07/shared/variants/zellij/codex-swarm/` | 508 |
-| `shared/variants/legacy/delegate-codex-zellij-wording` | `archive/triage-2026-07/shared/variants/legacy/delegate-codex-zellij-wording/` | 141 |
+| in-place original owner `agent-orchestration` | `archive/triage-2026-07/shared/general/agent-orchestration/` | 918 |
+| `collaboration-protocol` | `archive/triage-2026-07/shared/general/collaboration-protocol/` | 183 |
+| `delta-brief` | `archive/triage-2026-07/shared/general/delta-brief/` | 57 |
+| `codex-goal` | `archive/triage-2026-07/shared/general/codex-goal/` | 494 |
+| Zellij `codex-swarm` | `archive/triage-2026-07/shared/variants/zellij/codex-swarm/` | 508 |
+| legacy `delegate-codex` wording | `archive/triage-2026-07/shared/variants/legacy/delegate-codex-zellij-wording/` | 141 |
+| inherited Zellij `plan-build` transport source | `archive/triage-2026-07/shared/variants/zellij/plan-build/` | 634 |
+| pre-revision active `agent-orchestration` | `archive/triage-2026-07/revision-pass/shared/general/agent-orchestration/` | 114 |
 
-All originals were moved intact before the owner was rebuilt; no source package was deleted.
+All current-package originals were moved intact before this revision was written; no source package was deleted.
 
 ## Acceptance checklist
 
 | Item | Result | Evidence |
 | --- | --- | --- |
-| A01 | PASS | The non-default delta is supervised, bounded live dispatch with integration, adversarial convergence, stale-context propagation, and compatibility handoff rules. |
-| A02 | PASS | Delegation, parallel coordination, convergence, and handoff recur across agent work. |
-| A03 | PASS | The collision matrix assigns the close owners and explicit handoffs. |
-| A04 | PASS | Exactly one archetype: consolidated mode suite. |
-| A05 | PASS | `shared/general/agent-orchestration` matches the unique kebab-case `name`; the validator checked uniqueness. |
-| A06 | PASS | Frontmatter contains only `name` and a one-line `description`. |
-| A07 | PASS | The one-line two-sentence description is 248 bytes including quotes/newline, below the 320-character suite cap. |
+| A01 | PASS | The non-default delta is supervised, bounded live dispatch with integration, durable non-goal collaboration records, stale-context propagation, and mux continuation safety. |
+| A02 | PASS | Delegation, parallel coordination, collaboration, and evidence return recur across agent work. |
+| A03 | PASS | The collision matrix assigns durable goals, one-shot artifacts, private transport, and live execution to distinct owners. |
+| A04 | PASS | Exactly one consolidated live-dispatch mode suite. |
+| A05 | PASS | `shared/general/agent-orchestration` matches unique `name: agent-orchestration`; validator checks uniqueness. |
+| A06 | PASS | Frontmatter contains only `name` and a one-line description. |
+| A07 | PASS | The one-line two-sentence description is 244 bytes including quotes/newline, below the 320-character suite cap. |
 | A08 | PASS | The first sentence names bounded live dispatch; the final `Use when ...` sentence supplies six concrete signals. |
-| A09 | PASS | The collision matrix records first owner, competitor, discriminator, and handoff for each claimed signal. |
+| A09 | PASS | The collision matrix records first owner, competitor, discriminator, and handoff for every claimed signal. |
 | A10 | PASS | Six bounded triggers remain; no generic always-on, model, persona, or implicit-mux activation is claimed. |
-| A11 | PASS | The 56-line / 4,157-byte active body is below the suite 120-line / 10 KiB cap. |
+| A11 | PASS | The 55-line / 4,273-byte active body is below the suite 120-line / 10 KiB cap. |
 | A12 | PASS | The active body contains route, boundaries, workflow, non-default rules, stops, output, and reference selection only. |
-| A13 | PASS | Six exact linked references each have one route condition; the suite says to load only the selected reference. |
-| A14 | PASS | References are 7–13 lines each and the 114-line package is below the 1,200-line consolidated-owner cap; no scripts, assets, or metadata hide prose. |
-| A15 | DEFERRED | Canonical references are non-duplicated; bundle/provider exposure is deliberately outside this wave. |
-| A16 | PASS | Six modes share a single live-dispatch lifecycle and safety contract. |
-| A17 | PASS | The route has six distinct kebab-case modes and selects one by default. |
+| A13 | PASS | Five exact linked references each have one route condition; the suite says to load only the selected reference. |
+| A14 | PASS | References are 9–13 lines each and the 110-line package is below all hard caps; no scripts, assets, or metadata hide prose. |
+| A15 | DEFERRED | Canonical references are non-duplicated; bundle/provider exposure is deliberately outside this revision. |
+| A16 | PASS | Five modes share one live-dispatch lifecycle and safety contract. |
+| A17 | PASS | Five distinct kebab-case rows select one mode by default; mux-adapter is an explicit adapter sequence only. |
 | A18 | N/A | This is a suite, not a router. |
 | A19 | N/A | This is a suite, so it has no router targets or router exposure rule. |
 | A20 | PASS | Version-sensitive execution facts are deferred to current repository state, live execution-surface capability, and installed help. |
 | A21 | PASS | The old provider manuals, model flags, KDL templates, JSON event catalog, and command recipes were not copied into the active package. |
 | A22 | N/A | No pinned volatile pack constraint remains. |
-| A23 | PASS | The package contains no credential-shaped values and prohibits secret values in packets and reports. |
-| A24 | PASS | The package does not prescribe broad environment or secret discovery; evidence and reports must omit values. |
+| A23 | PASS | The package contains no credential-shaped values and prohibits secret values in packets, ledgers, and reports. |
+| A24 | PASS | The package does not prescribe broad environment or secret discovery; evidence and reports omit values. |
 | A25 | PASS | No literal user home path appears in the rebuilt package. |
-| A26 | PASS | Transport, permissions, flags, models, and protocols are verified live or reported uncertain rather than guessed. |
+| A26 | PASS | Transport, permissions, flags, models, protocols, and persistent-session state are verified live or reported uncertain rather than guessed. |
 | A27 | N/A | No active scripts remain. |
 | A28 | N/A | No active assets or provider metadata remain. |
-| A29 | PASS | The rules protect ownership, overlap, side effects, current capability, evidence, durable sources, and secret boundaries without generic tutorial filler. |
+| A29 | PASS | Rules protect ownership, overlap, side effects, current capability, evidence, durable records, and secret boundaries without tutorial filler. |
 | A30 | DEFERRED | Canonical/bundle/provider parity and intended exposure await the permitted composition pass. |
-| A31 | DEFERRED | Compose dry runs and installed-view checks await composition; the local validator passed link/path/name and no-internal-symlink checks. |
-| A32 | PASS | The result was compared with the code-quality mode-suite and herdr private-transport golden shapes; rubric boundaries win where they differ. |
-| A33 | PASS | 114 is strictly smaller than 2,301 and below the absolute 1,200-line consolidated-owner cap. |
-| A34 | PASS | The preservation ledger accounts for every qualifying absorbed or replaced delta and its disposition. |
-| A35 | PASS | The six exact pre-rewrite originals are listed above under `archive/triage-2026-07/`. |
+| A31 | DEFERRED | Compose dry runs and installed-view checks await composition; local links and the no-internal-symlink validator check pass. |
+| A32 | PASS | Compared with accepted pilot artifacts `reports/pilot/code-quality.md` (suite mode/reference shape) and `reports/pilot/herdr.md` (compact private-transport boundaries); rubric differences govern. |
+| A33 | PASS | 110 is strictly smaller than the 2,441-line all-text absorbed/replaced corpus and below the 1,200-line consolidated-owner cap. |
+| A34 | PASS | The preservation ledger accounts for each qualifying absorbed and revision-pass delta, including the final Zellij plan-build disposition. |
+| A35 | PASS | The initial originals and the pre-revision active package are listed above at exact archive paths. |
 
 ## Validation evidence
 

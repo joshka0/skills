@@ -85,7 +85,7 @@
 | A29 | PASS | Rules preserve concrete topology, lifecycle, delivery, telemetry, and runtime-evidence invariants without tutorial filler. |
 | A30 | DEFERRED | Canonical/bundle/provider parity awaits the explicitly deferred composition phase. |
 | A31 | DEFERRED | Local route files and no-internal-symlink checks pass; compose and installed-view checks await the composition phase. |
-| A32 | PASS | Rewritten against the full rubric, `go-lang` suite golden package/report, and the `infra-bundles` pilot report; rubric took precedence. |
+| A32 | PASS | Rechecked against accepted pilot artifacts `reports/pilot/code-quality.md` (suite mode-table/selected-reference shape) and `reports/pilot/herdr.md` (compact non-inferable safety boundary); this suite keeps only BEAM ownership deltas. |
 | A33 | PASS | 117 is strictly smaller than 457 and below the 1,200-line consolidated-owner cap. |
 | A34 | PASS | The preservation ledger accounts for every qualifying delta of all seven sources. |
 | A35 | PASS | The archive inventory proves exact pre-rewrite originals, including the retained owner, are in the required archive tree. |

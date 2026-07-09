@@ -1,5 +1,7 @@
 # Validation and acceptance contract
 
+This is a maintained operational split of the repository's current rubric, not an independent normative source. Reconcile any drift to the repository rubric before acceptance.
+
 ## Provider composition and exposure
 
 Composition preserves one semantic source and a non-overlapping installed catalog.

@@ -1,108 +1,106 @@
-# Fleet acceptance — goal-protocol
+# Fleet acceptance — goal-protocol (revision pass)
 
 ## Verdict
 
-**PACKAGE-CONFORMS.** The canonical durable-goal suite passes every package-judgable item. A15's bundle/provider clause, A30, and A31 are **DEFERRED** because this fleet task forbids bundle and provider composition; A19 is not applicable to a suite.
+**PACKAGE-CONFORMS.** This revision repairs the durable-goal boundary: it creates and approves parent-traced packets and records returned evidence, but never dispatches, monitors, reviews, or integrates live agent work. A15's bundle/provider clause, A30, and A31 are **DEFERRED** because composition is out of scope; A19 is not applicable to a suite.
 
 ## Result
 
 - Canonical home: `shared/general/goal-protocol`
-- Archetype: mode suite with five lifecycle modes: `converge`, `blueprint`, `six-phase`, `orchestrate`, and `ledger`.
-- Final package: 110 text lines / 9,995 bytes.
-- Archived originals: 2,905 text lines across seven pre-rewrite directories; active-package reduction: 2,795 lines.
-- `goal-council`, `code-council`, `goal-orchestrator`, and `six-phase-dev` now survive only as selected goal-protocol deltas. Both `plan-build` bodies are CUT to archive and handed to `planning-workflow` below.
-- Composition status: deferred by scope; no bundle, provider, mirror, or provider-current file changed.
+- Archetype: mode suite with six lifecycle modes: `converge`, `goal-file`, `blueprint`, `six-phase`, `orchestrate`, and `ledger`.
+- Final package: 53-line / 4,278-byte active body; six selected references (11–16 lines); **128 text lines / 12,310 bytes** total.
+- Source corpus: 2,915 all-text lines across the original durable-goal family plus 494 archived `codex-goal` lines now absorbed as the `goal-file` mode; 128 < **3,409**. This count includes archived text templates such as the Zellij `.kdl` layout.
+- Revision snapshot: the prior 110-line active package was moved intact to `archive/triage-2026-07/revision-pass/shared/general/goal-protocol/` before rebuild.
+- Live execution boundary: `orchestrate` ends at approved packets and wave state; `agent-orchestration` dispatches and integrates them, then `ledger` records returned evidence and gate transitions.
+- Validator: `PASS: shared/general/goal-protocol (suite)`
+- Composition status: no bundle, provider, mirror, or provider-current file changed.
 
 ## Collision matrix
 
 | Phrase or artifact | First owner | Nearest competitor | Discriminator and handoff |
 | --- | --- | --- | --- |
-| `/goal` | `goal-protocol` → `converge` or `ledger` | `planning-workflow` | A `/goal` here has durable phase artifacts, objective verification, stop conditions, and a ledger; a one-shot planning artifact goes to `planning-workflow`. |
-| `/goal-council` | `goal-protocol` → `converge` | generic brainstorming | Converges a long-horizon goal through alternatives, dissent, a red team, metrics, and pivot triggers rather than merely discussing options. |
-| `/code-council` | `goal-protocol` → `blueprint` | `code-quality` | Owns pre-production feature-to-test/location traceability and dossier gates; `code-quality` owns implementation, refactor, and diagnosis passes. |
-| `/goal-orchestrator` | `goal-protocol` → `orchestrate` | `agent-orchestration` | Owns parent-traced tickets and verified waves from approved artifacts; `agent-orchestration` owns live dispatch transport without the durable lifecycle contract. |
-| `six-phase` | `goal-protocol` → `six-phase` | `code-quality` → `tdd` | Requires explicit human gates, trial implementation/revert, and deviation review; ordinary TDD or implementation work does not activate it. |
-| `GOAL_LEDGER.md` | `goal-protocol` → `ledger` | `planning-workflow` | The ledger is append-only operational memory across goal, dossier, tickets, and handoffs; planning artifacts do not require that persistent lifecycle. |
-| reviewed implementation plan / `plan-build` | `planning-workflow` | `goal-protocol` | A reviewed plan is a one-shot artifact outcome, not a durable goal mode; see the required handoff below. |
+| `/goal` | `goal-protocol` → `goal-file` or `converge` | `planning-workflow` | A `/goal` creates a durable `GOAL.md`, phase artifacts, and ledger; a one-shot planning artifact belongs to planning-workflow. |
+| `codex-goal` | `goal-protocol` → `goal-file` | `agent-orchestration` | This legacy phrase names a durable objective contract and live-discovered start handoff, not a live delegation mode. |
+| `/goal-council` | `goal-protocol` → `converge` | generic brainstorming | It converges a long-horizon goal through alternatives, dissent, red-team evidence, metrics, and pivot triggers. |
+| `/code-council` | `goal-protocol` → `blueprint` | `code-quality` | It owns pre-production behavior-to-test/location traceability and dossier gates; code-quality owns implementation and diagnosis passes. |
+| `/goal-orchestrator` | `goal-protocol` → `orchestrate` | `agent-orchestration` | It designs parent-traced tickets and approves wave state; agent-orchestration alone launches, monitors, reviews, and integrates live work. |
+| `six-phase` | `goal-protocol` → `six-phase` | `code-quality` → `tdd` | It requires explicit human gates, trial/revert evidence, and deviation review; ordinary TDD does not activate it. |
+| `GOAL_LEDGER.md` or returned packet evidence | `goal-protocol` → `ledger` | `agent-orchestration` | The ledger owns durable state and gate transitions; orchestration returns execution evidence but does not own the goal lifecycle. |
+| live agent dispatch | `agent-orchestration` | `goal-protocol` → `orchestrate` | A goal packet becomes live work only after it leaves this suite with an approved parent and evidence-return contract. |
+| reviewed implementation plan / `plan-build` | `planning-workflow` | `goal-protocol` | A reviewed plan is a one-shot artifact; persistent mux continuation is a narrow `agent-orchestration` transport adapter, not a goal mode. |
 
-The metadata preserves every important absorbed invocation before loading: `/goal`, `/goal-council`, `/code-council`, `/goal-orchestrator`, and `six-phase`; `GOAL_LEDGER.md` is the durable artifact trigger.
-
-## Required planning-workflow handoff
-
-`planning-workflow` must absorb a **reviewed-implementation-plan** outcome from both archived `plan-build` bodies. It is not a new goal-protocol mode.
-
-- **Input:** a bounded implementation request plus repository reconnaissance and user constraints.
-- **Required artifact:** `docs/plans/<plan-name>.md` or the repository's equivalent, with problem/outcome, architecture decision and rejected alternatives, exact file changes and ownership, test/edge/error strategy, migration and dependency implications, ordered implementation steps, verification, and open questions/defaults.
-- **Review contract:** review the saved draft against those facts; emit categorized actionable gaps and retained strengths; revise and re-review until it is `approved`, `needs-revision`, or `needs-decision`. A draft printed only in an agent pane is not the reviewed outcome.
-- **Delegated planner boundary:** when a planner agent is used, it may analyze repository state but must not mutate the implementation or run Git commands. Mux transport is optional implementation support, not planning semantics.
-- **Zellij adapter delta:** if `planning-workflow` retains a persistent Zellij planner adapter, preserve its background-session setup, initial Escape dismissal, carriage-return submission, input clear, screen-dump monitoring, and same-session revision injection as a selected adapter reference. Do not reintroduce the duplicated broad plan-build body.
+The metadata-visible triggers are `/goal`, `codex-goal`, `/goal-council`, `/code-council`, `/goal-orchestrator`, and `six-phase`.
 
 ## A34 preservation ledger
 
 | Archived original | Qualifying non-default delta | Disposition |
 | --- | --- | --- |
-| `shared/general/goal-protocol` | Durable goal root, ledger-first/resume discipline, mutable-current versus append-only history, phase gates, traceability IDs, and supervisor-owned integration | Kept in `SKILL.md` Workflow/Hard rules and `references/ledger-handoff.md`. |
-| `shared/general/goal-protocol` | Objective-only Codex `/goal` use, status persistence, red-team/verification/handoff gates, three-failed-check stop | Kept in `references/ledger-handoff.md`, the selected mode references, and `SKILL.md` Hard rules. |
-| `shared/general/goal-protocol` | Blank goal, ledger, dossier, orchestration, and ticket templates | Dropped: generic forms duplicate the compact artifact contracts and have no downstream consumer requiring a fixed template. |
-| `shared/general/goal-council` | Goal-as-hypothesis, real alternatives, tradeoff cross-examination, simulation/premortem, preserved dissent, non-skippable red team, lock standard, review/pivot/compact maintenance | Kept in `references/convergence.md`; theatrical role roster and long example dossier are dropped as non-default-free presentation. |
-| `shared/general/code-council` | Goal-to-feature-to-behavior-to-structure/interface/test/location/invariant traceability, read-only recon, alternatives with dissent, TODO map, spike-verify-revert, and contract/blueprint/diff red teams | Kept in `references/implementation-dossier.md`; root-level dossier placement remains input compatibility only. |
-| `shared/general/goal-orchestrator` | Self-contained, one-agent, parent-traced tickets; vertical-slice cut lines; file-disjoint DAG waves; breakdown red team; integration wave; replan preserves completed IDs; escalation stops | Kept in `references/orchestration.md` and `SKILL.md` Hard rules. Per-ticket commit wording is dropped as repository policy, not a protocol invariant. |
-| `shared/general/six-phase-dev` | Explicit human phase gates; structures/interfaces/TODO blast-radius review; trial implementation, verification, revert, and deviation report; human edits authoritative; invariants before final implementation; shipping stays human-owned | Kept in `references/six-phase.md` and `SKILL.md` Hard rules. The tool-specific harness tutorial is reduced to a truthful testability-gap rule. |
-| `shared/general/plan-build` | Strict reviewed-plan outcome: saved draft, bounded clarification and revision loop, evidence-backed review, exact file/rationale/test/error/migration/dependency/order/open-question plan | CUT from this family and handed to `planning-workflow` as **reviewed-implementation-plan** above. Tmux/model transport is not a durable goal invariant. |
-| `shared/variants/zellij/plan-build` | Same reviewed-plan outcome plus persistent Zellij input/monitoring adapter | CUT from this family and handed to `planning-workflow` as an optional selected Zellij adapter; it must not create a second plan-build catalog slot. |
+| original `goal-protocol` | Durable goal root, ledger-first/resume discipline, mutable current state, append-only history, phase gates, traceability IDs, and evidence-based handoff | Kept in `SKILL.md` and `references/ledger-handoff.md`. |
+| original `goal-protocol` | Objective-only `/goal` eligibility, verification/stop posture, status persistence, and a durable goal-file contract | Kept and clarified in `references/goal-file.md` and `references/ledger-handoff.md`; volatile command variants are live-discovered. |
+| original `goal-protocol` | Approved tickets, dependency DAG, file-disjoint waves, breakdown red team, integration/verification end state, and replan preservation | Kept as packet and wave-state design in `references/orchestration.md`; live dispatch, review, and integration move to `agent-orchestration`. |
+| original `goal-council` | Goal-as-hypothesis, real alternatives, tradeoff cross-examination, preserved dissent, non-skippable red team, lock standard, and pivot maintenance | Kept in `references/convergence.md`; theatrical role roster and long examples are dropped as presentation rather than a durable invariant. |
+| original `code-council` | Goal-to-feature-to-behavior-to-structure/interface/test/location/invariant traceability, read-only reconnaissance, dissent, TODO map, spike-verify-revert, and red teams | Kept in `references/implementation-dossier.md`; root-level placement remains input compatibility only. |
+| original `goal-orchestrator` | One-agent self-contained parent-traced tickets, vertical cut lines, dependency DAG waves, breakdown red team, replan preservation, and escalation stops | Kept in `references/orchestration.md`; execution is explicitly handed to `agent-orchestration`, and per-ticket commit wording is dropped as repository policy. |
+| original `six-phase-dev` | Human phase gates, structures/interfaces/TODO blast-radius review, trial/verify/revert, deviation report, authoritative human edits, invariants, and human-owned shipping | Kept in `references/six-phase.md`; the tool-specific harness tutorial is reduced to a truthful testability-gap rule. |
+| archived `codex-goal` | `GOAL.md` objective, context, constraints, verification, stop, and done fields; measurable eligibility; file/start handoff | Kept in `references/goal-file.md`. Installed help resolves current `/goal` syntax rather than copying flags or config toggles. |
+| original `plan-build` | Strict saved reviewed-plan outcome, bounded review/revision loop, exact file/rationale/test/error/migration/dependency/order/open-question plan | Merged into `planning-workflow` → `reviewed-plan`; not a durable-goal mode. |
+| Zellij `plan-build` | Generic persistent-session continuation and bounded revision injection | Merged into `agent-orchestration/references/mux-adapter.md`; Escape, carriage-return, input-clear, screen-dump, keystroke, fixed path, model, and runner mechanics are dropped as volatile or nonessential. |
 
 ## A35 archive inventory
 
-| Original | Archive path | Archived text lines |
+| Original or revision snapshot | Archive path | Text lines |
 | --- | --- | ---: |
-| `goal-protocol` | `archive/triage-2026-07/shared/general/goal-protocol` | 1,097 |
-| `goal-council` | `archive/triage-2026-07/shared/general/goal-council` | 166 |
-| `code-council` | `archive/triage-2026-07/shared/general/code-council` | 133 |
-| `goal-orchestrator` | `archive/triage-2026-07/shared/general/goal-orchestrator` | 134 |
-| `six-phase-dev` | `archive/triage-2026-07/shared/general/six-phase-dev` | 118 |
-| `plan-build` | `archive/triage-2026-07/shared/general/plan-build` | 633 |
-| Zellij `plan-build` | `archive/triage-2026-07/shared/variants/zellij/plan-build` | 624 |
-| **Total** |  | **2,905** |
+| original `goal-protocol` | `archive/triage-2026-07/shared/general/goal-protocol/` | 1,097 |
+| original `goal-council` | `archive/triage-2026-07/shared/general/goal-council/` | 166 |
+| original `code-council` | `archive/triage-2026-07/shared/general/code-council/` | 133 |
+| original `goal-orchestrator` | `archive/triage-2026-07/shared/general/goal-orchestrator/` | 134 |
+| original `six-phase-dev` | `archive/triage-2026-07/shared/general/six-phase-dev/` | 118 |
+| original `plan-build` | `archive/triage-2026-07/shared/general/plan-build/` | 633 |
+| original Zellij `plan-build` | `archive/triage-2026-07/shared/variants/zellij/plan-build/` | 634 |
+| absorbed `codex-goal` | `archive/triage-2026-07/shared/general/codex-goal/` | 494 |
+| pre-revision active `goal-protocol` | `archive/triage-2026-07/revision-pass/shared/general/goal-protocol/` | 110 |
+
+All current-package originals were archived before this revision was written. No archive was deleted or overwritten.
 
 ## Acceptance checklist
 
 | Item | Result | Evidence |
 | --- | --- | --- |
-| A01 | PASS | The non-default delta is a durable, traceable goal lifecycle with append-only operational memory, gated upstream artifacts, parent IDs, wave safety, and exact handoff requirements. |
-| A02 | PASS | Long-running multi-phase goals repeatedly need continuity across sessions and agents; a ledger and phase gates solve a recurring coordination problem rather than one planning conversation. |
-| A03 | PASS | The collision matrix assigns durable goals, one-shot plans, code-quality work, and live dispatch to distinct first owners. |
+| A01 | PASS | The non-default delta is durable, parent-traced goal governance with a `GOAL.md` contract, gates, packet approval, and ledgered returned evidence. |
+| A02 | PASS | Multi-session goals repeatedly need continuity, approval state, and evidence after delegated work. |
+| A03 | PASS | The collision matrix separates durable goals, one-shot artifacts, live dispatch, private transport, and reviewed plans. |
 | A04 | PASS | Exactly one mode suite owns the durable-goal lifecycle. |
-| A05 | PASS | `shared/general/goal-protocol` matches unique `name: goal-protocol`; validator checks canonical uniqueness. |
-| A06 | PASS | Frontmatter contains only `name` and a one-line description. |
-| A07 | PASS | The two-sentence description is one physical line and is within the suite 320-character limit. |
-| A08 | PASS | It states the durable lifecycle and ends with six concrete legacy/artifact triggers. |
-| A09 | PASS | The collision matrix gives every claimed trigger an owner, nearest competitor, discriminator, and handoff. |
-| A10 | PASS | Six-phase behavior requires an explicit phrase; no generic planning or implementation request activates a persistent human-gated mode. |
-| A11 | PASS | `SKILL.md` is 51 lines / 3,531 bytes, below the suite 120-line / 10 KiB cap; validator passes. |
-| A12 | PASS | The active body contains route, precedence, workflow, hard rules, stops, output, and reference routing only. |
-| A13 | PASS | Each of five modes has one exact reference and selection condition; the active body instructs loading only that selected reference. |
-| A14 | PASS | References are 11–13 lines each; the 110-line / 9,995-byte package stays below standard and consolidated-owner caps with no scripts or assets. |
-| A15 | DEFERRED (bundle/provider clause) | The canonical package has no active duplicate former body. Existing bundle/provider exposure is intentionally untouched and cannot be claimed as conforming in this scope. |
-| A16 | PASS | Five modes share one durable goal lifecycle and fall within the two-to-eight mode range. |
-| A17 | PASS | Five distinct kebab-case rows select exactly one reference by default; `converge` and `ledger` have deterministic default conditions. |
-| A18 | N/A | This is a mode suite, not a router. |
-| A19 | N/A | This is a mode suite, not a router. |
-| A20 | PASS | The suite directs current repository conventions and installed `/goal` help before version-sensitive behavior; no CLI/API fact is frozen. |
-| A21 | PASS | External manuals, transport guides, model flags, long templates, and duplicated tutorials were removed or archived. |
-| A22 | N/A | No volatile value is pinned as a pack constraint. |
-| A23 | PASS | No credential, token, key, or secret URL exists in the active package. |
-| A24 | PASS | The suite does not prescribe secret discovery; its reports use artifacts, parent IDs, validation status, and blockers. |
-| A25 | PASS | Canonical paths are repository-relative and contain no literal user home path. |
-| A26 | PASS | Existing artifacts and local conventions are inspected; missing parent facts stop or route backwards rather than being guessed. |
-| A27 | N/A | The active package has no scripts. |
-| A28 | N/A | The active package has no assets or provider metadata. |
-| A29 | PASS | Rules protect ledger history, traceability, approval gates, wave ownership, human control, and validation without generic coaching. |
-| A30 | DEFERRED | Canonical/bundle/provider parity and final exposure await the explicitly excluded composition phase. |
-| A31 | DEFERRED | Local links and the validator's symlink check pass; compose dry run and installed-view checks await that phase. |
-| A32 | PASS | The suite follows the `code-quality` golden mode-table shape and the `herdr` compact active/reference boundary; the current rubric resolved all shape decisions. |
-| A33 | PASS | 110 active package lines is strictly smaller than 2,905 replaced lines and below every hard cap. |
-| A34 | PASS | The preservation ledger above accounts for every qualifying delta, including both CUT plan-build bodies and their named handoff. |
-| A35 | PASS | The archive inventory lists the pre-rewrite original of every touched skill, including the in-place goal-protocol original. |
+| A05 | PASS | `shared/general/goal-protocol` matches unique `name: goal-protocol`; validator checks uniqueness. |
+| A06 | PASS | Frontmatter has only `name` and a one-line description. |
+| A07 | PASS | The two-sentence one-line description is 230 bytes including quotes/newline, below the 320-character suite cap. |
+| A08 | PASS | The description states the durable lifecycle and ends with six concrete metadata-visible legacy triggers. |
+| A09 | PASS | The collision matrix supplies a first owner, competitor, discriminator, and handoff for every claimed trigger. |
+| A10 | PASS | Six-phase remains explicit-only; generic planning and live dispatch do not silently activate durable phases. |
+| A11 | PASS | The 53-line / 4,278-byte active body is below the suite 120-line / 10 KiB cap. |
+| A12 | PASS | Active instructions contain route, lifecycle workflow, boundaries, stops, output, and reference selection only. |
+| A13 | PASS | Six exact linked references each have one route condition, and the suite says to load only the selected one. |
+| A14 | PASS | References are 11–16 lines and the 128-line package is below all hard caps; no scripts, assets, or metadata hide prose. |
+| A15 | DEFERRED | Canonical content is non-duplicated; bundle/provider exposure is outside this revision scope. |
+| A16 | PASS | Six modes share the durable goal lifecycle and fit the two-to-eight mode range. |
+| A17 | PASS | Six distinct kebab-case routes select one mode by default with clear lifecycle entry conditions. |
+| A18 | N/A | This is a suite, not a router. |
+| A19 | N/A | This is a suite, so it has no router target or exposure rule. |
+| A20 | PASS | Repository conventions and installed `/goal` help precede any version-sensitive behavior; no flags are frozen. |
+| A21 | PASS | Command catalogs, model recommendations, config toggles, transport manuals, and broad templates were removed or archived. |
+| A22 | N/A | No volatile pack constraint is pinned. |
+| A23 | PASS | The active package contains no credential, token, key, or secret URL. |
+| A24 | PASS | Goal artifacts and reports exclude secret values; no secret-discovery procedure is prescribed. |
+| A25 | PASS | All paths are repository-relative conventions or placeholders, with no literal user home path. |
+| A26 | PASS | Missing parent facts and current `/goal` behavior are inspected or reported uncertain rather than guessed. |
+| A27 | N/A | No active scripts remain. |
+| A28 | N/A | No active assets or provider metadata remain. |
+| A29 | PASS | Rules protect phase gates, traceability, live-execution separation, returned-evidence verification, human authority, and secret boundaries. |
+| A30 | DEFERRED | Canonical/bundle/provider parity and exposure await the excluded composition pass. |
+| A31 | DEFERRED | Compose and installed-view checks await composition; local links and the no-internal-symlink validator check pass. |
+| A32 | PASS | Compared with accepted pilot artifacts `reports/pilot/code-quality.md` (suite mode/reference shape) and `reports/pilot/herdr.md` (compact active/reference boundaries); the rubric governs differences. |
+| A33 | PASS | 128 is strictly smaller than the 3,409-line all-text absorbed/replaced corpus and below the 1,200-line consolidated-owner cap. |
+| A34 | PASS | The preservation ledger accounts for every qualifying goal, Codex-goal, and plan-build delta with a kept, merged, or dropped disposition. |
+| A35 | PASS | Initial originals and the pre-revision active package are listed at exact archive paths above. |
 
 ## Validation evidence
 

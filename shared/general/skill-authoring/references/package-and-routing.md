@@ -1,5 +1,7 @@
 # Package and routing contract
 
+This is a maintained operational split of the repository's current rubric, not an independent normative source. Reconcile any drift to the repository rubric before acceptance.
+
 ## Description and trigger contract
 
 The description is the primary routing interface and MUST be optimized for precision, not keyword stuffing.

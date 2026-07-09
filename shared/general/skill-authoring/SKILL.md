@@ -5,7 +5,7 @@ description: "Apply this pack's normative skill-design contract to create, conso
 
 # Skill Authoring
 
-Use the selected rubric reference as the normative contract; repository instructions and the rubric outrank a golden example when they differ.
+Use the selected rubric reference as a maintained operational split of the repository's current rubric. The repository rubric is the single normative source; repository instructions and that rubric outrank a golden example when they differ. For A32, the accepted pilot artifacts are `reports/pilot/herdr.md` and `reports/pilot/code-quality.md`; current package copies are not the examples.
 
 ## Route
 
@@ -30,6 +30,7 @@ Select one mode first and read only its reference. Read `validation-and-acceptan
 ## Hard rules
 
 - Treat the four references as one contract; they are a split form of the pack rubric, not optional advice.
+- If a split reference and the current repository rubric differ, stop and reconcile the split before accepting a package; do not silently create a second normative rule set.
 - Do not create a standing skill for generic knowledge, a compatibility alias, or a one-off setup note; cut it or merge its delta into the named owner.
 - Verify volatile behavior from repository state, live help/status, then primary documentation; do not mirror public manuals or API matrices.
 - Never put secret values, literal personal-home paths, or guessed machine facts in canonical content.

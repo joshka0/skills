@@ -76,7 +76,7 @@ The original support tree also remains preserved under `archive/triage-2026-07/s
 | A29 | PASS | Static scanner visibility, explicit theme coverage, third-party binding, and config-first diagnosis are concrete durable rules. |
 | A30 | DEFERRED | Canonical/bundle/provider parity awaits the explicitly deferred composition phase. |
 | A31 | DEFERRED | Local reference and no-internal-symlink checks pass; compose and installed-view checks await composition. |
-| A32 | PASS | Rewritten against the full rubric, Go suite golden package/report, and infra router pilot; rubric controls shape. |
+| A32 | PASS | Rechecked against accepted pilot artifacts `reports/pilot/herdr.md` (compact leaf with non-inferable local conventions) and `reports/pilot/code-quality.md` (selected-reference discipline); volatile API detail remains deferred. |
 | A33 | PASS | 48 is strictly smaller than 2,025 and below every absolute cap. |
 | A34 | PASS | The preservation ledger classifies every qualifying source-family delta and each deliberate volatility cut. |
 | A35 | PASS | Exact pre-rewrite package is retained at the required archive path. |

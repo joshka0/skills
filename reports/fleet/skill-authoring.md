@@ -5,7 +5,7 @@
 - Verdict: **PACKAGE-CONFORMS**. This is a contract migration, not a consolidation or trim; catalog composition is out of scope.
 - Canonical home: `shared/general/skill-authoring`
 - Archetype: mode suite
-- Final package: 402 text lines / 28,734 bytes; active body: 40 lines / 2,689 bytes; four selected references: 75–102 lines each.
+- Final package: 409 text lines; active body: 41 lines / 3,110 bytes; four selected references: 77–104 lines each.
 - Pre-rewrite package: 213 text lines / 9,240 bytes, archived in place.
 - Validator: `PASS: shared/general/skill-authoring (suite)`
 - Deterministic validator: `bin/validate-skill.sh` is named in the active workflow and was run for this package.
@@ -28,11 +28,12 @@
 | Reference/script/asset/metadata placement rules | Kept | `references/package-and-routing.md`; `references/evidence-and-safety.md`. |
 | Description trigger and frontmatter guidance | Kept and made normative | `references/package-and-routing.md`. |
 | Validation checklist and provider implications | Kept and replaced with the full normative acceptance contract | `references/validation-and-acceptance.md`. |
-| Human handoff fields (canonical home, active instructions, references, bundle impact, validation) | Kept as outcome, not a forced template | `SKILL.md:34-40`; output is proportional unless a reviewer contract needs A01–A35. |
+| Human handoff fields (canonical home, active instructions, references, bundle impact, validation) | Kept as outcome, not a forced template | `SKILL.md` Output section; output is proportional unless a reviewer contract needs A01–A35. |
+| Fable source-of-truth drift risk | Kept with explicit ownership rule | `SKILL.md` and all four references now identify the repository rubric as the single normative source and the package files as a maintained operational split that must be reconciled before acceptance. |
 
 ## A35 archive-in-place originals
 
-The exact pre-rewrite package is archived at `archive/triage-2026-07/shared/general/skill-authoring/`: `SKILL.md` plus the four prior references (213 lines / 9,240 bytes). The active directory was recreated only after the archive move.
+The exact pre-fleet package is archived at `archive/triage-2026-07/shared/general/skill-authoring/`: `SKILL.md` plus the four prior references (213 lines / 9,240 bytes). The fleet-revision preimage is preserved at `archive/triage-2026-07/revision-pass/shared/general/skill-authoring/` before this source-of-truth correction.
 
 ## Checklist
 
@@ -48,10 +49,10 @@ The exact pre-rewrite package is archived at `archive/triage-2026-07/shared/gene
 | A08 | PASS | The description names the contract, authoring, archetype, and acceptance gate. |
 | A09 | PASS | Collision matrix defines first owners and handoffs for all claimed signals. |
 | A10 | PASS | No greedy trigger or implicit persona activation appears. |
-| A11 | PASS | Active body is 40 lines / 2,689 bytes, below suite limits. |
+| A11 | PASS | Active body is 41 lines / 3,110 bytes, below suite limits. |
 | A12 | PASS | Active body has only route, workflow, hard rules, output, and validation invocation. |
 | A13 | PASS | The four route rows give one condition and exact existing file; it instructs selected-only reading. |
-| A14 | PASS | References are 75–102 lines; package is 402 lines / 28,734 bytes; no hidden prose support files exist. |
+| A14 | PASS | References are 77–104 lines; package is 409 lines; no hidden prose support files exist. |
 | A15 | DEFERRED | Canonical package has no active duplicate; bundle/provider parity is excluded from this wave. |
 | A16 | PASS | Four modes share the skill-authoring lifecycle and safety contract. |
 | A17 | PASS | The mode table uses distinct kebab-case names, exact reference paths, and selected-first routing. |
@@ -66,13 +67,13 @@ The exact pre-rewrite package is archived at `archive/triage-2026-07/shared/gene
 | A26 | PASS | Machine facts must be live-verified/profile-loaded and missing profiles fail clearly. |
 | A27 | PASS | `bin/validate-skill.sh` is explicitly referenced and smoke-tested by this recorded invocation; no package-local script exists. |
 | A28 | N/A | No assets or provider metadata. |
-| A29 | PASS | Archive-before-edit, precise routing, scope boundary, and validation evidence protect concrete pack failures without filler. |
+| A29 | PASS | Archive-before-edit, precise routing, source-of-truth reconciliation, scope boundary, and validation evidence protect concrete pack failures without filler. |
 | A30 | DEFERRED | Canonical/bundle/provider parity and exposure are excluded from this wave. |
 | A31 | DEFERRED | Composition dry runs and installed-view checks await the composition phase; local validation passed. |
-| A32 | PASS | Compared against `herdr` and `code-quality`: compact command brain, selected references, archive evidence, and report artifacts match the golden shape. |
+| A32 | PASS | Compared against accepted pilot artifacts `reports/pilot/herdr.md` and `reports/pilot/code-quality.md`: compact command brain, selected references, archive evidence, and report artifacts match the golden shape. |
 | A33 | N/A | This mandated contract migration replaces a 213-line overview with the full normative rubric; it is neither a consolidation nor a trim. |
 | A34 | PASS | Preservation ledger above accounts for every pre-rewrite qualifying delta. |
-| A35 | PASS | Exact original package exists under `archive/triage-2026-07/shared/general/skill-authoring/`. |
+| A35 | PASS | Exact pre-fleet original, pre-source-of-truth revision, and pre-golden-identity revision snapshots are preserved in their respective archive paths. |
 
 ## Validation evidence
 

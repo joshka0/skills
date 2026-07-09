@@ -15,7 +15,7 @@ Choose one production-interface decision and load only its selected guidance.
 | `review` | The user names a UI audit or critique of an existing surface | `references/review.md` |
 | `improve` | The user names UI improve/tune or one concrete quality or expressive outcome | `references/improve.md` |
 
-Select exactly one mode by default. Read only its reference. For any selected mode that changes or judges interaction, motion, accessibility, responsive behavior, dynamic layout, or data typography, also read `references/standards.md`.
+Select exactly one mode by default. Read only its reference. For any selected mode that changes or judges interaction, motion, accessibility, responsive behavior, dynamic layout, input-aware prefetching, or data typography, also read `references/standards.md`.
 
 ## Do not use when
 

@@ -87,7 +87,7 @@
 | A29 | PASS | Rules preserve concrete ownership, lifecycle, error, and pressure invariants without tutorial filler. |
 | A30 | DEFERRED | Canonical/bundle/provider parity awaits the explicitly deferred composition phase. |
 | A31 | DEFERRED | Local route files and no-internal-symlink checks pass; compose and installed-view checks await the composition phase. |
-| A32 | PASS | Rewritten against the full rubric, `go-lang` suite golden package/report, and the `infra-bundles` pilot report; rubric took precedence. |
+| A32 | PASS | Rechecked against accepted pilot artifacts `reports/pilot/code-quality.md` (suite mode-table/selected-reference shape) and `reports/pilot/herdr.md` (compact non-inferable safety boundary); this suite keeps only Effect ownership deltas. |
 | A33 | PASS | 115 is strictly smaller than 537 and below the 1,200-line consolidated-owner cap. |
 | A34 | PASS | The preservation ledger accounts for every qualifying delta of all eight sources. |
 | A35 | PASS | The archive inventory proves exact pre-rewrite originals, including the retained owner, are in the required archive tree. |

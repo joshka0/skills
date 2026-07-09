@@ -77,7 +77,7 @@ The original 651-line support reference also remains under `archive/triage-2026-
 | A29 | PASS | MV3 persistence, privileged message validation, hostile-page isolation, and least-privilege rules are concrete security invariants. |
 | A30 | DEFERRED | Canonical/bundle/provider parity awaits the explicitly deferred composition phase. |
 | A31 | DEFERRED | Local reference and no-internal-symlink checks pass; compose and installed-view checks await composition. |
-| A32 | PASS | Rewritten against the full rubric, Go suite golden package/report, and infra router pilot; rubric controls shape. |
+| A32 | PASS | Rechecked against the accepted pilot artifacts `reports/pilot/herdr.md` (compact safety-first leaf) and `reports/pilot/code-quality.md` (selected-reference routing); the leaf keeps MV3/privilege invariants active and defers volatile platform detail. |
 | A33 | PASS | 45 is strictly smaller than 743 and below every absolute cap. |
 | A34 | PASS | The preservation ledger classifies each qualifying extension safety boundary and deliberate volatility cut. |
 | A35 | PASS | Exact pre-rewrite package is retained at the required archive path. |
