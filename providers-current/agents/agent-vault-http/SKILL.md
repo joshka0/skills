@@ -1,10 +1,6 @@
 ---
 name: agent-vault-http
-description: >-
-  Agent Vault HTTP: a transparent HTTPS proxy that injects credentials for
-  external services (Linear, GitHub, Stripe, Slack, Jira, etc.). Use when the
-  task involves any third-party API or service that requires credentials, or
-  when writing code that needs environment variables for secrets/API keys.
+description: "Agent Vault HTTP: a transparent HTTPS proxy that injects credentials for external services (Linear, GitHub, Stripe, Slack, Jira, etc.). Use when the task involves any third-party API or service that requires credentials, or when writing code that needs environment variables for secrets/API keys."
 compatibility: Requires a running Agent Vault server and AGENT_VAULT_SESSION_TOKEN environment variable
 metadata:
   author: dangtony98

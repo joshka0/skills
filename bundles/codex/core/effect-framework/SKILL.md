@@ -1,62 +1,49 @@
 ---
 name: effect-framework
-description: >-
-  Router for Effect v4 TypeScript architecture skills. Covers:
-  effect-framework-architecture, effect-framework-services-layers,
-  effect-framework-runtime-resources, effect-framework-errors,
-  effect-framework-concurrency-streams, effect-framework-testing, and
-  effect-framework-migration. Use when working with Effect, @effect packages,
-  Effect.Effect, Context.Service, Layer, Scope, ManagedRuntime, runMain,
-  @effect/vitest, TestClock, Fiber, Queue, Stream, Schedule, Exit, or Cause.
+description: "Apply Effect decision policy for services, lifecycles, typed failures, concurrent flows, test layers, and upgrades. Use when Context.Service/Layer, Scope/runtime, Exit/Cause, Fiber/Stream, @effect/vitest, or v3-to-v4 code needs a boundary decision."
 ---
 
 # Effect Framework
 
-Use this as the small entrypoint for Effect-based TypeScript systems. Keep the
-active context narrow: identify the Effect surface first, then read only the
-matching routed skill from `references/skill-map.md`.
+Choose the Effect boundary that changes before applying version-sensitive framework guidance.
 
-## Routing
+## Route
 
-1. Identify the active surface:
-   - system architecture, module structure, boundaries, or application layering
-   - Context.Service declarations, service interfaces, or Layer composition
-   - Scope, Layer.scoped, acquire/release, runMain, or ManagedRuntime lifecycle
-   - typed errors, tagged errors, Exit, Cause, sandboxing, retries, or defects
-   - fibers, forkChild, forkDetach, Queue, PubSub, Stream, or Schedule
-   - @effect/vitest, test layers, TestClock, deterministic dependencies, or test runtime
-   - v3-to-v4 migration, stale docs, unstable imports, removed Runtime<R>, or renamed APIs
-2. Read `references/skill-map.md`.
-3. Load only the listed detailed Effect skill files that match the active surface.
-4. Combine with `code-quality`, `diagnose`, `quality-gate`, or
-   `chrome-extension-builder` when the task is broader than Effect architecture.
+| Mode | Select when | Read |
+| --- | --- | --- |
+| `system-shape` | A service contract, Layer graph, module boundary, or adapter boundary is being designed | `references/skill-map.md` |
+| `runtime-lifecycle` | A process runtime, framework adapter, scoped resource, finalizer, or shutdown path changes | `references/runtime-lifecycle.md` |
+| `failure-boundary` | A typed error, defect, interruption, retry, Exit, or Cause crosses a boundary | `references/failure-boundary.md` |
+| `concurrency-flow` | A fiber, queue, stream, schedule, backpressure rule, or long-lived producer changes | `references/concurrency-flow.md` |
+| `test-proof` | An Effect test needs layers, deterministic time, scoped cleanup, or a boundary assertion | `references/test-proof.md` |
+| `migration` | Effect package versions, imports, or v3-to-v4 compatibility must be assessed | `references/migration.md` |
 
-## Defaults
+Select exactly one mode and read only its reference. Combine modes only for an explicit pass sequence.
 
-- Treat the project dependency version and migration notes as source of truth
-  before applying v4-specific APIs.
-- Model business workflows as `Effect.Effect<A, E, R>` and keep requirements
-  visible until composition time.
-- Define dependencies with `Context.Service`; build implementations with
-  explicit `Layer`s.
-- Compose one application layer near the edge instead of scattering ad hoc
-  `Effect.provide(...)` through business code.
-- Put lifecycle-owning services behind `Layer.scoped` or `Effect.acquireRelease`.
-- Run effects at process or adapter boundaries with `runMain`, `Effect.run*`, or
-  `ManagedRuntime`, not inside domain logic.
-- Keep expected business failures in the typed error channel; inspect `Exit` and
-  `Cause` at boundaries.
-- Prefer structured concurrency: `forkChild` by default, `forkDetach` only with
-  explicit ownership.
-- Use test layers and deterministic time for tests.
+## Precedence
+
+`effect-framework` owns an Effect-specific service, runtime, failure, or fiber decision. `code-quality` owns generic TypeScript/source diagnosis; `infra-bundles` owns desired-versus-live infrastructure failures.
+
+## Workflow
+
+1. Inspect the installed Effect packages, lockfile, local conventions, affected callers, and repository verification commands.
+2. Select one mode and read only its reference. For version-sensitive behavior, inspect installed version/config and types, then live help, then primary Effect documentation.
+3. State the ownership, requirement, failure, or lifetime boundary before changing code.
+4. Run the focused typecheck or test that exercises that boundary and report what it proves.
+
+## Hard rules
+
+- Keep requirements visible until one composed application layer or adapter boundary provides them.
+- Run effects only at process, adapter, worker, or test boundaries; domain workflows remain effectful.
+- Give each resource and background fiber an owner, shutdown path, and observable failure path.
+- Keep expected recoverable failures typed and translate dependency vocabulary before it becomes a public contract.
+- Mark API or migration behavior unconfirmed when installed evidence and primary documentation disagree or are unavailable.
+
+## Stop conditions
+
+- Ask for direction when ownership between a process, framework, or service layer materially changes cleanup or public behavior.
+- Report blocked verification rather than guessing about an installed Effect version or migration behavior.
 
 ## Output
 
-When giving Effect guidance, include:
-
-- **Surface**: which routed Effect skill applies.
-- **Effect shape**: the smallest service/layer/runtime design that fits.
-- **Risks**: hidden execution, scattered provide, resource leaks, orphan fibers,
-  stale v3 APIs, or untyped defects to avoid.
-- **Verification**: focused typecheck, test, @effect/vitest case, runtime
-  lifecycle check, or migration check to run.
+Return the selected mode, local facts inspected, the resulting Effect boundary, focused verification, and residual risk.

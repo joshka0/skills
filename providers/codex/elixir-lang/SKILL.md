@@ -1,59 +1,50 @@
 ---
 name: elixir-lang
-description: >-
-  Router for idiomatic Elixir, BEAM, and OTP architecture skills. Covers:
-  elixir-lang-otp-design, elixir-lang-supervision-processes,
-  elixir-lang-concurrency-pipelines, elixir-lang-fault-observability,
-  elixir-lang-testing, and elixir-lang-performance-interop. Use when working
-  with Elixir, BEAM, OTP, GenServer, Supervisor, DynamicSupervisor, Registry,
-  Task, Task.Supervisor, GenStage, Flow, Broadway, Phoenix.PubSub, ETS, ExUnit,
-  Mox, :telemetry, Logger, or OpenTelemetry.
+description: "Apply Elixir/OTP decision policy for process topology, supervision, pipelines, fault signals, tests, and runtime evidence. Use when a GenServer, Supervisor, Task/Broadway flow, :telemetry boundary, ExUnit process test, ETS/mailbox, or NIF/port decision needs a boundary."
 ---
 
 # Elixir Language
 
-Use this as the small entrypoint for Elixir and OTP work. Keep the active
-context narrow: identify the BEAM/OTP surface first, then read only the matching
-routed skill from `references/skill-map.md`.
+Choose the BEAM ownership boundary that changes before applying version-sensitive OTP guidance.
 
-## Routing
+## Route
 
-1. Identify the active surface:
-   - application structure, plain modules, domain boundaries, event sourcing, or CQRS
-   - GenServer, Agent, Supervisor, Registry, DynamicSupervisor, or process-per-entity
-   - Task, Task.Supervisor, GenStage, Flow, Broadway, Phoenix.PubSub, or backpressure
-   - let-it-crash, restart strategy, circuit breakers, :telemetry, Logger, or tracing
-   - ExUnit, start_supervised!, async tests, Mox, StreamData, property tests, or contracts
-   - ETS, mailbox growth, process cardinality, binary memory, NIFs, ports, or macros
-2. Read `references/skill-map.md`.
-3. Load only the listed detailed Elixir skill files that match the active surface.
-4. Combine with `code-quality`, `diagnose`, `quality-gate`, or framework-specific
-   skills when the task is broader than Elixir idiom selection.
+| Mode | Select when | Read |
+| --- | --- | --- |
+| `otp-shape` | A plain module versus process, application topology, umbrella, CQRS, or event-history decision is being made | `references/skill-map.md` |
+| `process-topology` | A GenServer, Agent, Supervisor, Registry, DynamicSupervisor, or entity lifecycle changes | `references/process-topology.md` |
+| `concurrent-flow` | A Task, demand-driven pipeline, Broadway ingestion, PubSub fan-out, rate limit, or backpressure rule changes | `references/concurrent-flow.md` |
+| `failure-signals` | A crash boundary, restart policy, retry limit, telemetry event, log metadata, or trace propagation changes | `references/failure-signals.md` |
+| `test-boundaries` | An ExUnit test owns processes, shared state, a behaviour fake, generated inputs, or a service contract | `references/test-boundaries.md` |
+| `runtime-evidence` | ETS, mailbox growth, process count, binary retention, scheduler pressure, NIF, port, or macro cost needs evidence | `references/runtime-evidence.md` |
 
-## Defaults
+Select exactly one mode and read only its reference. Combine modes only for an explicit pass sequence.
 
-- Keep pure transformations as plain modules and functions.
-- Use processes for runtime properties: state ownership, concurrency, timers,
-  failure isolation, or backpressure.
-- Put long-lived processes under supervisors and make restart relationships
-  explicit.
-- Use `Task` / `Task.Supervisor` for bounded one-shot work, not durable jobs.
-- Use demand-driven tools such as GenStage, Flow, or Broadway only when pacing
-  producers by consumers is central.
-- Use Registry and DynamicSupervisor for named runtime entities and lifecycle.
-- Instrument libraries with `:telemetry`; attach metrics, logs, and tracing at
-  the application boundary.
-- Test OTP state with `start_supervised!`, deterministic dependencies, and
-  behaviour-backed mocks or fakes.
+## Precedence
+
+`elixir-lang` owns BEAM-specific process, supervision, fault, or runtime decisions. `code-quality` owns generic source-code diagnosis; `infra-bundles` owns desired-versus-live infrastructure failures.
+
+## Workflow
+
+1. Inspect `mix.exs`, the lockfile, application tree, affected modules, callers, tests, and repository verification commands.
+2. Select one mode and read only its reference. For version-sensitive behavior, inspect installed version/config, then live help, then primary Elixir/Erlang documentation.
+3. State the state owner, failure boundary, pacing rule, or measured runtime claim before changing code.
+4. Run the focused ExUnit, supervision, telemetry, or load check that exercises that boundary and report what it proves.
+
+## Hard rules
+
+- Keep pure transformations in plain modules until a runtime property requires a process.
+- Give every long-lived process a named owner, supervision relationship, restart intent, and lifecycle policy.
+- Make concurrency limits, backpressure, delivery guarantees, and shutdown behavior explicit.
+- Separate expected outcomes from crashes that supervision can safely recover; do not hide invariant failures.
+- Treat process-local naming and messaging as local until a distributed design proves otherwise.
+- Do not claim a BEAM performance or native-interop benefit without workload evidence.
+
+## Stop conditions
+
+- Ask for direction when an ownership, restart, delivery, or durability choice materially changes public behavior or data safety.
+- Report blocked verification rather than guessing about installed OTP, dependency, or runtime behavior.
 
 ## Output
 
-When giving Elixir guidance, include:
-
-- **Surface**: which routed Elixir skill applies.
-- **OTP shape**: the smallest BEAM-native process, supervision, or function
-  design that fits.
-- **Risks**: unnecessary GenServers, mailbox bottlenecks, restart storms,
-  hidden globals, unbounded concurrency, ETS ownership, NIF risk, or flaky tests.
-- **Verification**: focused `mix test`, ExUnit supervision check, telemetry
-  smoke, mailbox/load check, property test, or integration boundary test to run.
+Return the selected mode, local facts inspected, the resulting OTP boundary, focused verification, and residual risk.

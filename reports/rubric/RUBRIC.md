@@ -1,3 +1,5 @@
+> Living contract: `shared/general/skill-authoring/references/` as of 2026-07-10.
+
 # Skill Design Rubric — Executor Contract
 
 Status: **converged canonical rubric** for the post-triage `joshka0` skills pack. Produced from two independent blind drafts (`sol.md` as skeleton, amendments from `fable.md`), pending adversarial review and pilot validation. On execution this becomes the new `skill-authoring` content.

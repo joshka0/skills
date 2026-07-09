@@ -1,11 +1,6 @@
 ---
 name: agent-vault-cli
-description: >-
-  Agent Vault CLI: manage transparent credential injection for external
-  services (Linear, GitHub, Stripe, Slack, Jira, etc.) using the agent-vault
-  binary. Use when the task involves interacting with any third-party API or
-  service that requires credentials, or when writing code that needs
-  environment variables for secrets/API keys.
+description: "Agent Vault CLI: manage transparent credential injection for external services (Linear, GitHub, Stripe, Slack, Jira, etc.) using the agent-vault binary. Use when the task involves interacting with any third-party API or service that requires credentials, or when writing code that needs environment variables for secrets/API keys."
 compatibility: Requires a running Agent Vault server, the agent-vault binary on $PATH, and AGENT_VAULT_SESSION_TOKEN environment variable
 metadata:
   author: dangtony98

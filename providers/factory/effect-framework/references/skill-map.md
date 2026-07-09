@@ -1,45 +1,11 @@
-# Effect Framework Skill Map
+# Effect System Shape
 
-Read only the section that matches the task.
+Read this only for the `system-shape` mode.
 
-## Architecture
+1. Keep domain vocabulary and pure transformations independent of framework adapters; keep effectful use cases explicit until composition.
+2. Define service contracts around business capabilities, not constructors, mutable primitives, or external framework types.
+3. Export explicit Live, Test, or named layers and compose the application graph near the process or adapter edge.
+4. Use a scoped layer whenever construction acquires a resource or starts managed background work; use a plain layer only when no lifecycle is owned.
+5. Let adapters translate requests, responses, and framework failures; do not leak them into domain contracts.
 
-- `.routed/effect-framework-architecture/SKILL.md` - module structure,
-  boundary-run design, application layers, `Effect.fn`, `Effect.gen`, and
-  service-oriented architecture.
-
-## Services And Layers
-
-- `.routed/effect-framework-services-layers/SKILL.md` - `Context.Service`,
-  explicit service interfaces, Live/Test layers, layer graph composition,
-  memoization posture, and dependency injection.
-
-## Runtime And Resources
-
-- `.routed/effect-framework-runtime-resources/SKILL.md` - `Layer.scoped`,
-  `Effect.acquireRelease`, `Scope`, `runMain`, `Effect.run*`, `ManagedRuntime`,
-  graceful shutdown, and adapter ownership.
-
-## Errors, Exit, And Cause
-
-- `.routed/effect-framework-errors/SKILL.md` - typed errors, tagged errors,
-  `Schema.TaggedErrorClass`, domain failures, defects, interruptions, `Exit`,
-  `Cause`, sandboxing, boundary error handling, and retry visibility.
-
-## Concurrency, Streams, And Scheduling
-
-- `.routed/effect-framework-concurrency-streams/SKILL.md` - fibers,
-  `forkChild`, `forkDetach`, `Ref`, `Queue`, `PubSub`, `Stream`, `Schedule`,
-  back-pressure, fan-out, polling, and lifecycle ownership.
-
-## Testing
-
-- `.routed/effect-framework-testing/SKILL.md` - @effect/vitest, test layers,
-  `TestClock`, `TestContext`, deterministic dependencies, runtime cleanup, and
-  test boundaries.
-
-## Migration
-
-- `.routed/effect-framework-migration/SKILL.md` - v3-to-v4 changes,
-  `Context.Service`, removed `Runtime<R>`, `Yieldable`, flattened `Cause`,
-  layer memoization changes, unstable imports, and stale-docs cautions.
+Preserve a legible graph rather than scattered local provisioning or hidden singleton dependencies. Verify callers can provide a test layer without changing business code.

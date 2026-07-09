@@ -1,177 +1,110 @@
 {
-  "generatedAt": "2026-04-23T08:37:43.464Z",
+  "generatedAt": "2026-07-10",
   "roots": {
-    "shared": "shared/",
-    "providers": "providers/",
+    "shared": [
+      "shared/general",
+      "shared/claude"
+    ],
     "bundles": "bundles/",
-    "providersCurrent": "providers-current/",
-    "archive": "archive/",
-    "mirrors": {
-      "foxctlPack": "mirrors/foxctl/pack",
-      "foxctlExternal": "mirrors/foxctl/external",
-      "mattPocock": "mirrors/mattpocock/skills",
-      "repopromptAgents": "mirrors/repoprompt/agents"
+    "providers": "providers/",
+    "providersCurrent": "providers-current/"
+  },
+  "catalog": {
+    "canonicalSlots": 26,
+    "commonCanonical": [
+      "agent-orchestration",
+      "code-quality",
+      "design-family",
+      "effect-framework",
+      "elixir-lang",
+      "go-lang",
+      "goal-protocol",
+      "gtr",
+      "herdr",
+      "infra-bundles",
+      "local-dev",
+      "local-http-browser-use",
+      "maestri",
+      "planning-workflow",
+      "prototype",
+      "release-bundles",
+      "repoprompt-pro-review",
+      "skill-authoring",
+      "uniwind"
+    ],
+    "profileDecisions": {
+      "claudeOnly": [
+        "caveman",
+        "git-guardrails-claude-code",
+        "grill-me",
+        "peon-ping",
+        "riff-partner"
+      ],
+      "codexChromeProfile": "Codex exposes chrome-extension-builder instead of product-platform; other live profiles expose product-platform. This keeps the router and its independently triggerable leaf out of the same bundle result.",
+      "interactionMetadata": "disable-model-invocation is received only by Claude, its identified consumer; non-Claude bundles omit the three interaction packages rather than relying on unknown-key behavior."
     }
   },
-  "decisions": {
-    "delegateCodex": "Collapsed to shared/general/delegate-codex using the Claude step-by-step version.",
-    "codexSwarm": "shared/general/codex-swarm is tmux canonical; shared/variants/zellij/codex-swarm preserves the Agents Zellij variant.",
-    "planBuild": "shared/general/plan-build is tmux canonical; shared/variants/zellij/plan-build preserves the Agents Zellij variant.",
-    "externalAliases": "external-* Codex aliases are preserved under shared/codex because frontmatter names differ; do not collapse them to non-external names.",
-    "opencode": "Overlay intentionally pending due root mismatch and remaining agentctl-* entries in ~/.config/opencode/skill.",
-    "mattPocock": "Mirrored from https://github.com/mattpocock/skills. Active imports are non-deprecated, non-in-progress, non-personal skills only; exposed through shared/general and the supported provider overlays.",
-    "progressiveRouters": "Default overlays expose product-platform, design-family, release-bundles, infra-bundles, go-lang, effect-framework, and elixir-lang instead of every stack-specific checklist, design micro-skill, language subskill, or framework subskill.",
-    "councilSkills": "code-council, goal-council, and goal-orchestrator were imported from ~/Downloads/skills-claude and exposed to Claude and Codex overlays for durable goal, code, and orchestration dossiers.",
-    "codexGoal": "codex-goal is an active direct skill for creating, refining, running, and monitoring Codex CLI /goal objectives; agent-orchestration also routes to the same goal workflow.",
-    "goLang": "go-lang is the active Go router; detailed Go guidance lives in routed child skills go-lang-design, go-lang-concurrency, go-lang-errors, go-lang-testing, go-lang-packages-api, and go-lang-performance.",
-    "effectFramework": "effect-framework is the active Effect v4 router; detailed Effect guidance lives in routed child skills for architecture, services/layers, runtime/resources, errors, concurrency/streams, testing, and migration.",
-    "elixirLang": "elixir-lang is the active Elixir router; detailed Elixir guidance lives in routed child skills for OTP design, supervision/processes, concurrency/pipelines, fault/observability, testing, and performance/interop.",
-    "thermoNuclearCodeQualityReview": "thermo-nuclear-code-quality-review is an active local workflow for unusually strict maintainability review focused on structural simplification, file-size pressure, spaghetti branching, abstraction quality, and type/boundary cleanliness.",
-    "zeroTechDebt": "zero-tech-debt is an active local workflow for reworking a change from the intended end state, deleting dead compatibility paths and accidental complexity.",
-    "repopromptAgents": "RepoPrompt rp-* skills were moved out of the active Agents overlay into mirrors/repoprompt/agents. Use repoprompt-pro-review by default unless the specialized RepoPrompt workflows are explicitly restored."
-  },
-  "externalNameMap": [
-    {
-      "dirName": "android-expo-eas-build-binary-readiness",
-      "skillName": "android-expo-eas-build-binary-readiness"
-    },
-    {
-      "dirName": "android-play-accessibility-age-rating-readiness",
-      "skillName": "android-play-accessibility-age-rating-readiness"
-    },
-    {
-      "dirName": "android-play-ai-ugc-safety-readiness",
-      "skillName": "android-play-ai-ugc-safety-readiness"
-    },
-    {
-      "dirName": "android-play-console-eas-automation-bridge",
-      "skillName": "android-play-console-eas-automation-bridge"
-    },
-    {
-      "dirName": "android-play-data-safety-permissions-readiness",
-      "skillName": "android-play-data-safety-permissions-readiness"
-    },
-    {
-      "dirName": "android-play-iap-subscriptions-readiness",
-      "skillName": "android-play-iap-subscriptions-readiness"
-    },
-    {
-      "dirName": "android-play-production-checklist",
-      "skillName": "android-play-production-checklist"
-    },
-    {
-      "dirName": "android-play-quality-prelaunch-readiness",
-      "skillName": "android-play-quality-prelaunch-readiness"
-    },
-    {
-      "dirName": "android-play-sensitive-category-readiness",
-      "skillName": "android-play-sensitive-category-readiness"
-    },
-    {
-      "dirName": "android-play-store-listing-metadata-readiness",
-      "skillName": "android-play-store-listing-metadata-readiness"
-    },
-    {
-      "dirName": "android-play-submission-packet-readiness",
-      "skillName": "android-play-submission-packet-readiness"
-    },
-    {
-      "dirName": "android-play-testing-track-readiness",
-      "skillName": "android-play-testing-track-readiness"
-    },
-    {
-      "dirName": "apple-accessibility-age-rating-readiness",
-      "skillName": "apple-accessibility-age-rating-readiness"
-    },
-    {
-      "dirName": "apple-ai-privacy-safety-readiness",
-      "skillName": "apple-ai-privacy-safety-readiness"
-    },
-    {
-      "dirName": "apple-asc-cli-automation-bridge",
-      "skillName": "apple-asc-cli-automation-bridge"
-    },
-    {
-      "dirName": "apple-build-binary-readiness",
-      "skillName": "apple-build-binary-readiness"
-    },
-    {
-      "dirName": "apple-iap-subscription-readiness",
-      "skillName": "apple-iap-subscription-readiness"
-    },
-    {
-      "dirName": "apple-metadata-storefront-readiness",
-      "skillName": "apple-metadata-storefront-readiness"
-    },
-    {
-      "dirName": "apple-production-checklist",
-      "skillName": "apple-production-checklist"
-    },
-    {
-      "dirName": "apple-submission-packet-readiness",
-      "skillName": "apple-submission-packet-readiness"
-    },
-    {
-      "dirName": "apple-testflight-release-readiness",
-      "skillName": "apple-testflight-release-readiness"
-    },
-    {
-      "dirName": "opentui",
-      "skillName": "opentui-tui-builder"
-    },
-    {
-      "dirName": "uniwind-excellence-rn",
-      "skillName": "uniwind-excellence-rn"
-    },
-    {
-      "dirName": "uniwind-rn-android",
-      "skillName": "uniwind-rn-android"
-    },
-    {
-      "dirName": "uniwind-rn-ios",
-      "skillName": "uniwind-rn-ios"
-    }
-  ],
-  "providers": {
-    "codex": {
-      "entries": 53,
-      "symlinks": 0,
-      "files": 53
-    },
+  "providerNativeExceptions": {
     "agents": {
-      "entries": 53,
-      "symlinks": 0,
-      "files": 53
+      "entries": [
+        "agent-vault-cli",
+        "agent-vault-http"
+      ],
+      "composeMetadataTransform": "The copied native descriptions are flattened to one YAML line without changing their text."
     },
-    "factory": {
-      "entries": 50,
-      "symlinks": 0,
-      "files": 50
-    },
-    "claude": {
-      "entries": 52,
-      "symlinks": 0,
-      "files": 52
-    },
-    "gemini": {
-      "entries": 50,
-      "symlinks": 0,
-      "files": 50
+    "codex": {
+      "entries": [
+        ".system"
+      ],
+      "composeHandling": "bin/compose-codex-skills.sh preserves .system."
     },
     "gemini-antigravity": {
-      "entries": 52,
-      "symlinks": 0,
-      "files": 52
+      "entries": [
+        "heroui-react-pro",
+        "heroui-pro-design-taste"
+      ]
+    },
+    "retiredDocumentation": "The historical Agents maestri and maestri-portal exceptions are not present in the live overlay. Canonical maestri supersedes the former and maestri-portal is archive-only."
+  },
+  "excludedGeneratedOutputs": {
+    "providers/codex-routed": "Generated non-install output, including stale release children; it is not a provider root or catalog exposure surface.",
+    "providers/opencode": "Placeholder outside the supported install-root set."
+  },
+  "providers": {
+    "agents": {
+      "bundle": "core",
+      "entries": 22,
+      "snapshot": true
+    },
+    "claude": {
+      "bundle": "core",
+      "entries": 25,
+      "snapshot": true
+    },
+    "codex": {
+      "bundle": "core",
+      "entries": 21,
+      "snapshot": true
     },
     "droid": {
-      "entries": 30,
-      "symlinks": 0,
-      "files": 30
+      "bundle": "core",
+      "entries": 20,
+      "snapshot": true
     },
-    "opencode": {
-      "entries": 1,
-      "symlinks": 0,
-      "files": 1
+    "factory": {
+      "bundle": "core",
+      "entries": 20,
+      "snapshot": true
+    },
+    "gemini": {
+      "bundle": "core",
+      "entries": 20,
+      "snapshot": true
+    },
+    "gemini-antigravity": {
+      "bundle": "core",
+      "entries": 22,
+      "snapshot": true
     }
   }
 }
