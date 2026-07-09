@@ -1,17 +1,17 @@
 #!/bin/sh
 # Usage: validate-skill.sh <skill_dir> <archetype>
-# archetype: leaf | private-leaf | suite | router
+# archetype: leaf | private-leaf | suite | router | interaction
 # Mechanical gate from reports/rubric/RUBRIC.md section 13.
 set -eu
 
-skill_dir="${1:?skill dir}"; archetype="${2:?leaf|private-leaf|suite|router}"
+skill_dir="${1:?skill dir}"; archetype="${2:?leaf|private-leaf|suite|router|interaction}"
 skill_file="$skill_dir/SKILL.md"
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
 case "$archetype" in
-  leaf|suite)   max_lines=120; max_bytes=10240; max_desc=220 ;;
-  private-leaf) max_lines=160; max_bytes=12288; max_desc=220 ;;
-  router)       max_lines=80;  max_bytes=6144;  max_desc=320 ;;
+  leaf|suite|interaction) max_lines=120; max_bytes=10240; max_desc=220 ;;
+  private-leaf)           max_lines=160; max_bytes=12288; max_desc=220 ;;
+  router)                 max_lines=80;  max_bytes=6144;  max_desc=320 ;;
   *) fail "unknown archetype $archetype" ;;
 esac
 if [ "$archetype" = suite ]; then max_desc=320; fi

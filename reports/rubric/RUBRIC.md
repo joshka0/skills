@@ -95,6 +95,7 @@ Rules:
 - Additional frontmatter keys MUST have an identified provider consumer; speculative flags and duplicated provider metadata are forbidden.
 - License or source metadata MAY be retained when attribution requires it.
 - Provider-specific registration belongs under `agents/` unless the shared frontmatter key is demonstrably supported by every target that receives it.
+- A provider-specific frontmatter key in a shared body (e.g. `disable-model-invocation`) MUST be either stripped by the compose script for providers that do not consume it or verified harmless-when-ignored; the choice is recorded per key in the pack notes.
 
 A normal active body uses this shape and omits sections it does not need:
 
@@ -145,7 +146,7 @@ The description is the primary routing interface and MUST be optimized for preci
 
 ### Collision test
 
-Before acceptance, compare the description with every retained skill in the same trigger neighborhood.
+Before acceptance, compare the description with every retained skill in the same trigger neighborhood, and record the comparison as a **collision matrix artifact** in the acceptance report: each claimed phrase or artifact, its first owner, nearest competitor, the discriminator, and any precedence or handoff rule. For a consolidated suite, additionally show that important absorbed legacy invocations (skill names and phrases users are known to type) remain selectable from metadata — an internal mode table is invisible until after routing.
 
 - Each common request MUST have one obvious first owner.
 - If two skills claim the same request, merge them as modes or make the discriminator explicit.
@@ -363,7 +364,7 @@ Run from the repository root with the target directory substituted:
 ```sh
 #!/bin/sh
 # Usage: validate-skill.sh <skill_dir> <archetype>
-# archetype: leaf | private-leaf | suite | router
+# archetype: leaf | private-leaf | suite | router | interaction
 set -eu
 
 skill_dir="${1:?skill dir}"; archetype="${2:?leaf|private-leaf|suite|router}"
@@ -371,9 +372,9 @@ skill_file="$skill_dir/SKILL.md"
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
 case "$archetype" in
-  leaf|suite)   max_lines=120; max_bytes=10240; max_desc=220 ;;
-  private-leaf) max_lines=160; max_bytes=12288; max_desc=220 ;;
-  router)       max_lines=80;  max_bytes=6144;  max_desc=320 ;;
+  leaf|suite|interaction) max_lines=120; max_bytes=10240; max_desc=220 ;;
+  private-leaf)           max_lines=160; max_bytes=12288; max_desc=220 ;;
+  router)                 max_lines=80;  max_bytes=6144;  max_desc=320 ;;
   *) fail "unknown archetype $archetype" ;;
 esac
 if [ "$archetype" = suite ]; then max_desc=320; fi
@@ -465,12 +466,19 @@ An executor MUST check every item and provide the result to the reviewer. Any un
 - [ ] A31 — Local links, routed targets, compose dry runs, installed-view checks, and the no-internal-symlink check all pass.
 - [ ] A32 — I compared the result with the golden example for shape, resolved every rubric difference in favor of this contract, and recorded validation evidence.
 - [ ] A33 — For a consolidation or trim, the package total (all text files) is strictly smaller than the sum of the skills it replaces AND within its absolute cap; the revamp shrinks the pack rather than laundering it into references, scripts, or assets.
+- [ ] A34 — **Preservation ledger**: for a consolidation or trim, the acceptance report inventories every qualifying non-default delta of each replaced or absorbed skill and classifies it as kept at `<path>`, merged into `<mode/reference>`, or dropped with an existence-bar reason. A reviewer MUST reject any unaccounted qualifying delta even when all budgets pass; net shrink proves nothing about preservation.
+- [ ] A35 — The pre-rewrite original of every touched skill — including in-place rewrites, not only replaced siblings — exists under the wave's `archive/` directory.
 
 ## 15. Reviewer verdict
 
+Conformance is two-stage:
+
+- **PACKAGE-CONFORMS** — every acceptance item that can be judged from the canonical package alone passes (all items except A15's bundle/provider clause, A19's overlay-exposure clause, A30, and A31). This is the gate a rewrite can reach before composition; deferred catalog items MUST be marked DEFERRED, never PASS.
+- **CATALOG-CONFORMS** — additionally, A15, A19, A30, and A31 pass across bundles, providers, and the installed view after composition.
+
 Reviewers return exactly one result:
 
-- **CONFORMS** — all 33 acceptance items pass and the existence bar still holds.
+- **CONFORMS** — all 35 acceptance items pass at catalog level and the existence bar still holds.
 - **REVISE** — the slot is justified, but one or more contract items fail.
 - **MERGE-into-`<owner>`** — useful delta, wrong standalone boundary.
 - **CUT** — no durable non-default delta remains.
