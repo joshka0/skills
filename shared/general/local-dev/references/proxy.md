@@ -2,31 +2,27 @@
 
 Manage the **local-hop** secure proxy and remote browser system.
 
+**Machine profile:** hostnames, Tailscale IPs, access URLs, and logins live in
+`~/.local-hop/profile.md` — read it first. Never copy those values into skills,
+repos, or command output.
+
 ## Architecture
 
 ```
 Mac (this machine)
   ↓ Tailscale VPN (encrypted)
-dev-machine (Ubuntu, 100.108.103.115)
+dev-machine (Ubuntu, IP in profile)
   ↓ 127.0.0.1 only (loopback)
   kasmweb containers (KasmVNC)
   ↓ Tailscale Serve (TLS termination, tailnet only)
-  https://dev-machine.tailbf79e9.ts.net → valid certs, no warnings
+  https://<dev-domain> → valid certs, no warnings
 ```
 
 **Key principle:** Containers bind to `127.0.0.1` only. Tailscale Serve exposes
 them to the tailnet with valid HTTPS. Never use Funnel.
 
-## Access URLs (all tailnet-only, valid Tailscale certs)
-
-| Service | URL | Login |
-|---------|-----|-------|
-| Desktop | `https://dev-machine.tailbf79e9.ts.net` | `kasm_user` / `localhop` |
-| Firefox | `https://dev-machine.tailbf79e9.ts.net:6081` | `kasm_user` / `localhop` |
-| Chrome | `https://dev-machine.tailbf79e9.ts.net:6082` | `kasm_user` / `localhop` |
-| Brave | `https://dev-machine.tailbf79e9.ts.net:6083` | `kasm_user` / `localhop` |
-
-**Read-only viewer:** `kasm_viewer` / `localhop`
+Services: Desktop (base port), Firefox (:6081), Chrome (:6082), Brave (:6083) —
+URLs and logins in the profile.
 
 ## Key Paths
 
@@ -34,9 +30,8 @@ them to the tailnet with valid HTTPS. Never use Funnel.
 |------|------|
 | Repo | `~/repos/personal/local-hop` |
 | Dev SSH alias | `ssh dev` (Tailscale SSH) |
-| Dev Tailscale IP | `100.108.103.115` |
-| Dev Tailscale domain | `dev-machine.tailbf79e9.ts.net` |
 | PAC file (Mac) | `~/.local-hop/proxy.pac` |
+| Machine profile | `~/.local-hop/profile.md` |
 
 ## Mac Quick Commands
 
@@ -50,7 +45,7 @@ them to the tailnet with valid HTTPS. Never use Funnel.
 
 1. **Never use Funnel** — Serve only (`tailscale serve`, never `tailscale funnel`)
 2. **Containers bind 127.0.0.1** — never 0.0.0.0
-3. **App-level auth** — kasm_user/kasm_viewer login on all services
+3. **App-level auth** — Kasm user/viewer login on all services (values in profile)
 4. **UFW firewall** — SSH (22) + Tailscale range (100.64.0.0/10) + loopback
 5. **Never expose** Docker sockets, DB consoles, .env viewers, admin panels
 
@@ -61,7 +56,7 @@ Start the SOCKS proxy:
 ```bash
 hop-socks
 # Configure browser: SOCKS5 at 127.0.0.1:1080
-# Or use PAC file: file:///Users/joshka/.local-hop/proxy.pac
+# Or use PAC file: file://$HOME/.local-hop/proxy.pac
 ```
 
 Use dev-machine as exit node:
@@ -71,14 +66,8 @@ hop-exit       # enables
 hop-exit-off   # disables
 ```
 
-Open a remote browser:
-
-```bash
-open https://dev-machine.tailbf79e9.ts.net          # Desktop
-open https://dev-machine.tailbf79e9.ts.net:6081      # Firefox
-open https://dev-machine.tailbf79e9.ts.net:6082      # Chrome
-open https://dev-machine.tailbf79e9.ts.net:6083      # Brave
-```
+Open a remote browser: `open <URL from profile>` (desktop, or :6081/:6082/:6083
+for Firefox/Chrome/Brave).
 
 Check dev-machine service status:
 
@@ -115,7 +104,7 @@ ssh dev 'sudo tailscale serve --https=8080 off'                          # remov
 
 ## Troubleshooting
 
-- **401 on browser URL:** Normal — Kasm login page. Use `kasm_user` / `localhop`
+- **401 on browser URL:** Normal — Kasm login page; credentials in the profile.
 - **Cert warning:** Check `tailscale serve status`
 - **Container not responding:** `ssh dev 'docker restart kasm-<name>'`
 - **Exit node not working:** Check https://login.tailscale.com/admin/machines
