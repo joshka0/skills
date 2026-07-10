@@ -1,39 +1,11 @@
-# Elixir Language Skill Map
+# Elixir OTP Shape
 
-Read only the section that matches the task.
+Read this only for the `otp-shape` mode.
 
-## OTP Design
+1. Start with the runtime property: shared state, concurrency, timer, failure isolation, naming, or backpressure.
+2. Keep transformations, validation, formatting, and stateless rules as plain functions when no runtime property requires a process.
+3. Make the application tree an operational map of ownership; do not use startup callbacks as a business-workflow container.
+4. Choose process boundaries by state ownership and failure domain, not by the nouns in a domain model.
+5. Use event history, CQRS, or separate OTP applications only when durable replay, auditability, independent lifecycle, or ownership makes that cost necessary.
 
-- `.routed/elixir-lang-otp-design/SKILL.md` - application structure, plain
-  modules versus processes, process topology decisions, event sourcing/CQRS, and
-  BEAM-native architecture.
-
-## Supervision And Processes
-
-- `.routed/elixir-lang-supervision-processes/SKILL.md` - GenServer, Agent,
-  Supervisor, Registry, DynamicSupervisor, process-per-entity, restart
-  strategies, and lifecycle ownership.
-
-## Concurrency And Pipelines
-
-- `.routed/elixir-lang-concurrency-pipelines/SKILL.md` - Task,
-  Task.Supervisor, GenStage, Flow, Broadway, Phoenix.PubSub, backpressure, rate
-  limiting, and demand-driven work.
-
-## Fault Tolerance And Observability
-
-- `.routed/elixir-lang-fault-observability/SKILL.md` - let-it-crash,
-  fail-fast boundaries, circuit breakers, :telemetry, structured Logger,
-  OpenTelemetry, and process-local context.
-
-## Testing
-
-- `.routed/elixir-lang-testing/SKILL.md` - ExUnit, `start_supervised!`,
-  `async: true`, Mox, behaviours, StreamData, property tests, doctests, and
-  contract tests.
-
-## Performance And Interop
-
-- `.routed/elixir-lang-performance-interop/SKILL.md` - ETS, mailbox control,
-  process cardinality, binary memory, hibernation, NIFs, ports, and macro
-  pitfalls.
+Verify the smallest relevant subtree can start and its boundary can be tested without booting the whole release.

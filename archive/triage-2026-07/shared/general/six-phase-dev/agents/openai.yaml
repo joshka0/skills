@@ -1,0 +1,4 @@
+interface:
+  display_name: "Six-Phase Dev"
+  short_description: "Gated phase workflow for code changes"
+  default_prompt: "Use $six-phase-dev to plan and execute this change one gated phase at a time."

@@ -1,47 +1,41 @@
 ---
 name: skill-authoring
-description: Author or refactor agent skills with compact active instructions, progressive references, scripts, assets, and provider metadata. Use when creating a new skill, splitting an oversized SKILL.md, improving skill descriptions, or aligning skills with this repo's pack architecture.
+description: "Apply this pack's normative skill-design contract to create, consolidate, or review canonical skills. Use when authoring a SKILL.md, choosing an archetype, or running the pack acceptance gate."
 ---
 
 # Skill Authoring
 
-Use this skill to author or refactor skills in this pack.
+Use the selected rubric reference as a maintained operational split of the repository's current rubric. The repository rubric is the single normative source; repository instructions and that rubric outrank a golden example when they differ. For A32, the accepted pilot artifacts are `reports/pilot/herdr.md` and `reports/pilot/code-quality.md`; current package copies are not the examples.
+
+## Route
+
+Select one mode first and read only its reference. Read `validation-and-acceptance.md` before declaring a package complete.
+
+| Mode | Select when | Read |
+| --- | --- | --- |
+| `existence-and-ownership` | deciding whether an idea earns a slot, cut, or merge target | `references/existence-and-ownership.md` |
+| `package-and-routing` | writing frontmatter, active instructions, modes, references, or a router | `references/package-and-routing.md` |
+| `evidence-and-safety` | handling volatile facts, private topology, paths, secrets, scripts, or operational rules | `references/evidence-and-safety.md` |
+| `validation-and-acceptance` | checking a completed package, archive, collision matrix, or composition boundary | `references/validation-and-acceptance.md` |
 
 ## Workflow
 
-1. Identify whether the request needs a new skill, a mode in an existing family, or a reference file.
-2. Gather the task/domain, triggers, use cases, and any deterministic operations.
-3. Write `SKILL.md` as routing, workflow, hard rules, and output shape only.
-4. Put detailed guidance, examples, templates, checklists, volatile facts, and API matrices under `references/`.
-5. Add `scripts/`, `assets/`, or `agents/` only when they have a clear purpose.
-6. Validate frontmatter, description triggers, links, and bundle/provider implications.
+1. Read the repository instructions and establish the canonical owner before editing prose.
+2. Select exactly one mode from the table; use a second mode only where its decision surface is required.
+3. Archive the pre-rewrite original of every touched skill before changing it.
+4. Keep `SKILL.md` to routing, shared workflow, non-default rules, stops, output, and selected-reference conditions.
+5. Run `bin/validate-skill.sh <skill-dir> <archetype>` from the repository root and record its literal result.
+6. Produce an acceptance report with the collision matrix, A01--A35, preservation ledger, archive evidence, and the correct package-versus-catalog verdict.
 
-## House Rules
+## Hard rules
 
-- Do not create a new skill when a mode or reference in an existing family would do.
-- Keep `SKILL.md` short; it is the command brain, not an encyclopedia.
-- Use `references/` for detailed docs and examples.
-- Use scripts for deterministic repeatable operations.
-- Use assets for static templates or support files.
-- Use `agents/` for provider metadata only.
-- Do not duplicate full content across `shared`, `bundles`, `providers`, and `archive`.
-- Edit canonical sources in `shared/*` or the relevant `mirrors/*` source, not generated provider overlays.
-
-## References
-
-Read only what the task needs:
-
-- `references/structure.md` for repo layout and skill directory shape.
-- `references/descriptions.md` for frontmatter description requirements.
-- `references/references-assets-scripts.md` for when to split files or add support resources.
-- `references/validation.md` for review checklist and validation expectations.
+- Treat the four references as one contract; they are a split form of the pack rubric, not optional advice.
+- If a split reference and the current repository rubric differ, stop and reconcile the split before accepting a package; do not silently create a second normative rule set.
+- Do not create a standing skill for generic knowledge, a compatibility alias, or a one-off setup note; cut it or merge its delta into the named owner.
+- Verify volatile behavior from repository state, live help/status, then primary documentation; do not mirror public manuals or API matrices.
+- Never put secret values, literal personal-home paths, or guessed machine facts in canonical content.
+- Do not edit bundles, providers, or installed views unless the task explicitly includes composition.
 
 ## Output
 
-When proposing or changing a skill, report:
-
-- **Canonical home**: where the source skill lives.
-- **Active instructions**: what stays in `SKILL.md`.
-- **References**: what moves under `references/`.
-- **Bundle impact**: which bundle/provider inputs need syncing.
-- **Validation**: checks performed or still needed.
+Report the canonical owner, chosen archetype, selected modes or targets, archive path, validation result, acceptance evidence, and whether the result is `PACKAGE-CONFORMS`, `CATALOG-CONFORMS`, or blocked.

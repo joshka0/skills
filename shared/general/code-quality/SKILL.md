@@ -1,76 +1,53 @@
 ---
 name: code-quality
-description: Create, modify, review, refactor, and test code through small composable design and behavior-focused tests. Covers regression test creation, ruthless test strategy, shoehorn migration, TDD, sprawl review, and interface design. Use when writing code, reviewing sprawl, refactoring, applying TDD, designing testable interfaces, creating regression tests, evaluating test strategy, migrating `as` assertions, or deciding whether an abstraction, dependency, file split, or mock is justified.
+description: "Run evidence-based code-quality, non-Go diagnosis, and merge-readiness passes. Use when users request thermonuclear review, ruthless test strategy, TDD, zero tech debt, architecture deepening, or a merge gate."
 ---
 
 # Code Quality
 
-Use this skill as the default foundation for code-writing, refactoring, and test-design work.
+Choose one evidence-driven mode for improving a code change, test suite, or diagnosed failure.
 
-## Modes
+## Route
 
-- `implement-small` — make the smallest coherent behavior change.
-- `review-sprawl` — identify unnecessary files, abstractions, dependencies, coupling, or generated complexity.
-- `refactor` — simplify touched code while preserving behavior.
-- `tdd` — use red-green-refactor with one behavior test at a time.
-- `test-strategy` — choose behavior-focused tests, boundaries, mocks, and test patterns.
-- `regression` — create a deterministic regression test for a fixed bug or difficult issue. Read `references/regression-tests.md`.
-- `migrate-shoehorn` — migrate test files from `as` type assertions to @total-typescript/shoehorn. Read `references/migrate-to-shoehorn.md`.
+| Mode | Select when | Read |
+| --- | --- | --- |
+| `implement-small` | The user requests the smallest coherent behavior change | `references/implement-small.md` |
+| `review-sprawl` | The user requests a sprawl audit or explicitly names a harsh or thermonuclear review | `references/review-sprawl.md` |
+| `refactor` | The user requests behavior-preserving refactoring | `references/refactor.md` |
+| `clean-slate` | The user explicitly says clean-slate, zero tech debt, or hard cut before compatibility deletion | `references/clean-slate.md` |
+| `tdd` | The user says TDD, red-green-refactor, or test-first | `references/tdd.md` |
+| `test-strategy` | The user asks to audit, prune, de-flake, choose tests, or migrate test-only ShoeHorn assertions | `references/test-strategy.md` |
+| `regression` | A resolved bug needs a deterministic regression test | `references/regression.md` |
+| `quality-gate` | The user requests merge readiness, a Definition of Done, or a second evidence-backed review | `references/quality-gate.md` |
+| `architecture` | The user requests deepening, seam analysis, or architecture cleanup | `references/architecture.md` |
+| `diagnose` | The user explicitly asks to diagnose a non-Go hard failure or performance regression | `references/diagnose.md` |
 
-## First
+Select exactly one mode by default. Read only its reference. Combine modes only when the user asks for a pass sequence or when a selected reference explicitly requires the next mode.
 
-Identify the active mode and read only the relevant reference:
+## Do not use when
 
-- `references/small-composable-code.md` for the full small-code philosophy, sprawl detector, and review templates.
-- `references/tests.md` for behavior-focused test examples.
-- `references/mocking.md` for boundary-only mocking guidance.
-- `references/interface-design.md` for testable public interfaces.
-- `references/deep-modules.md` for small interfaces over deep implementation.
-- `references/refactoring.md` for post-green cleanup candidates.
-- `references/regression-tests.md` for deterministic regression test creation workflow.
-- `references/ruthless-test-strategy.md` for test evaluation, pattern selection, pruning, and suite strategy.
-- `references/migrate-to-shoehorn.md` for shoehorn migration patterns and workflow.
+For a Go performance regression or Go verification claim, `go-lang` owns the first pass. This suite owns non-Go source-code diagnosis; Kubernetes or infrastructure-as-code desired/live failures belong to `infra-bundles`.
 
-## Hard Rules
+## Shared workflow
 
-- Solve the actual requested behavior, not an imagined platform.
-- Prefer a small reviewable diff over a grand rewrite.
-- Do not local-refactor unrelated code.
-- Preserve public behavior unless the task explicitly changes it.
-- Use existing project shape, names, tests, and error patterns before inventing new ones.
-- Keep side effects at the edge and domain logic testable.
-- Add dependencies, files, abstractions, and mocks only when they reduce total complexity.
-- Test through public behavior, not private implementation.
-- Mock system boundaries only; do not mock internal collaborators by default.
+1. Inspect the requested scope, current code, existing tests, and repository conventions before proposing a change or conclusion.
+2. Use the selected reference for mode-specific work; resolve version-sensitive tooling from installed state, live help, then current primary documentation.
+3. Support conclusions with current evidence: a path and line, a failing or passing check, a reproduction signal, or a confirmed caller.
+4. Preserve public behavior unless the selected mode and user request explicitly define an intended end-state change.
 
-## TDD Mode
+## Hard rules
 
-When the user asks for TDD, red-green-refactor, or test-first work:
+- Prefer a coherent local shape over a broad speculative rewrite.
+- Add files, dependencies, abstractions, seams, and mocks only when they reduce total complexity or isolate a real system boundary.
+- Test observable behavior through the right public surface; do not lock tests to internal choreography by default.
+- Do not patch a quality-gate finding unless the user requested a fix loop.
+- State uncertainty and the missing evidence instead of guessing about tool, API, or repository behavior.
 
-1. Name the next observable behavior.
-2. Write one failing behavior-focused test through a public interface.
-3. Implement only enough code to pass that test.
-4. Repeat one behavior at a time.
-5. Refactor only after tests are green.
+## Stop conditions
 
-For non-trivial public interface changes, confirm the behavior and test boundary with the user. For small bug fixes, proceed with the smallest behavior-focused test and state assumptions.
-
-## Simplicity Gate
-
-Before finalizing, verify:
-
-- **Behavior**: solves exactly the requested behavior.
-- **Shape**: localized diff, clear domain names, no unnecessary files/classes/dependencies.
-- **Testability**: core logic can be tested without infrastructure; side effects are isolated.
-- **Composability**: explicit inputs/outputs and narrow public APIs.
-- **Maintenance**: understandable to a new developer; obsolete code removed.
+- Ask for direction when two modes would materially change the result and the request does not identify a winner.
+- Stop a diagnosis before fixing when no trustworthy feedback loop or reproduction signal can be built; report what access or artifact is needed.
 
 ## Output
 
-When reviewing or planning code, report:
-
-- **Minimal shape**: the smallest coherent solution.
-- **Sprawl risks**: what could become unnecessarily large or coupled.
-- **Recommended change**: focused implementation or refactor.
-- **What to delete or avoid**: unnecessary files, abstractions, dependencies, or branches.
-- **Verification**: focused tests or checks to run.
+Return the selected mode, evidence, the smallest justified action or decision, verification performed, and unresolved risk or follow-up.

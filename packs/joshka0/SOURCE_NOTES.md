@@ -164,9 +164,12 @@ Core local skills kept active by default:
 
 ```text
 agent-swarm
+code-council
 codex-goal
 effect-framework
 elixir-lang
+goal-council
+goal-orchestrator
 go-lang
 gtr
 local-dev

@@ -1,50 +1,46 @@
 ---
 name: go-lang
-description: >-
-  Router for idiomatic Go language skills. Covers: go-lang-design,
-  go-lang-concurrency, go-lang-errors, go-lang-testing,
-  go-lang-packages-api, and go-lang-performance. Use when writing, reviewing,
-  refactoring, testing, or designing Go code; when the user mentions Go,
-  Golang, goroutines, context, errors.Is, go test, go.mod, or idiomatic Go.
+description: "Apply a compact Go decision policy for public contracts, goroutine lifetimes, and verification evidence. Use when an exported Go API, error boundary, goroutine, race, benchmark, or Go performance regression needs a decision; non-Go diagnosis belongs to code-quality."
 ---
 
 # Go Language
 
-Use this as the small entrypoint for Go work. Keep the active context narrow:
-identify the Go surface first, then read only the matching routed skill from
-`references/skill-map.md`.
+Choose one mode for a Go package or change. This suite keeps only the pack's durable Go decision policy; resolve version-sensitive behavior from repository state, live Go tools, then primary documentation.
 
-## Routing
+## Route
 
-1. Identify the active surface:
-   - API shape, interfaces, composition, constructors, or design patterns
-   - goroutines, channels, context, worker pools, pipelines, or errgroup
-   - error wrapping, sentinel errors, typed errors, or error API design
-   - tests, fakes, mocks, table-driven tests, benchmarks, fuzzing, or race checks
-   - package layout, modules, exported APIs, compatibility, or naming
-   - performance, memory, allocations, pprof, escape analysis, or sync.Pool
-2. Read `references/skill-map.md`.
-3. Load only the listed detailed Go skill files that match the active surface.
-4. Combine with `code-quality`, `diagnose`, or `quality-gate` when the task is
-   broader than Go idiom selection.
+| Mode | Select when | Read |
+| --- | --- | --- |
+| `public-contract` | An exported type, function, package boundary, error behavior, or module compatibility changes | `references/public-contract.md` |
+| `goroutine-lifetime` | A goroutine, channel, cancellation path, worker limit, or concurrent failure path changes | `references/goroutine-lifetime.md` |
+| `verification-evidence` | A Go test, race risk, benchmark, profile, allocation claim, or Go performance regression needs proof | `references/verification-evidence.md` |
 
-## Defaults
+Select exactly one mode. Start with `public-contract` when the request has no more specific route; combine modes only for a user-requested pass sequence.
 
-- Prefer concrete types until an abstraction is proven useful.
-- Put interfaces on the consumer side, and keep them small.
-- Prefer composition over hierarchy; use embedding deliberately.
-- Pass `context.Context` explicitly for request-scoped work.
-- Treat errors, cancellation, and goroutine lifetimes as public design concerns.
-- Test public behavior with table-driven tests and fakes before adding mocks.
-- Use the repo's current `go.mod`, existing package boundaries, and local test
-  commands as source of truth.
+## Precedence
+
+`go-lang` owns a performance regression or verification claim when the artifact is Go. `code-quality` owns non-Go source-code diagnosis; `infra-bundles` owns Kubernetes or infrastructure-as-code desired/live failures.
+
+## Workflow
+
+1. Inspect `go.mod`, the affected package, its callers and tests, and repository-defined verification commands.
+2. Select one mode and read only its reference. For version-sensitive behavior, check live `go version`, installed `go help` or `go doc`, then primary Go documentation if needed.
+3. State the contract, lifetime, or evidence boundary before changing code; choose the smallest shape that preserves it.
+4. Run the focused repository check that exercises the selected boundary and report what it proves.
+
+## Hard rules
+
+- Export only a deliberately supported contract; do not add exported APIs or producer-side interfaces solely for tests.
+- Give every goroutine an owner, a stop condition, cancellation propagation, and an observable failure path when it can fail.
+- Treat error inspectability and dependency leakage as public API commitments, not incidental implementation details.
+- Do not make a performance change without comparable evidence from the intended workload.
+- Mark version behavior or compatibility as unconfirmed instead of guessing.
+
+## Stop conditions
+
+- Ask for direction when an internal change versus a supported compatibility commitment would materially change the result.
+- If source state or the applicable Go toolchain cannot be inspected, report the blocked verification rather than inventing version-level guidance.
 
 ## Output
 
-When giving Go guidance, include:
-
-- **Surface**: which routed Go skill applies.
-- **Idiomatic shape**: the smallest Go-native design that fits the codebase.
-- **Risks**: abstraction, concurrency, error, API, or test pitfalls to avoid.
-- **Verification**: focused `go test`, `go test -race`, benchmark, profile, or
-  static check to run.
+Return the selected mode, local facts inspected, the resulting Go decision or changed boundary, focused verification, and residual risk.

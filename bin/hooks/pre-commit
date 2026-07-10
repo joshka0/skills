@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+if ! command -v kingfisher >/dev/null 2>&1; then
+  echo "kingfisher not found; install it or bypass with git commit --no-verify" >&2
+  exit 1
+fi
+
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$repo_root"
+
+# Rubric gate: any staged change to a canonical skill re-validates the catalog.
+if git diff --cached --name-only | grep -q '^shared/.*SKILL\.md'; then
+  echo "shared skill changed; running catalog validation" >&2
+  node scripts/validate-skills.mjs
+fi
+
+exec kingfisher scan \
+  --staged \
+  --redact \
+  --no-validate \
+  --confidence medium \
+  --format pretty \
+  --no-update-check \
+  .
