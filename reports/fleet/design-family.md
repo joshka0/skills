@@ -119,3 +119,64 @@
 $ bin/validate-skill.sh shared/general/design-family suite
 PASS: shared/general/design-family (suite)
 ```
+
+## 2026-07-10 design-depth wiring revision
+
+### Result
+
+- Canonical package: `shared/general/design-family` remains a six-mode suite: `build`, `review`, `improve`, `impeccable-depth`, `motion`, and `apple-physicality`.
+- Active body: 50 lines / 3,394 bytes. New selected references: `impeccable-depth.md` 13 lines / 2,215 bytes, `animation.md` 12 lines / 1,839 bytes, and `apple-design.md` 11 lines / 1,956 bytes.
+- Final all-text package total: 126 lines / 14,385 bytes across seven references. The suite is eligible as a consolidated owner (the prior family plus Impeccable and four Emil sources), but remains below the ordinary 800-line / 64 KiB package cap; no 1,200-line exception is used.
+- Validator: `PASS: shared/general/design-family (suite)`.
+- Import provenance: `mirrors/impeccable/UPSTREAM.md` and `mirrors/emilkowalski/UPSTREAM.md` now state that these mirrors are import evidence only. No mirror path, upstream child package, hook, script, or API manual is a runtime target.
+
+### Revision collision matrix
+
+| Claimed phrase or artifact | First owner | Nearest competitor | Discriminator / handoff |
+| --- | --- | --- | --- |
+| `Impeccable`, high-craft web polish, or anti-generic visual direction | `design-family` → `impeccable-depth` | `prototype` / `product-platform` | This mode judges a real production surface's register, content, drift, and resilient interaction detail; a disposable visual experiment is `prototype`, and platform implementation is `product-platform`. |
+| animation review, motion design, gesture feel, or a named motion effect | `design-family` → `motion` | `product-platform` / `code-quality` | This suite owns user-facing purpose, continuity, frequency, and motion review; installed animation APIs and non-UI performance diagnosis belong to the named competitor. |
+| Apple-like sheet, drag, swipe, momentum, or material-depth interaction | `design-family` → `apple-physicality` | `product-platform` | Portable direct-manipulation, layer, origin, and feedback decisions live here; Apple HIG, SwiftUI/UIKit, RN, browser APIs, and physics values are live-discovered platform work. |
+| UI audit or critique with material motion findings | `design-family` → `review` or `motion` | `code-quality` | The selected design mode reports interface evidence and priority; source correctness and a non-UI diagnosis remain with `code-quality`. |
+| visible motion cue or gesture-only route | `design-family` → selected mode + `standards` | `product-platform` | The suite requires a visible default/alternative and continuous user-facing feedback; the platform owner chooses the implementation mechanism. |
+
+The earlier product-platform and prototype collision rows remain in force. The six-mode table exposes the new user-facing signals in metadata; it does not expose the imported source packages.
+
+### A34 preservation ledger — imported design depth
+
+| Import evidence category | Qualifying durable delta | Disposition |
+| --- | --- | --- |
+| Impeccable register, brand/product distinction, scene, anchors, and reflex check | A real production surface needs an intentional register that rejects both category-default and predictable anti-default styling. | Kept: `references/impeccable-depth.md` steps 1–2. |
+| Impeccable image-led content and system drift | Treat imagery as content; classify drift as missing token, reimplemented primitive, or conceptual/flow mismatch before changing it. | Kept: `references/impeccable-depth.md` steps 3–4. |
+| Impeccable errors, empty states, undo/confirmation, gestures, overlays, and stress states | Specific recovery, visible alternative, clipping-safe overlay decision, and context/input/content extremes improve production resilience. | Kept: `references/impeccable-depth.md` steps 5–7; mechanism hands to `product-platform`. |
+| Impeccable detector, hooks, live session, asset producer, setup, and fixed aesthetic catalogs | Provider-private tooling, scripts, static palette/type bans, numeric scales, CSS/browser recipes, and source-specific taste are not portable pack contract. | Dropped: nonportable tooling, subjective/frozen taste, or implementation policy. |
+| `animation-vocabulary` | A compact intent-first vocabulary disambiguates origin-aware, continuity/shared-element, layout, direction-aware, stagger, rubber-banding, velocity-handoff, and interruptible requests. | Kept: `references/animation.md` step 2; exhaustive glossary and basic CSS terms dropped as generic catalog. |
+| `apple-design` physicality | Causal continuous direct manipulation, progressive boundary resistance, source-anchored reversible paths, meaningful synchronized feedback, and comprehensible preference variants. | Kept/merged: `references/apple-design.md`; existing `standards.md` remains the owner for live-state/velocity, sound, and reduced-motion rules. |
+| `apple-design` APIs, equations, materials recipes, typography values, and HIG/WWDC claims | These depend on platform, browser, product, library, or current policy. | Dropped: live platform implementation belongs to `product-platform` and current primary guidance. |
+| `emil-design-eng` | Motion decision/removal discipline, visible-default reveal, origin awareness, fine-hover boundary, and real-device/slow-motion verification when feel is uncertain. | Kept/merged: `references/animation.md`, `references/apple-design.md`, and `standards.md`. |
+| `emil-design-eng` fixed curves, durations, spring configuration, CSS/WAAPI/Framer recipes, and component anecdotes | Frozen timing/style policy and library/browser implementation are volatile or non-default only for a particular stack. | Dropped: resolve from installed project and current primary docs. |
+| `review-animations` and `STANDARDS.md` | Review motion by purpose, frequency, input/a11y, interruption/state continuity, origin/spatial consistency, and evidence-led priority; reduce/remove before tuning. | Kept: `references/animation.md` steps 1, 4–6 and shared `standards.md`. |
+| `review-animations` persona, forced report template, hard timing/scale thresholds, effect tables, and framework claims | Interaction ceremony, static visual prescriptions, and library-specific behavior do not clear the pack's durable-delta bar. | Dropped: generic, frozen, or library-bound. |
+
+The twelve-category `userinterface-wiki` ledger above remains unchanged and higher-priority where it overlaps, including its no-typing/high-frequency sound boundary; the Impeccable delight suggestion to add typing sounds is rejected by that rule.
+
+### Catalog and acceptance delta
+
+| Item | Result | Evidence |
+| --- | --- | --- |
+| A07/A08 | PASS | The revised one-line 235-byte description exposes frontend design, audit/critique, improve/tune, animation review, Apple-like gestures, and Impeccable depth within the suite budget. |
+| A13/A16/A17 | PASS | Six distinct mode rows route only to local selected references; `standards.md` retains its explicit cross-mode condition. |
+| A14 | PASS | 126 all-text lines / 14,385 bytes; each new reference is 11–13 lines and no prose is hidden in scripts or assets. |
+| A15 | PASS | New instructional prose exists only in the canonical design-family package and mechanical bundle/provider copies; mirrors are import evidence, not duplicate runtime references. |
+| A19 | N/A | This is a suite, not a router; no Impeccable or Emil child package is exposed in any overlay. |
+| A30 | PASS | The new design-family body and all seven bundle/provider copies were recursively byte-compared after composition. |
+| A31 | PASS | All seven core dry runs matched the applied lists; provider/current snapshot parity, unique names, single-line descriptions, router XOR, retained coverage, and no repository symlink checks passed. |
+| A32 | PASS | The six-mode body/reference split remains shaped by the accepted `reports/pilot/code-quality.md` suite example; `reports/pilot/herdr.md` remains the compact deferred-detail comparison. |
+| A33 | PASS | The original 11,493-line consolidation evidence above remains applicable; imported mirrors are retained import evidence, not a fabricated replaced-package total. The current package is also below the normal cap. |
+| A34 | PASS | This category-level ledger records every qualifying imported delta and a concrete keep/merge/drop disposition. |
+| A35 | **SCOPE BLOCKER** | The pre-depth in-place package snapshot cannot be added: the explicit task scope excludes `archive/`. Existing archive rows above prove the prior fleet rewrite only; this additive revision does not claim a new A35 PASS. |
+
+```text
+$ bin/validate-skill.sh shared/general/design-family suite
+PASS: shared/general/design-family (suite)
+```

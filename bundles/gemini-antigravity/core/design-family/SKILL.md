@@ -1,6 +1,6 @@
 ---
 name: design-family
-description: "Shape production interfaces through build, review, and improve modes. Use when users request frontend design, UI audit, UI critique, UI improve, UI tune, or userinterface-wiki guidance."
+description: "Shape production interfaces through build, review, improve, motion, and Apple-physicality modes. Use when users request frontend design, UI audit/critique, UI improve/tune, animation review, Apple-like gestures, or Impeccable depth."
 ---
 
 # Design Family
@@ -14,12 +14,15 @@ Choose one production-interface decision and load only its selected guidance.
 | `build` | A new or redesigned production UI needs an intentional visual direction | `references/build.md` |
 | `review` | The user names a UI audit or critique of an existing surface | `references/review.md` |
 | `improve` | The user names UI improve/tune or one concrete quality or expressive outcome | `references/improve.md` |
+| `impeccable-depth` | A real production UI needs high-craft web polish, an anti-generic visual direction, or resilient interaction-detail judgment | `references/impeccable-depth.md` |
+| `motion` | A named UI animation, motion review, gesture feel, or motion-effect term needs a design decision | `references/animation.md` |
+| `apple-physicality` | An explicit Apple-like, gesture-driven sheet, drawer, drag, swipe, momentum, or material-depth interaction needs a design decision | `references/apple-design.md` |
 
 Select exactly one mode by default. Read only its reference. For any selected mode that changes or judges interaction, motion, accessibility, responsive behavior, dynamic layout, input-aware prefetching, or data typography, also read `references/standards.md`.
 
 ## Do not use when
 
-- `product-platform` owns Expo, React Native, styling-adapter, native API, or platform implementation decisions.
+- `product-platform` owns Expo, React Native, styling-adapter, Apple/iOS API, native implementation, and platform-constraint decisions.
 - `prototype` owns a throwaway state-model harness or competing UI variants created only to answer one question.
 
 ## Shared workflow

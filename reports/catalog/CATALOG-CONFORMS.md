@@ -107,3 +107,30 @@ Skills validation
 ```
 
 The validator warning is its pre-existing heuristic for an explicit interaction skill; it does not fail the command. `manifests/aliases.json` has 119 mappings, and every non-null canonical owner is one of the retained 26. `bin/validate-skill.sh` was rerun against all 26 canonical packages with their recorded archetypes: all 26 returned their literal `PASS:` line. The post-apply catalog scan and each live/snapshot recursive comparison also passed.
+
+## 2026-07-10 design-depth and recompose delta
+
+The composition checks remain **PASS** after wiring portable Impeccable and Emil depth into canonical `design-family` and copying the user-updated `code-quality` description. This delta is limited to catalog evidence: `reports/fleet/design-family.md` records the separate A35 archive-scope blocker for the in-place additive package revision, rather than silently reasserting that package-level item.
+
+| Provider | Entries before → after | Recompose result |
+| --- | ---: | --- |
+| `agents` | 22 → 22 | PASS — dry run, applied list, canonical `design-family`/`code-quality` parity, and snapshot parity. |
+| `claude` | 25 → 25 | PASS — dry run, applied list, canonical parity, and snapshot parity. |
+| `codex` | 21 → 21 | PASS — dry run, applied list, canonical parity, preserved `.system`, and snapshot parity. |
+| `droid` | 20 → 20 | PASS — dry run, applied list, canonical parity, and snapshot parity. |
+| `factory` | 20 → 20 | PASS — dry run, applied list, canonical parity, and snapshot parity. |
+| `gemini` | 20 → 20 | PASS — dry run, applied list, canonical parity, and snapshot parity. |
+| `gemini-antigravity` | 22 → 22 | PASS — dry run, applied list, canonical parity, native HeroUI preservation, and snapshot parity. |
+
+### A15/A19/A30/A31 delta
+
+- **A15 PASS:** Impeccable and Emil text was curated into local `design-family/references/` only; no mirror path or source child is exposed. The `code-quality` metadata change has one canonical source and mechanical bundle/provider copies. Its ShoeHorn signal remains in the `test-strategy` mode row, not the description.
+- **A19 N/A for design-family:** it is a suite. No imported design package appears in a bundle or overlay. Existing router XOR checks, including the product-platform/Chrome profile split, still pass.
+- **A30 PASS:** each of the seven changed `bundles/<provider>/core/{design-family,code-quality}` entries and matching provider copies recursively matches its canonical source.
+- **A31 PASS:** all seven core dry runs matched the applied entry lists; frontmatter names remain unique, descriptions are one physical line, retained-slot coverage and no-internal-symlink checks pass, and every `providers-current/<provider>` directory byte-matches its live overlay.
+
+`mirrors/foxctl` is absent after the user-directed archive move, and `providers/codex-routed` is absent after deletion. Neither is a source, bundle input, live overlay, snapshot, or catalog entry. `design-family` now totals 126 all-text lines / 14,385 bytes and still validates:
+
+```text
+PASS: shared/general/design-family (suite)
+```

@@ -1,6 +1,6 @@
 ---
 name: code-quality
-description: "Run evidence-based code-quality, non-Go diagnosis, and merge-readiness passes. Use when users request thermonuclear review, ruthless test strategy, TDD, zero tech debt, ShoeHorn migration, or a merge gate."
+description: "Run evidence-based code-quality, non-Go diagnosis, and merge-readiness passes. Use when users request thermonuclear review, ruthless test strategy, TDD, zero tech debt, architecture deepening, or a merge gate."
 ---
 
 # Code Quality

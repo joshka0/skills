@@ -4,8 +4,8 @@ Read this only when the selected work changes or judges interaction, motion, acc
 
 - Use semantic, labelled controls with visible keyboard focus and logical focus order. Verify current accessibility requirements with repository tooling and primary standards rather than frozen thresholds.
 - Do not make color the only carrier of status or meaning. Test contrast and non-color cues in the actual theme and state.
-- Keep keyboard and high-frequency interaction immediate. Honor reduced-motion preferences, keep essential feedback comprehensible, and disable input on elements that are exiting.
-- Give motion a feedback, state, or spatial purpose. Measure its cost; favor compositor-friendly changes when appropriate instead of layout-thrashing animation. For user-driven or interruptible motion, preserve the current state and release velocity when present rather than restarting a fixed-duration timeline.
+- Keep keyboard and high-frequency interaction immediate. A hover-only cue needs fine-hover evidence and can never be the only affordance. Honor reduced-motion preferences, keep essential feedback comprehensible, and disable input on elements that are exiting.
+- Give motion a feedback, state, or spatial purpose. Measure its cost; favor compositor-friendly changes when appropriate instead of layout-thrashing animation. Direct manipulation starts on input and tracks it continuously. For user-driven or interruptible motion, preserve the current state and release velocity when present rather than restarting a fixed-duration timeline; when a transition claims a source relationship, preserve its origin and a coherent return path.
 - If sound feedback is used, pair it with equivalent visual state, provide a clear sound-off control, and never attach it to typing, keyboard navigation, or decorative/high-frequency events.
 - Adapt content and interaction to real viewport and input constraints; do not hide core capability merely because the screen is smaller.
 - Add intent prefetching only when latency evidence justifies it. When it is used, support keyboard-focus and touch-safe signals rather than pointer-only or hover-only prediction.
