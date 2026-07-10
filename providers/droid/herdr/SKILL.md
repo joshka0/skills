@@ -1,6 +1,6 @@
 ---
 name: herdr
-description: "Operate local Herdr workspaces, panes, and agent transport safely from its CLI. Use when a task names Herdr or needs a Herdr pane read, literal agent send, pane command, or workspace operation."
+description: "Operate Herdr workspaces, panes, and agent transport from its CLI. Use when the user names Herdr or wants to message, read, wait on, or coordinate another local terminal agent or pane; Maestri owns canvas agents."
 ---
 
 # Herdr
