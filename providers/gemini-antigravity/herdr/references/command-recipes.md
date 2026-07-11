@@ -57,6 +57,16 @@ Inspect existing output before waiting for future output; a wait timeout exits w
 
 Use `--format ansi` only when colors or styling are evidence.
 
+Rendered reads reflect the pane's current rectangle: with many panes open and the target unzoomed, `visible` and `recent` can truncate or mangle output. Prefer `recent-unwrapped` first; if content is still clipped, zoom the pane temporarily and restore it:
+
+```sh
+herdr pane zoom --pane <pane-id> --on
+herdr pane read <pane-id> --source recent-unwrapped --lines 120
+herdr pane zoom --pane <pane-id> --off
+```
+
+Zoom changes the user's shared UI — always turn it back off immediately after the read.
+
 ## Organization
 
 Use workspace and tab commands for organization: one workspace per repo family or durable mission, a tab per independent task lane, a split pane for a helper working in the same lane. Use `herdr worktree` commands only when you intentionally want Herdr to create, open, or remove a Git checkout. Use `herdr notification show` for user-visible status, never for agent-to-agent transport.

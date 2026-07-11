@@ -35,6 +35,7 @@ Operate Herdr — a terminal multiplexer and runtime for coding agents — throu
 - Default new work to a sibling split in the current tab and cwd; create a workspace, tab, worktree, or different cwd only when the user explicitly requests that topology.
 - Quote literal messages so the calling shell cannot expand metacharacters. Never send secrets through Herdr.
 - Do not close workspaces, tabs, panes, or sessions you did not create unless the user explicitly asked.
+- Reads render at the pane's current size: on crowded layouts prefer `recent-unwrapped`, and if output is still clipped, `pane zoom --on`, read, then `--off` — never leave a zoom you set.
 - Never run `herdr server stop` from an active session and never kill the main Herdr process; use named test sessions for isolated experiments.
 - Do not ask another agent to run git commands, install packages, or modify broad/generated areas without the user's explicit approval.
 
