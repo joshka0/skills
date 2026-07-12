@@ -20,7 +20,7 @@ There are four active concepts:
 | Imported sources | `mirrors/` | Upstream or repo-local imported skills. Edit only when intentionally patching an import. |
 | Provider overlays | `providers/<provider>` | Active skill sets installed into Codex, Claude, Factory, Gemini, Droid, and Agents. Real copied skill directories/files. |
 | Bundle inputs | `bundles/<provider>/<bundle>` | Compose inputs for rebuilding an active provider overlay. Not installed directly. |
-| Home config | `home/` | Versioned $HOME config installed by symlink (e.g. `home/claude/CLAUDE.md` -> `~/.claude/CLAUDE.md`). |
+| Home config | `home/` | Versioned $HOME config installed by symlink (`home/claude/CLAUDE.md` -> `~/.claude/CLAUDE.md`, `home/claude/agents/` -> `~/.claude/agents`). |
 
 Everything else is secondary:
 
