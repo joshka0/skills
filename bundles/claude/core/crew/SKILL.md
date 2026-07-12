@@ -35,10 +35,10 @@ work; keep judgment, synthesis, and irreversible actions.
 
 **Quarantine your own framing.** Your brief transmits your bias to everyone who
 reads it — a cross-family reviewer working only from your summary is still
-reviewing inside your frame. Brief independent reviewers against the
-ground-truth artifacts (spec, kernel, originals, raw traces), never only your
-digest of them, and name your brief as a possibly-biased artifact in scope for
-refutation.
+reviewing inside your frame. Brief reviewers against the ground-truth artifacts
+(spec, kernel, originals, raw traces), never only your digest; name your brief
+as a possibly-biased artifact in scope for refutation; and build the critical
+lens per the fresh-eyes recipe in agent-orchestration's collaborate reference.
 
 ## The verdict-file protocol
 
