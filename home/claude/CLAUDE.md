@@ -50,6 +50,8 @@ For adversarial review, fresh eyes, independent verification, or high-stakes syn
 
 The rule generalizes: **pick the reviewer from a different family than the executor**, not just different from you. OpenAI-brained executors (claudex/codex) get grok or Anthropic (you/Opus) review; your own work gets sol or grok review; grok's work gets sol or Anthropic review.
 
+Independence includes framing, not just weights: your brief transmits your bias to everyone who reads it — a cross-family reviewer working only from your summary is still reviewing inside your frame. Brief reviewers against the ground-truth artifacts (spec, kernel, originals, raw traces), never only your digest, and put your brief itself in scope for refutation.
+
 ### Assignment table
 | Work | Engine |
 | --- | --- |
