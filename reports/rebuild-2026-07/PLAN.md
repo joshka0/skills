@@ -21,6 +21,8 @@ Ground truth: `fresh-eyes-review.md` (independent audit, spot-verified). This pl
 
 **Phase 5 — history and estate.** Dated history/ area: old reports (triage/pilot/fleet/rubric stay but gain a dated index labeling them historical), loose/, archive/original-inventory pointers, retired composers, retired bundles; mirrors/impeccable trimmed to UPSTREAM.md + license + the files design-family's ledger cites (rest to Trash — it is import evidence, recoverable from upstream at the pinned commit); final estate report with before/after tracked-file counts.
 
+**Phase 6 (added 2026-07-13, owner ruling) — symlink distribution spike.** After Phase 5: trial replacing the generated providers/ layer with per-skill symlinks from shared/ (+ native/) directly into agent roots, npx-skills-compatible layout (github.com/vercel-labs/skills conventions: repo-as-registry, skills-lock.json). Gate: adopt repo-wide only if all seven consumers demonstrably follow per-skill symlinks (test each; codex .system and native exceptions need explicit homes). Governance layer (catalog, validator, rubric, membership) is unaffected either way.
+
 ## Rails
 
 - Deletion policy: repo removals via `git`-tracked moves to history/ or Trash (`/usr/bin/trash`); NEVER rm/unlink. No git commands — the orchestrator reviews and commits each phase.
