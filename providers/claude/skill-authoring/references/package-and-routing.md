@@ -1,6 +1,6 @@
 # Package and routing contract
 
-This is a maintained operational split of the repository's current rubric, not an independent normative source. Reconcile any drift to the repository rubric before acceptance.
+This file is one part of the single normative contract in this directory, not an independent rule set. Reconcile disagreement between these references before acceptance; historical rubric reports are evidence only.
 
 ## Description and trigger contract
 
@@ -88,4 +88,4 @@ Mode names are short, stable, kebab-case, and distinguishable. Keep shared prefl
 
 A router earns a slot only when selective loading materially reduces context and it routes between three and eight substantial targets. It has a decision table, shared safety rules, and no framework tutorial; selects one target by default and says to read only it; routes one hop to a leaf, suite, or reference without cycles; may name a cross-family handoff but never auto-load another router; lists separately retained child names in description and table; and defines when targets can combine.
 
-In a provider result, expose the router **or** independently triggerable children for that family, never both. A full bundle may substitute children for the router but must not double expose it. If targets share a lifecycle and safety contract, use a mode suite instead.
+In a provider result, expose the router **or** independently triggerable children for that family, never both. A full profile may substitute children for the router but must not double expose it. If targets share a lifecycle and safety contract, use a mode suite instead.

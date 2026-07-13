@@ -1,6 +1,6 @@
 # Evidence and safety contract
 
-This is a maintained operational split of the repository's current rubric, not an independent normative source. Reconcile any drift to the repository rubric before acceptance.
+This file is one part of the single normative contract in this directory, not an independent rule set. Reconcile disagreement between these references before acceptance; historical rubric reports are evidence only.
 
 ## Volatility and source of truth
 

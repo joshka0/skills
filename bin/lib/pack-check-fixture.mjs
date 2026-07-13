@@ -36,7 +36,12 @@ export function runCheckBoundarySelfTest(report) {
     pack.consumed_roots.codex.declared_duplicate_skills = []
     fs.writeFileSync(packPath, `${JSON.stringify(pack, null, 2)}\n`)
 
-    const catalogPath = path.join(fixture, "reports/catalog/CATALOG-CONFORMS.md")
+    const reportDirectory = path.join(fixture, "reports/catalog")
+    const currentReport = fs.readdirSync(reportDirectory)
+      .filter((name) => /^CATALOG-CONFORMS-\d{4}-\d{2}-\d{2}\.md$/.test(name))
+      .sort()
+      .at(-1)
+    const catalogPath = path.join(reportDirectory, currentReport ?? "CATALOG-CONFORMS.md")
     const catalog = fs.readFileSync(catalogPath, "utf8").replace(
       "### A15", "| `retired-fixture` | none | PASS | N/A | PASS | PASS |\n\n### A15"
     )

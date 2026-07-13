@@ -1,97 +1,67 @@
 # joshka0 Skills Pack
 
-This repo is the canonical skills pack for Joshka's local agents.
-
-The important rule is:
+This repository is the governed source for a portable local skills pack. The
+current composition model is:
 
 ```text
-Edit skill bodies in shared/ or mirrors/.
-Expose skill sets through providers/.
-Treat archive/original-inventory/ and reports/ as generated or historical artifacts.
+shared/             canonical locally owned packages
+mirrors/            preserved upstream sources and import evidence
+catalog/pack.json   archetypes, aliases, profiles, native exceptions, consumers
+native/<provider>/  provider-owned exception sources
+providers/          generated live provider views for the current distribution
+history/            retired inputs and dated preservation evidence
+bin/pack             the only active pack entrypoint
 ```
 
-## Mental Model
+`providers/` is the current generated real-file delivery layer, not an authored
+source. Phase 6 will separately test whether per-skill symlink distribution can
+replace it across all seven consumers. Until that trial passes its gate,
+`providers/` remains the live installed view; the catalog, validator, rubric,
+and membership model are stable either way.
 
-There are four active concepts:
+## Work with the pack
 
-| Concept | Path | Use it for |
+Edit locally owned skill content in `shared/`, intentional upstream patches in
+`mirrors/`, composition data in `catalog/pack.json`, and provider-owned inputs
+in `native/`. Never edit a generated provider copy as semantic source.
+
+Use one command surface:
+
+```sh
+bin/pack check
+bin/pack render --all --full
+bin/pack apply --all --full
+bin/pack install
+bin/pack install --apply
+```
+
+`render` is a pure preview retained in a temporary directory. `apply` builds a
+complete candidate and atomically exchanges the whole provider tree. `install`
+previews by default; its apply mode reconciles home-root links but never edits a
+home configuration file.
+
+## Current install mappings
+
+| Consumer | Install root | Current generated source |
 | --- | --- | --- |
-| Canonical local skills | `shared/` | Skills authored or curated in this pack. Edit here first. |
-| Imported sources | `mirrors/` | Upstream or repo-local imported skills. Edit only when intentionally patching an import. |
-| Provider overlays | `providers/<provider>` | Active skill sets installed into Codex, Claude, Factory, Gemini, Droid, and Agents. Real copied skill directories/files. |
-| Bundle inputs | `bundles/<provider>/<bundle>` | Compose inputs for rebuilding an active provider overlay. Not installed directly. |
-| Home config | `home/` | Versioned $HOME config installed by symlink (`home/claude/CLAUDE.md` -> `~/.claude/CLAUDE.md`, `home/claude/agents/` -> `~/.claude/agents`). |
+| Codex | `${CODEX_HOME:-$HOME/.codex}/skills` (fallback `$HOME/.codex/skills`) | `providers/codex` |
+| Agents | `$HOME/.agents/skills` | `providers/agents` |
+| Factory | `$HOME/.factory/skills` | `providers/factory` |
+| Claude | `$HOME/.claude/skills` | `providers/claude` |
+| Gemini | `$HOME/.gemini/skills` | `providers/gemini` |
+| Gemini Antigravity | `$HOME/.gemini/antigravity/skills` | `providers/gemini-antigravity` |
+| Droid | `$HOME/.droid/skills` | `providers/droid` |
 
-Everything else is secondary:
+Codex consumes both the Agents root and its Codex-specific root. The catalog
+declares that union and permits only named, byte-identical canonical overlaps.
 
-| Path | Meaning |
-| --- | --- |
-| `providers-current/` | Snapshot of the latest active overlays. Useful for parity checks, not an install root. |
-| `archive/original-inventory/` | Historical/generated deduped export and inventory from the original consolidation pass. Do not edit it as source. |
-| `bundles/` | Provider overlay bundle inputs. Used by compose scripts, not installed directly. |
-| `loose/` | Historical loose non-`SKILL.md` files found during the original consolidation pass. |
-| `reports/` | Audit notes, overlap reports, and pruning decisions. |
-| `packs/joshka0/` | Human-readable pack notes and source/import audit. |
-| `bin/` | Scripts for composing overlays and syncing local provider roots. |
+## Governance
 
-## Active Install Roots
+The catalog currently retains 26 canonical packages, 115 owner-bound aliases,
+six external records, and five provider-native exceptions. Canonical skill
+design is governed by the four references below
+`shared/general/skill-authoring/references/`. Current composition evidence is in
+`reports/catalog/CATALOG-CONFORMS-2026-07-13.md`; older reports are historical.
 
-Local agent skill roots should point at active provider overlays:
-
-```text
-~/.codex/skills              -> <repo>/providers/codex
-~/.agents/skills             -> <repo>/providers/agents
-~/.factory/skills            -> <repo>/providers/factory
-~/.claude/skills             -> <repo>/providers/claude
-~/.gemini/skills             -> <repo>/providers/gemini
-~/.gemini/antigravity/skills -> <repo>/providers/gemini-antigravity
-~/.droid/skills              -> <repo>/providers/droid
-```
-
-Use:
-
-```sh
-./bin/sync-provider-roots.sh
-./bin/sync-provider-roots.sh --apply
-```
-
-## Editing Workflow
-
-1. Edit canonical skill bodies under `shared/` or the relevant source under `mirrors/`.
-2. Update bundle inputs under `bundles/<provider>/<bundle>` when the skill set changes.
-3. If rebuilding an overlay from bundles, use:
-
-```sh
-./bin/compose-provider-skills.sh --provider claude --bundles core --apply
-./bin/compose-codex-skills.sh --bundles core --apply
-```
-
-4. Verify the repo has no internal symlinks:
-
-```sh
-find . -type l -print
-```
-
-No output means the repo is self-contained. Home-dir symlinks are managed by
-`bin/sync-provider-roots.sh`, not stored inside this repo.
-
-## Progressive Disclosure
-
-Default overlays should expose router skills instead of every detailed checklist:
-
-- `product-platform`
-- `design-family`
-- `release-bundles`
-- `infra-bundles`
-
-Each router description names the child skills it covers. Detailed maps live in
-the router's `references/skill-map.md`.
-
-## Current Source Notes
-
-See:
-
-- `AGENTS.md` for agent-facing maintenance rules
-- `PACK.md` for pack summary
-- `packs/joshka0/SOURCE_NOTES.md` for import decisions
-- `reports/skills-final-set-audit-2026-05-07.md` for the current pruning audit
+See `PACK.md` for exact provider counts, `AGENTS.md` for maintenance rules, and
+`packs/joshka0/SOURCE_NOTES.md` for catalog-derived source decisions.

@@ -1,11 +1,11 @@
 ---
 name: local-dev
-description: "Operate local development topology through selected Portless, isolation, proxy, or project-context modes without storing credentials or machine facts. Use when configuring a local dev route, isolated workspace, dev proxy, or durable project context."
+description: "Operate local topology and secret-safe handoffs through route, isolation, proxy, context, or credential-injection modes. Use when configuring a local route, sandbox, dev proxy, project context, or local secret handoff."
 ---
 
 # Local Development
 
-Select one local-development surface from live configuration; use `local-secrets` for credentials and secret retrieval.
+Select one local-development surface from live configuration without exposing credentials or freezing machine facts.
 
 ## Route
 
@@ -17,6 +17,7 @@ Read only the selected reference.
 | `isolation` | choosing a disposable or persistent local sandbox | `references/isolation.md` |
 | `proxy` | configuring a development proxy or remote-browser reachability | `references/proxy.md` |
 | `context` | capturing durable, non-secret repository conventions for future sessions | `references/project-context.md` |
+| `secrets` | handing required credential names to an existing local injector without revealing values | `references/secrets.md` |
 
 ## Workflow
 
@@ -27,9 +28,9 @@ Read only the selected reference.
 ## Hard rules
 
 - Keep repositories private by default only when creating a new repository and no existing policy says otherwise.
-- Do not store, expose, retrieve, or copy credentials; hand off secret work to `local-secrets`.
+- Do not store, print, summarize, or copy credential values. The `secrets` mode may pass names and inject values only for the user's exact authorized operation.
 - Do not freeze hostnames, ports, URLs, or paths in canonical content; discover them from config/status.
-- Do not remove worktrees, sandboxes, proxy routes, or shared state without user confirmation.
+- Move filesystem cleanup targets to Trash with `/usr/bin/trash <path>`; never permanently delete them. Confirmation does not authorize destructive Git or a cleanup command that bypasses Trash.
 - Context mode records only durable project decisions; it never copies raw shell output, credentials, or session troubleshooting.
 
 ## Output

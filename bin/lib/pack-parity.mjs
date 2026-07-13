@@ -64,9 +64,22 @@ function checkDocs(canonical, report) {
   for (const match of pack.matchAll(/^\| `?([a-z-]+)`? \| (\d+) \|/gm)) {
     if (match[1] in actualCounts && Number(match[2]) !== actualCounts[match[1]]) report.error("docs-count", `PACK.md ${match[1]} says ${match[2]}; live has ${actualCounts[match[1]]}`)
   }
-  const catalog = fs.readFileSync(path.join(ROOT, "reports/catalog/CATALOG-CONFORMS.md"), "utf8")
+  const catalogDirectory = path.join(ROOT, "reports/catalog")
+  const datedReports = fs.readdirSync(catalogDirectory)
+    .filter((name) => /^CATALOG-CONFORMS-\d{4}-\d{2}-\d{2}\.md$/.test(name))
+    .sort()
+  const currentReport = datedReports.at(-1)
+  if (!currentReport) report.error("docs-report", "dated catalog conformance report is missing")
+  const catalog = currentReport
+    ? fs.readFileSync(path.join(catalogDirectory, currentReport), "utf8")
+    : ""
+  const legacyCatalog = fs.readFileSync(path.join(catalogDirectory, "CATALOG-CONFORMS.md"), "utf8")
+  if (currentReport && (!/superseded/i.test(legacyCatalog) || !legacyCatalog.includes(currentReport))) {
+    report.error("docs-report", `CATALOG-CONFORMS.md does not point to ${currentReport} as its superseding report`)
+  }
   const slotClaim = catalog.match(/(\d+) retained canonical slots/)
-  if (slotClaim && Number(slotClaim[1]) !== canonical.length) report.error("docs-count", `current catalog report says ${slotClaim[1]} slots; source has ${canonical.length}`)
+  if (!slotClaim) report.error("docs-count", "current catalog report omits its retained canonical slot count")
+  else if (Number(slotClaim[1]) !== canonical.length) report.error("docs-count", `current catalog report says ${slotClaim[1]} slots; source has ${canonical.length}`)
   const catalogTable = catalog.match(/## Catalog-only checklist results([\s\S]*?)### A15/)?.[1] ?? ""
   const reportedNames = new Set([...catalogTable.matchAll(/^\| `([a-z0-9-]+)` \|/gm)].map((match) => match[1]))
   for (const name of canonicalNames) if (!reportedNames.has(name)) report.error("docs-membership", `current catalog report omits ${name}`)

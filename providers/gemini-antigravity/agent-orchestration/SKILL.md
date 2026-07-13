@@ -38,7 +38,7 @@ Select exactly one mode and read only that reference. Combine modes only when th
 - One supervisor owns task division, cross-agent decisions, and final integration; agents do not silently redefine shared contracts.
 - The supervisor verifies each material handoff and integration result before dependent work proceeds.
 - Parallel mutations must be file-disjoint or use explicitly coordinated isolated work surfaces; serialize shared APIs, data models, security boundaries, and other high-coupling work.
-- Keep version-control, publication, destructive cleanup, and external side effects with the supervisor unless the user explicitly delegates them.
+- Keep version-control, publication, and external side effects with the supervisor unless the user explicitly delegates them. Filesystem cleanup is Trash-only; permanent deletion and destructive Git remain forbidden even after confirmation or delegation.
 - Do not infer an agent's permissions, tool flags, model, or terminal protocol. Verify current capability from the execution surface or report the uncertainty.
 - A material conclusion needs current evidence; a collaboration decision also needs an independent critical pass before synthesis and its selected durable ledger record.
 - A delta brief points to an updated durable source of truth; a chat message is never the only record of a settled change.

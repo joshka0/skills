@@ -9,10 +9,10 @@ fi
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$repo_root"
 
-# Rubric gate: any staged change to a canonical skill re-validates the catalog.
-if git diff --cached --name-only | grep -q '^shared/.*SKILL\.md'; then
-  echo "shared skill changed; running catalog validation" >&2
-  node scripts/validate-skills.mjs
+# Pack gate: source, catalog, native, or governing-doc changes validate the full pack.
+if git diff --cached --name-only | grep -Eq '^(shared/|catalog/|native/|README\.md$|PACK\.md$|AGENTS\.md$|packs/joshka0/SOURCE_NOTES\.md$)'; then
+  echo "pack-governed path changed; running bin/pack check" >&2
+  bin/pack check
 fi
 
 exec kingfisher scan \

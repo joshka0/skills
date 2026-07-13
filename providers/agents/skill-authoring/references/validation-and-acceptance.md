@@ -1,17 +1,17 @@
 # Validation and acceptance contract
 
-This is a maintained operational split of the repository's current rubric, not an independent normative source. Reconcile any drift to the repository rubric before acceptance.
+This file is one part of the single normative contract in this directory, not an independent rule set. Reconcile disagreement between these references before acceptance; historical rubric reports are evidence only.
 
 ## Provider composition and exposure
 
 Composition preserves one semantic source and a non-overlapping installed catalog.
 
 1. Edit the locally owned body in `shared/`; edit `mirrors/` only for an intentional upstream patch.
-2. Update bundle membership under `bundles/<provider>/<bundle>` when exposure changes.
-3. Refresh bundle copies mechanically from the canonical body; do not hand-maintain semantic differences.
-4. Run the relevant compose script without `--apply` first and inspect the entry list.
-5. Apply composition only when the task includes overlay refresh.
-6. Verify the installed provider view has intended names, descriptions, links, and hidden routing layout.
+2. Update archetype, aliases, profiles, and native exceptions in `catalog/pack.json` when exposure changes.
+3. Run `bin/pack render` without applying and inspect the entry list and diff against the live provider view.
+4. Run `bin/pack check` and distinguish expected pre-apply render drift from package or catalog failures.
+5. Run `bin/pack apply` only when the task explicitly includes the atomic provider refresh.
+6. Verify the installed provider view has intended names, descriptions, links, and routing layout.
 
 Rules:
 
@@ -20,9 +20,9 @@ Rules:
 - Mux, model, or provider variants should become references or transport adapters, not duplicate packages.
 - Provider-native exceptions may remain only where required and documented.
 - Default overlays expose consolidated routers and precise leaf tools, not routers plus all routed children.
-- Bundle/provider copies are byte-equivalent to canonical instructional content except documented provider-native metadata or compose-time reformatting, and the compose script performs any transform.
+- Rendered provider copies are byte-equivalent to canonical instructional content except documented provider-native sources or catalog-declared transforms.
 - A same-named skill under `mirrors/` or a provider-native exception is documented in pack notes; a composed overlay still contains at most one name.
-- Do not edit `providers/` as a semantic source or update `providers-current/` without an explicit parity request.
+- Do not edit `providers/` as a semantic source. Parity is always a fresh catalog render-and-compare; no provider snapshot is maintained.
 - A canonical skill that no overlay exposes is justified in pack notes or moved to archive.
 - Repo-internal symlinks are forbidden; only the root-sync helper manages home-directory symlinks.
 
@@ -43,7 +43,7 @@ Also verify manually or with a pack validator:
 - Per-reference and package budgets.
 - Support-file reachability and script smoke tests.
 - Secret scanning with values redacted from logs.
-- Bundle dry-run output and unique names in affected providers.
+- Catalog-render output and unique names in affected providers.
 - Router-versus-child exposure after composition.
 
 Mechanical checks do not replace the existence, overlap, or volatility judgment; they make those judgments auditable.
@@ -68,7 +68,7 @@ Every item is checked and reported. An unchecked item means the package is incom
 | A12 | Show active instructions contain only allowed command-brain content. |
 | A13 | Show every reference has a selection condition, resolves, and is selectively loaded. |
 | A14 | Show every reference and total package pass hard budgets without hidden prose. |
-| A15 | Show no instructional prose is orphaned/duplicated; defer its bundle/provider clause before composition. |
+| A15 | Show no instructional prose is orphaned/duplicated; defer its catalog/render/provider clause before composition. |
 | A16 | For modes, show shared lifecycle/safety and a count from two to eight (or up to ten for an eligible consolidated owner). |
 | A17 | Show distinct kebab-case modes, exact files, and a default selection. |
 | A18 | For routers, show three to eight targets, selective-loading value, and router budget. |
@@ -83,7 +83,7 @@ Every item is checked and reported. An unchecked item means the package is incom
 | A27 | Show every script is referenced, deterministic, safe, dry-runnable where needed, and smoke-tested. |
 | A28 | Show every asset/metadata file is referenced, portable, secret-free, and non-duplicative. |
 | A29 | Show workflow/rules/stops/output protect concrete failures without filler. |
-| A30 | Defer canonical-bundle-provider parity, unique exposure, and catalog scope before composition. |
+| A30 | Defer canonical-catalog-render-provider parity, unique exposure, and catalog scope before composition. |
 | A31 | Defer compose dry runs and installed-view checks before composition; still check local links/targets/no symlink. |
 | A32 | Compare against the golden example shape and record validation evidence. |
 | A33 | For consolidation/trim, show strict shrink against replaced package totals and the absolute cap. |
@@ -94,8 +94,8 @@ Every item is checked and reported. An unchecked item means the package is incom
 
 Conformance is two-stage:
 
-- **PACKAGE-CONFORMS** means every canonical-package item passes. Before composition, A15's bundle/provider clause, A19's overlay-exposure clause, A30, and A31 are **DEFERRED**, never PASS.
-- **CATALOG-CONFORMS** additionally passes those catalog clauses across bundles, providers, and installed view after composition.
+- **PACKAGE-CONFORMS** means every canonical-package item passes. Before composition, A15's catalog/render/provider clause, A19's overlay-exposure clause, A30, and A31 are **DEFERRED**, never PASS.
+- **CATALOG-CONFORMS** additionally passes those catalog clauses across the catalog, rendered providers, and installed view after composition.
 
 The reviewer returns one result: **CONFORMS** at catalog level, **REVISE** if the slot is justified but the contract fails, **MERGE-into-`<owner>`** for a useful wrong-boundary delta, or **CUT** when no durable non-default delta remains.
 

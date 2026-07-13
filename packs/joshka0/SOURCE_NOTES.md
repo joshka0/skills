@@ -1,273 +1,138 @@
 # joshka0 Skills Pack Source Notes
 
-Date: 2026-05-07
+Date: 2026-07-13
 
-This note separates local skills, imported mirrors, active defaults, and
-inactive preserved sources.
+This note is derived from `catalog/pack.json`. It records active canonical
+ownership, imported evidence, aliases, native inputs, profile membership, and
+the current delivery boundary.
 
-## Source Categories
+## Source categories
 
-| Category | Path | Status | Notes |
-| --- | --- | --- | --- |
-| Local shared skills | `shared/general`, `shared/codex` | active or routed | Canonical home for local joshka0 skills and progressive router skills. |
-| Claude-specific local skills | `shared/claude` | partially active | Contains the merged `peon-ping` skill for Claude Code notifications. |
-| Foxctl pack import | `mirrors/foxctl/pack` | partially active | Imported from the local foxctl skills pack. Focused foxctl skills are active; broad aliases are inactive. |
-| Foxctl external import | `mirrors/foxctl/external` | routed | Apple, Android, Uniwind, and OpenTUI skills. Exposed through `release-bundles` and `product-platform`. |
-| Matt Pocock import | `mirrors/mattpocock/skills` | partially active | Mirrored from `https://github.com/mattpocock/skills` at commit `733d312884b3878a9a9cff693c5886943753a741`. |
-| RepoPrompt import | `mirrors/repoprompt/agents` | archived inactive | Preserves `rp-*` workflows after removing them from active defaults. |
-| Provider-native skills | `providers/*` | provider-specific | Includes Agent Vault, Maestri, Codex `.system`, and Gemini Antigravity HeroUI entries where applicable. |
+| Category | Source | Composition status |
+| --- | --- | --- |
+| Locally owned canonical packages | `shared/general` | Active according to catalog profiles. |
+| Claude-specific canonical package | `shared/claude/peon-ping` | Active only for Claude. |
+| Imported sources | `mirrors/` | Evidence or curated input; never implicitly composed. |
+| Provider-owned inputs | `native/` | Active only when declared as a native exception. |
+| Generated delivery | `providers/` | Current live real-file views; never an authored source. |
+| Retired campaign inputs | `history/rebuild-2026-07` | Historical evidence only. |
 
-## Active Matt Pocock Imports
+The generated delivery layer is explicitly transitional in design terms:
+Phase 6 will trial per-skill symlink distribution and adopt it only if all seven
+consumers pass. These source, catalog, validation, and membership decisions do
+not depend on the trial outcome.
 
-These upstream skills are copied into `shared/general` and active in the
-supported provider overlays:
+## Canonical membership
 
-The mirror is committed as ordinary files in this pack. Its nested upstream
-`.git` metadata is intentionally not part of the pack repository.
+Twenty packages are in every default provider profile:
+
+```text
+agent-orchestration
+code-quality
+design-family
+effect-framework
+elixir-lang
+go-lang
+goal-protocol
+gtr
+herdr
+infra-bundles
+local-dev
+local-http-browser-use
+maestri
+planning-workflow
+product-platform
+prototype
+release-bundles
+repoprompt-pro-review
+skill-authoring
+uniwind
+```
+
+Six additional canonical packages are Claude-only:
 
 ```text
 caveman
-diagnose
+crew
 git-guardrails-claude-code
 grill-me
-grill-with-docs
-improve-codebase-architecture
-migrate-to-shoehorn
-prototype
-scaffold-exercises
-setup-matt-pocock-skills
-setup-pre-commit
-tdd
-to-issues
-to-prd
-triage
-write-a-skill
-zoom-out
+peon-ping
+riff-partner
 ```
 
-Inactive Matt Pocock mirror sections:
+This yields 26 canonical packages. The archetype split is 13 suites, two
+routers, two leaves, six private leaves, and three explicit interactions.
 
-```text
-skills/deprecated/*
-skills/in-progress/*
-skills/personal/*
-```
+## Alias and consolidation decisions
 
-## Foxctl Pack Imports
+The catalog retains 115 aliases owned by canonical packages plus six external
+records. Aliases are selectable compatibility records, not extra packages.
 
-Active focused foxctl skills:
+Important consolidation outcomes:
 
-```text
-agent-ci
-foxctl-code
-foxctl-context
-foxctl-core
-foxctl-dev
-foxctl-epic-grader
-foxctl-epic-pipeline
-foxctl-factory-epic-creation
-foxctl-integrations
-foxctl-mobile
-foxctl-orchestrate
-foxctl-room
-foxctl-room-agent
-foxctl-room-agile
-foxctl-room-operator
-foxctl-room-view
-hard-cut
-semantic-commenting
-```
+- `chrome-extension-builder` routes to the `product-platform`
+  browser-extension reference.
+- `local-secrets` routes to the `local-dev` secrets mode.
+- `maestri-portal` routes to the `maestri` portal mode.
+- Goal, quality, design, language, planning, release, infrastructure, and
+  orchestration legacy names route to their declared suite or router owner.
+- Imported RepoPrompt workflows remain preserved under `mirrors/repoprompt`;
+  active review work routes through `repoprompt-pro-review`.
 
-Inactive foxctl broad or compatibility entries:
+The six external records cover two vendor-source ledgers, three archive-only
+cuts, and the Codex system-installed surface. They are not canonical slots.
 
-```text
-foxctl-all
-foxctl-tmux
-tmux-bridge
-```
+## Imported evidence
 
-Preserved but not currently active:
+- `mirrors/mattpocock/skills` preserves the pinned Matt Pocock upstream import.
+  Retained deltas were consolidated into catalog owners; the mirror is not a
+  live profile.
+- `mirrors/impeccable` and `mirrors/emilkowalski` preserve design-source
+  evidence used by `design-family`. Phase 5 owns any scheduled mirror trim.
+- `mirrors/repoprompt/agents` preserves inactive RepoPrompt workflows; it is not
+  a generated provider input.
+- The catalog also preserves the absent Foxctl vendor ledger as an external
+  historical record rather than treating it as a filesystem source.
 
-```text
-pi-maestri-live
-```
+## Provider membership and native inputs
 
-## Foxctl External Imports
+| Provider | Canonical | Native | Total |
+| --- | ---: | ---: | ---: |
+| `agents` | 20 | 2 | 22 |
+| `claude` | 26 | 0 | 26 |
+| `codex` | 20 | 1 | 21 |
+| `droid` | 20 | 0 | 20 |
+| `factory` | 20 | 0 | 20 |
+| `gemini` | 20 | 0 | 20 |
+| `gemini-antigravity` | 20 | 2 | 22 |
 
-Routed through `release-bundles`:
+The complete native exception set is:
 
-```text
-apple-accessibility-age-rating-readiness
-apple-ai-privacy-safety-readiness
-apple-asc-cli-automation-bridge
-apple-build-binary-readiness
-apple-iap-subscription-readiness
-apple-metadata-storefront-readiness
-apple-production-checklist
-apple-submission-packet-readiness
-apple-testflight-release-readiness
-android-expo-eas-build-binary-readiness
-android-play-accessibility-age-rating-readiness
-android-play-ai-ugc-safety-readiness
-android-play-console-eas-automation-bridge
-android-play-data-safety-permissions-readiness
-android-play-iap-subscriptions-readiness
-android-play-production-checklist
-android-play-quality-prelaunch-readiness
-android-play-sensitive-category-readiness
-android-play-store-listing-metadata-readiness
-android-play-submission-packet-readiness
-android-play-testing-track-readiness
-```
+- `providers/agents/agent-vault-cli` from `native/agents/agent-vault-cli`
+- `providers/agents/agent-vault-http` from `native/agents/agent-vault-http`
+- `providers/codex/.system` from `native/codex/.system`
+- `providers/gemini-antigravity/heroui-pro-design-taste` from
+  `native/gemini-antigravity/heroui-pro-design-taste`
+- `providers/gemini-antigravity/heroui-react-pro` from
+  `native/gemini-antigravity/heroui-react-pro`
 
-Routed through `product-platform`:
+No canonical package is provider-native. Codex consumes both Agents and Codex
+roots, so its declared 20 canonical overlaps must stay byte-identical. All
+other consumer models reject duplicates.
 
-```text
-opentui-tui-builder
-uniwind-excellence-rn
-uniwind-rn-android
-uniwind-rn-ios
-```
+## Language profile ruling
 
-## RepoPrompt Imports
+`effect-framework`, `elixir-lang`, and `go-lang` remain in every default
+profile. The next triage must run representative tasks in blinded paired
+conditions with and without the candidate package, score both conditions
+against the same correctness/decision rubric, and record the task set and
+results before proposing membership changes. Usage counts alone are not
+evidence for removal.
 
-Archived inactive RepoPrompt skills:
+## Current acceptance
 
-```text
-rp-build
-rp-build-cli
-rp-investigate
-rp-investigate-cli
-rp-optimize
-rp-optimize-cli
-rp-oracle-export
-rp-oracle-export-cli
-rp-orchestrate
-rp-orchestrate-cli
-rp-refactor
-rp-refactor-cli
-rp-reminder
-rp-reminder-cli
-rp-review
-rp-review-cli
-```
-
-Default replacement:
-
-```text
-repoprompt-pro-review
-```
-
-## Local joshka0 Skills
-
-Core local skills kept active by default:
-
-```text
-agent-swarm
-code-council
-codex-goal
-effect-framework
-elixir-lang
-goal-council
-goal-orchestrator
-go-lang
-gtr
-local-dev
-local-secrets
-maestri
-maestri-portal
-quality-gate
-regression-tests
-repoprompt-pro-review
-ruthless-test-strategy
-small-composable-code
-smolvm-local-dev
-thermo-nuclear-code-quality-review
-zero-tech-debt
-```
-
-Progressive disclosure routers:
-
-```text
-product-platform
-design-family
-release-bundles
-infra-bundles
-go-lang
-effect-framework
-elixir-lang
-```
-
-Detailed local skills reachable through routers include the product/platform,
-design, Kubernetes, Terraform, Go language, Effect framework, and Elixir
-language families under `shared/general` and `shared/codex`.
-
-Go language router children:
-
-```text
-go-lang-design
-go-lang-concurrency
-go-lang-errors
-go-lang-testing
-go-lang-packages-api
-go-lang-performance
-```
-
-Effect framework router children:
-
-```text
-effect-framework-architecture
-effect-framework-services-layers
-effect-framework-runtime-resources
-effect-framework-errors
-effect-framework-concurrency-streams
-effect-framework-testing
-effect-framework-migration
-```
-
-Elixir language router children:
-
-```text
-elixir-lang-otp-design
-elixir-lang-supervision-processes
-elixir-lang-concurrency-pipelines
-elixir-lang-fault-observability
-elixir-lang-testing
-elixir-lang-performance-interop
-```
-
-## Provider-Native Notes
-
-These entries are intentionally provider-native rather than normalized into
-`shared/`:
-
-```text
-providers/agents/agent-vault-cli
-providers/agents/agent-vault-http
-providers/agents/maestri
-providers/agents/maestri-portal
-providers/codex/.system
-providers/gemini-antigravity/heroui-react-pro
-providers/gemini-antigravity/heroui-pro-design-taste
-```
-
-## Inactive But Preserved
-
-These are preserved in the repo but removed from active defaults:
-
-```text
-shared/general/codex-swarm
-shared/general/delegate-codex
-shared/general/plan-build
-shared/general/userinterface-wiki
-shared/general/vercel-react-native-skills
-shared/variants/*
-mirrors/repoprompt/agents/*
-mirrors/mattpocock/skills/skills/deprecated/*
-mirrors/mattpocock/skills/skills/in-progress/*
-mirrors/mattpocock/skills/skills/personal/*
-```
-
-The reason is context pressure: active overlays should expose compact router
-skills and high-signal engineering workflows, not every niche checklist by
-default.
+`bin/pack render --all --full` derives every current provider view from the
+catalog, `shared/`, and `native/`. `bin/pack check` compares that render to live
+content and modes. The dated result is
+`reports/catalog/CATALOG-CONFORMS-2026-07-13.md`; the undated report is
+superseded historical evidence.

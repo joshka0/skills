@@ -1,3 +1,9 @@
+# SUPERSEDED — historical catalog conformance
+
+This 2026-07-10 report describes the retired bundle/snapshot composition model.
+It is preserved as evidence only and is superseded by
+`CATALOG-CONFORMS-2026-07-13.md`.
+
 # Catalog conformance — 2026-07-10
 
 ## Verdict

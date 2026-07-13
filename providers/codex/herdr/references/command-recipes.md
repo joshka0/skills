@@ -84,10 +84,9 @@ When multiple agents will mutate the same repo concurrently, isolate each writer
 ```sh
 herdr worktree create --cwd <repo> --branch <task-branch> --label <task> --no-focus
 herdr worktree list --cwd <repo>
-herdr worktree remove --workspace <id>   # after the branch is merged or archived
 ```
 
-Read the created workspace/pane IDs from the JSON and label the panes as usual. Remove worktrees only after verifying the branch's work is merged or archive-tagged.
+Read the created workspace/pane IDs from the JSON and label the panes as usual. For requested cleanup, resolve the exact filesystem path and use a Herdr action only when current help proves it moves the target to Trash; otherwise stop. Never permanently delete a worktree, delete its branch, or use destructive Git, even after confirmation or archival.
 
 ## Agent-target transport
 

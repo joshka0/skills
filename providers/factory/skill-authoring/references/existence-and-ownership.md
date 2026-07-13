@@ -1,6 +1,6 @@
 # Existence and ownership contract
 
-This is a maintained operational split of the repository's current rubric, which remains the single normative source. The words **MUST**, **MUST NOT**, **SHOULD**, and **MAY** carry that rubric's force; reconcile any drift before accepting a package. If a golden example conflicts with the rubric, the rubric wins.
+This file is one part of the single normative contract in this directory. The words **MUST**, **MUST NOT**, **SHOULD**, and **MAY** carry that contract's force. Reconcile disagreement between these references before acceptance; historical rubric reports are evidence only. If a golden example conflicts with this contract, the contract wins.
 
 ## Operating model
 
@@ -73,7 +73,7 @@ shared/<scope>/<skill-name>/
 └── agents/            # optional, provider registration metadata
 ```
 
-Imported upstream bodies remain under `mirrors/`; patch them only as an intentional import decision. `bundles/` composes installed sets, `providers/` is generated installed output, and `providers-current/` is an explicit parity snapshot rather than a source.
+Imported upstream bodies remain under `mirrors/`; patch them only as an intentional import decision. `catalog/pack.json` declares exposure, `native/` owns provider exceptions, `providers/` is the generated installed output, and parity is a fresh render-and-compare rather than a checked-in snapshot.
 
 Every `SKILL.md` MUST begin with minimal YAML frontmatter:
 
