@@ -24,6 +24,11 @@
     "release",
     "aliases"
   ],
+  "profile_decisions": {
+    "codex_chrome_profile": "Codex exposes chrome-extension-builder instead of product-platform; other live profiles expose product-platform. Phase 3 will merge the leaf into the router before Phase 4 regeneration.",
+    "claude_interaction_metadata": "Claude alone receives the three explicit interaction packages; other profiles omit them rather than relying on unknown-key handling.",
+    "language_packs": "Effect, Elixir, and Go remain in default profiles by owner ruling; catalog/README.md defines the blinded paired-task method required for the next triage."
+  },
   "skills": [
     {
       "name": "agent-orchestration",

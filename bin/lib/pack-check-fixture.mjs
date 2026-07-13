@@ -22,18 +22,19 @@ export function runCheckBoundarySelfTest(report) {
   try {
     const fixture = path.join(work, "repo")
     for (const input of [
-      "bin", "shared", "home", "bundles", "providers", "providers-current", "manifests", "scripts",
-      "packs/joshka0", "reports/catalog", "reports/rubric", "overlay-manifest.json", "README.md", "PACK.md", "AGENTS.md"
+      "bin", "shared", "native", "catalog", "home", "providers", "scripts",
+      "packs/joshka0", "reports/catalog", "reports/rubric", "README.md", "PACK.md", "AGENTS.md"
     ]) copyInput(input, fixture)
 
     writeSkill(path.join(fixture, "shared/general/fixture-omitted"), "fixture-omitted")
     writeSkill(path.join(fixture, "shared/general/skill-authoring/references/misplaced"), "misplaced")
 
-    const overlayPath = path.join(fixture, "overlay-manifest.json")
-    const overlay = JSON.parse(fs.readFileSync(overlayPath, "utf8"))
-    overlay.providers.agents.bundle = "full"
-    overlay.providers.agents.snapshot = false
-    fs.writeFileSync(overlayPath, `${JSON.stringify(overlay, null, 2)}\n`)
+    const packPath = path.join(fixture, "catalog/pack.json")
+    const pack = JSON.parse(fs.readFileSync(packPath, "utf8"))
+    const agentsSkill = pack.skills.find((skill) => skill.profiles?.agents)
+    delete agentsSkill.profiles.agents
+    pack.consumed_roots.codex.declared_duplicate_skills = []
+    fs.writeFileSync(packPath, `${JSON.stringify(pack, null, 2)}\n`)
 
     const catalogPath = path.join(fixture, "reports/catalog/CATALOG-CONFORMS.md")
     const catalog = fs.readFileSync(catalogPath, "utf8").replace(
@@ -44,8 +45,11 @@ export function runCheckBoundarySelfTest(report) {
     fs.appendFileSync(path.join(fixture, "shared/general/product-platform/SKILL.md"), "\n| `fixture-cycle` | fixture only | `infra-bundles` |\n")
     fs.appendFileSync(path.join(fixture, "shared/general/infra-bundles/SKILL.md"), "\n| `fixture-cycle` | fixture only | `product-platform` |\n")
 
-    const tokenTail = crypto.randomBytes(16).toString("hex").toUpperCase().slice(0, 16)
-    fs.appendFileSync(path.join(fixture, "bundles/agents/core/agent-vault-cli/SKILL.md"), `\nfixture_token = ${"AK"}IA${tokenTail}\n`)
+    const accessTail = crypto.randomBytes(16).toString("base64url").toUpperCase().replace(/[^A-Z0-9]/g, "").padEnd(16, "Z").slice(0, 16)
+    const secretTail = crypto.randomBytes(36).toString("base64url").slice(0, 40)
+    const githubTail = crypto.randomBytes(36).toString("base64url").slice(0, 36)
+    fs.appendFileSync(path.join(fixture, "native/agents/agent-vault-cli/SKILL.md"),
+      `\naws_access_key_id = ${"AK"}IA${accessTail}\naws_secret_access_key = ${secretTail}\nfixture_token = ghp_${githubTail}\n`)
 
     const result = spawnSync(path.join(fixture, "bin/pack"), ["check"], {
       cwd: fixture,
@@ -55,13 +59,13 @@ export function runCheckBoundarySelfTest(report) {
     })
     const output = `${result.stdout}\n${result.stderr}`
     const expected = [
-      "[canonical-shape] misplaced skill contract", "[manifest-membership] canonical package omitted from manifest: fixture-omitted",
-      "[overlay-bundle] agents", "[overlay-snapshot] agents", "[consumer-union] codex",
+      "[canonical-shape] misplaced skill contract", "[catalog-membership] canonical package omitted from catalog: fixture-omitted",
+      "[catalog-provider] agents", "[consumer-union] codex",
       "[route] route cycle begins at", "[docs-membership] current catalog report includes retired retired-fixture", "[secrets]"
     ]
     const missing = expected.filter((needle) => !output.includes(needle))
     if (result.status === 0 || missing.length) report.error("check-self-test", `boundary fixture missed: ${missing.join(", ") || "nonzero exit"}`)
-    else report.pass("check boundary fixture: canonical, secret, overlay, union, route, and docs failures detected")
+    else report.pass("check boundary fixture: canonical, secret, catalog, union, route, and docs failures detected")
   } catch (error) {
     report.error("check-self-test", error.message)
   } finally {

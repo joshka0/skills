@@ -57,10 +57,10 @@ function validatePackages(packages, archetypes, report) {
   }
   if (passed === packages.length) report.pass(`package validators: ${passed}/${packages.length}`)
   const catalog = spawnSync(process.execPath, ["scripts/validate-skills.mjs"], { cwd: ROOT, encoding: "utf8" })
-  if (catalog.status !== 0) report.error("legacy-validator", (catalog.stdout || catalog.stderr).trim())
+  if (catalog.status !== 0) report.error("catalog-validator", (catalog.stdout || catalog.stderr).trim())
   else report.pass("catalog validator")
   for (const line of catalog.stdout.split(/\r?\n/).filter((line) => line.includes("WARN:"))) {
-    report.warn("legacy-validator", line.trim())
+    report.warn("catalog-validator", line.trim())
   }
 }
 

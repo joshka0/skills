@@ -2,7 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import {
-  ROOT, PROVIDERS, BUNDLES, atomicExchange, buildProviderTree, fail, temporaryRoot, trash, treeDiff
+  ROOT, PROVIDERS, PROFILES, atomicExchange, buildProviderTree, fail, temporaryRoot, trash, treeDiff
 } from "./pack-common.mjs"
 import { runCheck } from "./pack-check.mjs"
 
@@ -11,15 +11,16 @@ const HELP = `Usage: bin/pack <command> [options]
 Commands:
   check                                  Validate packages and the effective catalog
   render [--all|--provider NAME]         Render a pure preview under a temporary root
-         [--bundles LIST|--full]
+         [--profiles LIST|--full]
   apply  (--all|--provider NAME)         Atomically exchange a complete providers tree
-         [--bundles LIST|--full]
+         [--profiles LIST|--full]
   install [--apply]                      Preview or reconcile the seven home skill roots
 
 Providers: ${PROVIDERS.join(", ")}
-Bundles: ${BUNDLES.join(", ")}
+Profiles: ${PROFILES.join(", ")}
 
-render defaults to all providers and the core bundle. apply requires an explicit scope.
+render defaults to all providers and the core profile. --bundles remains a compatibility spelling.
+apply requires an explicit scope.
 install never edits a home config file; stale Codex overrides are report-only.`
 
 function parseComposition(args, requireScope) {
@@ -37,18 +38,18 @@ function parseComposition(args, requireScope) {
     } else if (arg === "--all") {
       if (all) fail("duplicate --all scope")
       all = true
-    } else if (arg === "--bundles") {
-      if (selectionSet) fail("choose exactly one of --bundles or --full")
+    } else if (arg === "--profiles" || arg === "--bundles") {
+      if (selectionSet) fail("choose exactly one of --profiles/--bundles or --full")
       const value = args[++index]
-      if (!value) fail("--bundles requires a non-empty comma-separated list")
+      if (!value) fail(`${arg} requires a non-empty comma-separated list`)
       const parsed = value.split(",").map((item) => item.trim())
       if (parsed.some((item) => !item)) fail("empty bundle token is forbidden")
-      for (const bundle of parsed) if (!BUNDLES.includes(bundle)) fail(`bundle is not allowlisted: ${bundle}`)
-      if (new Set(parsed).size !== parsed.length) fail(`bundle collision in selection: ${value}`)
+      for (const profile of parsed) if (!PROFILES.includes(profile)) fail(`profile is not allowlisted: ${profile}`)
+      if (new Set(parsed).size !== parsed.length) fail(`profile collision in selection: ${value}`)
       selection = parsed
       selectionSet = true
     } else if (arg === "--full") {
-      if (selectionSet) fail("choose exactly one of --bundles or --full")
+      if (selectionSet) fail("choose exactly one of --profiles/--bundles or --full")
       selection = "full"
       selectionSet = true
     } else fail(`unknown option: ${arg}`)

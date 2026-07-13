@@ -15,6 +15,7 @@ const kebab = (value) => typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*
 
 function checkSkills(catalog, canonical, report) {
   const discovered = new Map(canonical.map((pkg) => [pkg.name, pkg]))
+  const allCatalogNames = new Set(catalog.skills.map((skill) => skill.name))
   const catalogNames = new Map()
   const aliasNames = new Set()
   for (const skill of catalog.skills) {
@@ -34,7 +35,7 @@ function checkSkills(catalog, canonical, report) {
     }
     if (!Array.isArray(skill.aliases)) report.error("catalog-alias", `${skill.name}: aliases must be an array`)
     for (const alias of skill.aliases ?? []) {
-      if (!alias.name || aliasNames.has(alias.name) || catalogNames.has(alias.name)) report.error("catalog-alias", `${skill.name}: duplicate or invalid alias ${alias.name}`)
+      if (!alias.name || aliasNames.has(alias.name) || allCatalogNames.has(alias.name)) report.error("catalog-alias", `${skill.name}: duplicate or invalid alias ${alias.name}`)
       aliasNames.add(alias.name)
       if (!ALIAS_STATUSES.has(alias.status) || !alias.reason) report.error("catalog-alias", `${alias.name}: status and reason are required`)
     }

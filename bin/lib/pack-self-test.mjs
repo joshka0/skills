@@ -7,6 +7,22 @@ function packageAt(directory, name) {
   fs.writeFileSync(path.join(directory, "SKILL.md"), `---\nname: ${name}\ndescription: "Fixture ${name}. Use when the pack safety gate runs."\n---\n\n# ${name}\n`)
 }
 
+function writeCatalog(fixture, mutate = () => {}) {
+  const catalog = {
+    schema_version: 1,
+    providers: ["droid", "codex"],
+    profiles: ["core", "release", "aliases"],
+    skills: [{
+      name: "new-skill", path: "shared/general/new-skill", profiles: { droid: ["core"], codex: ["core"] }
+    }],
+    provider_native_exceptions: [],
+    consumed_roots: {}
+  }
+  mutate(catalog)
+  fs.mkdirSync(path.join(fixture, "catalog"), { recursive: true })
+  fs.writeFileSync(path.join(fixture, "catalog/pack.json"), `${JSON.stringify(catalog, null, 2)}\n`)
+}
+
 function expectFailure(action, pattern) {
   try { action() } catch (error) {
     if (pattern.test(error.message)) return
@@ -19,33 +35,37 @@ export function runSafetySelfTest(report) {
   const work = temporaryRoot("skills-pack-safety-")
   try {
     const fixture = path.join(work, "repo")
-    fs.mkdirSync(path.join(fixture, "manifests"), { recursive: true })
-    fs.writeFileSync(path.join(fixture, "manifests/skills.jsonl"), `${JSON.stringify({ name: "new-skill" })}\n`)
+    writeCatalog(fixture)
     packageAt(path.join(fixture, "providers/droid/old-skill"), "old-skill")
-    packageAt(path.join(fixture, "bundles/droid/core/new-skill"), "new-skill")
+    packageAt(path.join(fixture, "shared/general/new-skill"), "new-skill")
 
     const rendered = buildProviderTree(path.join(work, "render"), ["droid"], ["core"], fixture)
     if (!fs.existsSync(path.join(rendered, "droid/new-skill/SKILL.md"))) throw new Error("fixture render omitted its new package")
     if (fs.existsSync(path.join(rendered, "droid/old-skill"))) throw new Error("fixture render retained a removed package")
 
-    fs.mkdirSync(path.join(fixture, "bundles/droid/release"), { recursive: true })
-    fs.cpSync(path.join(fixture, "bundles/droid/core/new-skill"), path.join(fixture, "bundles/droid/release/new-skill"), { recursive: true })
+    packageAt(path.join(fixture, "native/droid/new-skill"), "new-skill")
+    writeCatalog(fixture, (catalog) => catalog.provider_native_exceptions.push({
+      provider: "droid", name: "new-skill", source: "native/droid/new-skill", kind: "skill", profiles: ["release"]
+    }))
     expectFailure(
       () => buildProviderTree(path.join(work, "collision"), ["droid"], "full", fixture),
       /composition collision/
     )
 
     const external = path.join(work, "external-aliases")
-    packageAt(path.join(external, "escaped-skill"), "escaped-skill")
-    fs.symlinkSync(external, path.join(fixture, "bundles/droid/aliases"), "dir")
+    packageAt(external, "new-skill")
+    fs.symlinkSync(external, path.join(fixture, "shared/general/escaped-skill"), "dir")
+    writeCatalog(fixture, (catalog) => { catalog.skills[0].path = "shared/general/escaped-skill" })
     expectFailure(
-      () => buildProviderTree(path.join(work, "symlink"), ["droid"], ["aliases"], fixture),
+      () => buildProviderTree(path.join(work, "symlink"), ["droid"], ["core"], fixture),
       /symlinked composition ancestor/
     )
 
     packageAt(path.join(fixture, "providers/codex/old-skill"), "old-skill")
-    packageAt(path.join(fixture, "bundles/codex/core/new-skill"), "new-skill")
-    fs.mkdirSync(path.join(fixture, "providers/codex/.system"), { recursive: true })
+    fs.mkdirSync(path.join(fixture, "native/codex/.system"), { recursive: true })
+    writeCatalog(fixture, (catalog) => catalog.provider_native_exceptions.push({
+      provider: "codex", name: ".system", source: "native/codex/.system", kind: "system-tree", profiles: ["core"]
+    }))
     expectFailure(
       () => buildProviderTree(path.join(work, "native"), ["codex"], ["core"], fixture),
       /marker is missing or malformed/

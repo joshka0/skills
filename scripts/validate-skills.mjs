@@ -4,8 +4,7 @@ import path from "node:path"
 import crypto from "node:crypto"
 
 const ROOT = process.cwd()
-const manifestPath = "manifests/skills.jsonl"
-const aliasesPath = "manifests/aliases.json"
+const catalogPath = "catalog/pack.json"
 const allowedPriorities = new Set(["default", "specialist", "user-invocable-only"])
 const allowedStatuses = new Set(["active-source", "specialist-source", "user-invocable-only"])
 const allowedAliasStatuses = new Set([
@@ -21,9 +20,8 @@ const allowedAliasStatuses = new Set([
 ])
 const excludedRootPrefixes = [
   "archive/",
-  "bundles/",
   "providers/",
-  "providers-current/",
+  "history/",
   "mirrors/",
   "loose/",
   "packs/",
@@ -97,24 +95,17 @@ function parseFrontmatter(text) {
   return out
 }
 
-function readJsonl(file) {
+function readCatalog() {
+  const file = catalogPath
   if (!exists(file)) {
-    errors.push(`missing manifest: ${file}`)
-    return []
+    errors.push(`missing catalog: ${file}`)
+    return { skills: [], external_records: [] }
   }
-  return fs.readFileSync(path.join(ROOT, file), "utf8")
-    .split(/\r?\n/)
-    .map((line, index) => ({ line, index: index + 1 }))
-    .filter(({ line }) => line.trim().length > 0)
-    .map(({ line, index }) => {
-      try {
-        return JSON.parse(line)
-      } catch (err) {
-        errors.push(`${file}:${index} invalid JSON: ${err.message}`)
-        return null
-      }
-    })
-    .filter(Boolean)
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, file), "utf8")) }
+  catch (err) {
+    errors.push(`${file} invalid JSON: ${err.message}`)
+    return { skills: [], external_records: [] }
+  }
 }
 
 function isExcludedPath(p) {
@@ -211,24 +202,18 @@ function hashDirectory(dir) {
   return hash.digest("hex")
 }
 
-function checkAliases(rows) {
-  if (!exists(aliasesPath)) {
-    errors.push(`missing aliases file: ${aliasesPath}`)
-    return
-  }
-  let aliases
-  try {
-    aliases = JSON.parse(fs.readFileSync(path.join(ROOT, aliasesPath), "utf8"))
-  } catch (err) {
-    errors.push(`${aliasesPath} invalid JSON: ${err.message}`)
-    return
-  }
+function checkAliases(rows, catalog) {
   const activeNames = new Set(rows.map((row) => row.name))
-  for (const [alias, entry] of Object.entries(aliases)) {
+  const entries = rows.flatMap((row) => (row.aliases ?? []).map((entry) => [entry.name, { ...entry, canonical: row.name }]))
+    .concat((catalog.external_records ?? []).map((entry) => [entry.name, entry]))
+  const seen = new Set()
+  for (const [alias, entry] of entries) {
     if (!entry || typeof entry !== "object") {
       errors.push(`alias ${alias} must map to an object`)
       continue
     }
+    if (seen.has(alias)) errors.push(`duplicate alias record: ${alias}`)
+    seen.add(alias)
     if (!allowedAliasStatuses.has(entry.status)) errors.push(`alias ${alias} invalid status: ${entry.status}`)
     if (entry.canonical && !activeNames.has(entry.canonical)) {
       warnings.push(`alias ${alias} points outside active manifest: ${entry.canonical}`)
@@ -262,7 +247,7 @@ function checkSymlinks() {
 }
 
 function checkNestedGeneratedCopies() {
-  for (const root of ["bundles", "providers", "providers-current"]) {
+  for (const root of ["providers"]) {
     for (const dir of walk(root, (p, ent) => ent.isDirectory?.())) {
       const parent = path.basename(path.dirname(dir))
       const name = path.basename(dir)
@@ -274,15 +259,16 @@ function checkNestedGeneratedCopies() {
   }
 }
 
-const rows = readJsonl(manifestPath)
+const catalog = readCatalog()
+const rows = catalog.skills ?? []
 checkManifestRows(rows)
-checkAliases(rows)
+checkAliases(rows, catalog)
 checkSharedMarkdown()
 checkSymlinks()
 checkNestedGeneratedCopies()
 
 console.log("Skills validation")
-console.log(`- manifest rows: ${rows.length}`)
+console.log(`- catalog rows: ${rows.length}`)
 console.log(`- active skill names: ${new Set(rows.map((row) => row.name)).size}`)
 console.log(`- errors: ${errors.length}`)
 for (const error of errors) console.log(`  - ERROR: ${error}`)

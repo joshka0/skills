@@ -1,109 +1,9 @@
 import fs from "node:fs"
 import path from "node:path"
 import {
-  ROOT, PROVIDERS, CONSUMERS, NATIVE_ENTRIES, buildProviderTree, parseFrontmatter,
-  providerPackages, temporaryRoot, trash, treeDiff
+  ROOT, PROVIDERS, CONSUMERS, NATIVE_ENTRIES, providerPackages
 } from "./pack-common.mjs"
-
-const same = (left, right) => JSON.stringify([...left].sort()) === JSON.stringify([...right].sort())
-
-function providerNames(provider, canonicalNames) {
-  return new Set(providerPackages(path.join(ROOT, "providers", provider)).map((pkg) => pkg.name).filter((name) => canonicalNames.has(name)))
-}
-
-function checkOverlaySemantics(overlay, canonical, report) {
-  const canonicalNames = new Set(canonical.map((pkg) => pkg.name))
-  if (overlay.catalog?.canonicalSlots !== canonical.length) {
-    report.error("overlay-count", `overlay manifest says ${overlay.catalog?.canonicalSlots}; canonical source has ${canonical.length}`)
-  }
-  const actualProviders = Object.keys(overlay.providers ?? {})
-  if (!same(actualProviders, PROVIDERS)) report.error("overlay-providers", `provider keys differ: ${actualProviders.join(",")}`)
-  for (const provider of PROVIDERS) {
-    const declared = overlay.providers?.[provider]
-    if (declared?.bundle !== "core") report.error("overlay-bundle", `${provider}: declared bundle must be core`)
-    const hasSnapshot = fs.existsSync(path.join(ROOT, "providers-current", provider))
-    if (declared?.snapshot !== hasSnapshot) report.error("overlay-snapshot", `${provider}: snapshot declaration differs from repository state`)
-  }
-  const memberships = Object.fromEntries(PROVIDERS.map((provider) => [provider, providerNames(provider, canonicalNames)]))
-  const common = [...canonicalNames].filter((name) => PROVIDERS.every((provider) => memberships[provider].has(name)))
-  if (!same(overlay.catalog?.commonCanonical ?? [], common)) report.error("overlay-common", "commonCanonical differs from live provider membership")
-  const exposure = new Map([...canonicalNames].map((name) => [name, PROVIDERS.filter((provider) => memberships[provider].has(name))]))
-  const claudeOnly = [...exposure].filter(([, providers]) => providers.length === 1 && providers[0] === "claude").map(([name]) => name)
-  if (!same(overlay.catalog?.profileDecisions?.claudeOnly ?? [], claudeOnly)) report.error("overlay-profile", "claudeOnly differs from live provider membership")
-  const declaredNative = overlay.providerNativeExceptions ?? {}
-  for (const provider of PROVIDERS) {
-    const declared = declaredNative[provider]?.entries ?? []
-    const expected = NATIVE_ENTRIES[provider] ?? []
-    if (!same(declared, expected)) report.error("overlay-native", `${provider}: declared native entries differ from composer policy`)
-  }
-  for (const provider of Object.keys(declaredNative).filter((key) => key !== "retiredDocumentation")) {
-    if (!PROVIDERS.includes(provider)) report.error("overlay-native", `unsupported native provider key: ${provider}`)
-  }
-  const scopes = [...new Set(canonical.map((pkg) => pkg.path.split("/").slice(0, 2).join("/")))]
-  if (!same(overlay.roots?.shared ?? [], scopes)) report.error("overlay-roots", "shared roots differ from discovered canonical roots")
-  for (const [key, expected] of [["bundles", "bundles/"], ["providers", "providers/"], ["providersCurrent", "providers-current/"]]) {
-    if (overlay.roots?.[key] !== expected) report.error("overlay-roots", `${key} must be ${expected}`)
-  }
-}
-
-function checkProvider(provider, canonicalNames, overlay, report) {
-  const root = path.join(ROOT, "providers", provider)
-  const entries = fs.readdirSync(root)
-  const declared = overlay.providers?.[provider]?.entries
-  if (declared !== entries.length) report.error("provider-count", `${provider}: overlay says ${declared}; live has ${entries.length}`)
-  const seen = new Set()
-  for (const pkg of providerPackages(root)) {
-    if (seen.has(pkg.name)) report.error("provider-name", `${provider}: duplicate ${pkg.name}`)
-    seen.add(pkg.name)
-    const top = path.relative(root, pkg.skill).split(path.sep)[0]
-    if (!canonicalNames.has(pkg.name) && !(NATIVE_ENTRIES[provider] ?? []).includes(top)) {
-      report.error("provider-native", `${provider}: undeclared non-canonical package ${pkg.name}`)
-    }
-  }
-  for (const expected of NATIVE_ENTRIES[provider] ?? []) {
-    if (!entries.includes(expected)) report.error("provider-native", `${provider}: missing ${expected}`)
-  }
-}
-
-function checkConsumerUnions(report) {
-  for (const [consumer, roots] of Object.entries(CONSUMERS)) {
-    const names = new Map()
-    for (const provider of roots) {
-      for (const pkg of providerPackages(path.join(ROOT, "providers", provider))) {
-        if (names.has(pkg.name)) report.error("consumer-union", `${consumer}: ${pkg.name} exposed by ${names.get(pkg.name)} and ${provider}`)
-        else names.set(pkg.name, provider)
-      }
-    }
-  }
-}
-
-function checkCompositionParity(canonical, report) {
-  const byName = new Map(canonical.map((pkg) => [pkg.name, pkg]))
-  for (const provider of PROVIDERS) {
-    const bundle = path.join(ROOT, "bundles", provider, "core")
-    for (const entry of fs.readdirSync(bundle, { withFileTypes: true })) {
-      if (!entry.isDirectory()) { report.error("bundle-shape", `${provider}/core/${entry.name} is not a package directory`); continue }
-      const skill = path.join(bundle, entry.name, "SKILL.md")
-      if (!fs.existsSync(skill)) { report.error("bundle-shape", `${provider}/core/${entry.name} lacks SKILL.md`); continue }
-      const fm = parseFrontmatter(fs.readFileSync(skill, "utf8"))
-      if (!byName.has(fm.name)) continue
-      const differences = treeDiff(path.join(ROOT, byName.get(fm.name).path), path.join(bundle, entry.name), 12, false)
-      if (differences.length) report.error("canonical-bundle", `${provider}/${entry.name}: ${differences.join(", ")}`)
-    }
-  }
-  const preview = temporaryRoot("skills-pack-check-")
-  try {
-    const rendered = buildProviderTree(preview, PROVIDERS, ["core"])
-    for (const provider of PROVIDERS) {
-      const differences = treeDiff(path.join(ROOT, "providers", provider), path.join(rendered, provider))
-      if (differences.length) report.error("render-live", `${provider}: ${differences.join(", ")}`)
-      const snapshotDiff = treeDiff(path.join(ROOT, "providers", provider), path.join(ROOT, "providers-current", provider), 12, false)
-      if (snapshotDiff.length) report.error("snapshot", `${provider}: ${snapshotDiff.join(", ")}`)
-    }
-  } catch (error) {
-    report.error("render", error.message)
-  } finally { trash(preview) }
-}
+import { checkCatalog } from "./pack-catalog-check.mjs"
 
 function routeRelations(canonical, archetypes) {
   const relations = []
@@ -157,7 +57,7 @@ function checkRoutes(canonical, archetypes, report) {
   for (const start of routeGraph.keys()) visit(start, new Set(), start)
 }
 
-function checkDocs(canonical, overlay, report) {
+function checkDocs(canonical, report) {
   const canonicalNames = new Set(canonical.map((pkg) => pkg.name))
   const actualCounts = Object.fromEntries(PROVIDERS.map((provider) => [provider, fs.readdirSync(path.join(ROOT, "providers", provider)).length]))
   const pack = fs.readFileSync(path.join(ROOT, "PACK.md"), "utf8")
@@ -207,26 +107,8 @@ function checkDocs(canonical, overlay, report) {
   for (const claim of [...missing].sort()) report.error("docs-path", claim)
 }
 
-export function checkParity(rows, canonical, archetypes, report) {
-  const byName = new Map(canonical.map((pkg) => [pkg.name, pkg]))
-  const rowsByName = new Map(rows.map((row) => [row.name, row]))
-  for (const pkg of canonical) {
-    const row = rowsByName.get(pkg.name)
-    if (!row) report.error("manifest-membership", `canonical package omitted from manifest: ${pkg.name}`)
-    else {
-      if (row.path !== pkg.path) report.error("manifest-path", `${pkg.name}: manifest path ${row.path} differs from ${pkg.path}`)
-      if (row.use_when?.[0] !== pkg.fm.description) report.error("manifest-description", `${pkg.name} differs from canonical frontmatter`)
-    }
-  }
-  for (const row of rows) if (!byName.has(row.name)) report.error("manifest-membership", `manifest row has no canonical package: ${row.name}`)
-  let overlay = {}
-  try { overlay = JSON.parse(fs.readFileSync(path.join(ROOT, "overlay-manifest.json"), "utf8")) }
-  catch (error) { report.error("overlay-json", error.message) }
-  checkOverlaySemantics(overlay, canonical, report)
-  const names = new Set(byName.keys())
-  for (const provider of PROVIDERS) checkProvider(provider, names, overlay, report)
-  checkConsumerUnions(report)
-  checkCompositionParity(canonical, report)
+export function checkParity(catalog, canonical, archetypes, report) {
+  checkCatalog(catalog, canonical, report)
   checkRoutes(canonical, archetypes, report)
-  checkDocs(canonical, overlay, report)
+  checkDocs(canonical, report)
 }
