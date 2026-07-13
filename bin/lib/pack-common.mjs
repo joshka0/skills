@@ -4,13 +4,13 @@ import os from "node:os"
 import path from "node:path"
 import { spawnSync } from "node:child_process"
 import { fileURLToPath } from "node:url"
-import { catalogEntries, consumerProviders, loadCatalog, nativeEntries } from "./pack-catalog.mjs"
+import { catalogEntries, consumerProviders, loadCatalog, nativeEntries, selectableProfiles } from "./pack-catalog.mjs"
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 export const CATALOG = loadCatalog(ROOT)
 export const PROVIDERS = [
   "agents", "claude", "codex", "droid", "factory", "gemini", "gemini-antigravity"
 ]
-export const PROFILES = CATALOG.profiles
+export const PROFILES = selectableProfiles(CATALOG)
 export const BUNDLES = PROFILES
 export const CONSUMERS = consumerProviders(CATALOG)
 export const NATIVE_ENTRIES = nativeEntries(CATALOG)

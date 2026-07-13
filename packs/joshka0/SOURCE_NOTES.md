@@ -3,14 +3,14 @@
 Date: 2026-07-13
 
 This note is derived from `catalog/pack.json`. It records active canonical
-ownership, imported evidence, aliases, native inputs, profile membership, and
+ownership, imported evidence, aliases, native inputs, core membership, and
 the current delivery boundary.
 
 ## Source categories
 
 | Category | Source | Composition status |
 | --- | --- | --- |
-| Locally owned canonical packages | `shared/general` | Active according to catalog profiles. |
+| Locally owned canonical packages | `shared/general` | Active according to catalog `core` membership. |
 | Claude-specific canonical package | `shared/claude/peon-ping` | Active only for Claude. |
 | Imported sources | `mirrors/` | Evidence or curated input; never implicitly composed. |
 | Provider-owned inputs | `native/` | Active only when declared as a native exception. |

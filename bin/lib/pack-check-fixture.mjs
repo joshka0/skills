@@ -32,6 +32,7 @@ export function runCheckBoundarySelfTest(report) {
     const pack = JSON.parse(fs.readFileSync(packPath, "utf8"))
     const agentsSkill = pack.skills.find((skill) => skill.profiles?.agents)
     delete agentsSkill.profiles.agents
+    pack.profiles.push("unused")
     pack.consumed_roots.codex.declared_duplicate_skills = []
     fs.writeFileSync(packPath, `${JSON.stringify(pack, null, 2)}\n`)
 
@@ -66,7 +67,7 @@ export function runCheckBoundarySelfTest(report) {
     const output = `${result.stdout}\n${result.stderr}`
     const expected = [
       "[canonical-shape] misplaced skill contract", "[catalog-membership] canonical package omitted from catalog: fixture-omitted",
-      "[catalog-provider] agents", "[consumer-union] codex",
+      "[catalog-provider] agents", "[catalog-profiles] unused profile has no members", "[consumer-union] codex",
       "[route] route cycle begins at", "[docs-membership] current catalog report includes retired retired-fixture"
     ]
     const missing = expected.filter((needle) => !output.includes(needle))

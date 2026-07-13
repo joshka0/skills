@@ -10,7 +10,7 @@ repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$repo_root"
 
 # Pack gate: source, catalog, native, or governing-doc changes validate the full pack.
-if git diff --cached --name-only | grep -Eq '^(shared/|catalog/|native/|README\.md$|PACK\.md$|AGENTS\.md$|packs/joshka0/SOURCE_NOTES\.md$)'; then
+if git diff --cached --name-only | grep -Eq '^(shared/|catalog/|native/|README\.md$|PACK\.md$|AGENTS\.md$|packs/joshka0/(README|SOURCE_NOTES)\.md$)'; then
   echo "pack-governed path changed; running bin/pack check" >&2
   bin/pack check
 fi

@@ -6,7 +6,7 @@ current composition model is:
 ```text
 shared/             canonical locally owned packages
 mirrors/            preserved upstream sources and import evidence
-catalog/pack.json   archetypes, aliases, profiles, native exceptions, consumers
+catalog/pack.json   archetypes, aliases, core membership, native exceptions, consumers
 native/<provider>/  provider-owned exception sources
 providers/          generated live provider views for the current distribution
 history/            retired inputs and dated preservation evidence

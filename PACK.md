@@ -2,8 +2,8 @@
 
 Catalog snapshot: 2026-07-13. `catalog/pack.json` is the composition source of
 truth for 26 canonical packages, 115 owner-bound aliases, six external records,
-five provider-native exceptions, seven provider profiles, and seven consumer
-models.
+five provider-native exceptions, one selectable `core` profile across seven
+providers, and seven consumer models.
 
 ## Layer model
 

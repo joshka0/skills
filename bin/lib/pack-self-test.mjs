@@ -11,7 +11,7 @@ function writeCatalog(fixture, mutate = () => {}) {
   const catalog = {
     schema_version: 1,
     providers: ["droid", "codex"],
-    profiles: ["core", "release", "aliases"],
+    profiles: ["core"],
     skills: [{
       name: "new-skill", path: "shared/general/new-skill", profiles: { droid: ["core"], codex: ["core"] }
     }],
@@ -45,7 +45,7 @@ export function runSafetySelfTest(report) {
 
     packageAt(path.join(fixture, "native/droid/new-skill"), "new-skill")
     writeCatalog(fixture, (catalog) => catalog.provider_native_exceptions.push({
-      provider: "droid", name: "new-skill", source: "native/droid/new-skill", kind: "skill", profiles: ["release"]
+      provider: "droid", name: "new-skill", source: "native/droid/new-skill", kind: "skill", profiles: ["core"]
     }))
     expectFailure(
       () => buildProviderTree(path.join(work, "collision"), ["droid"], "full", fixture),

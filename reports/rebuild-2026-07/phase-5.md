@@ -172,4 +172,72 @@ Additional evidence:
 - No Git command was run. No file was permanently deleted; the authorized
   mirror reduction went to Trash and historical estate stayed preserved.
 
+## Re-gate fixes
+
+The independent review in `gate-grok.md` rejected the first Phase 5 verdict on
+two blockers. Both were fixed before re-gating.
+
+### Blocker 1 — stale and ungated pack README
+
+- `packs/joshka0/README.md` was regenerated to current catalog/live truth: 26
+  canonical packages, 115 owner-bound aliases, six external records, five
+  native exceptions, the canonical/catalog/native/generated/history model, the
+  seven correct provider counts (22/26/21/20/20/20/22), all seven current
+  install mappings, consumed-root overlap, and the key Chrome/local-secrets/
+  Maestri aliases. Retired bundle, snapshot, manifest, old-count, Foxctl, and
+  obsolete audit claims are absent.
+- `bin/lib/pack-parity.mjs` now includes the pack README in `checkDocs`, applies
+  missing-path/retired-command/install-mapping checks to it, and validates its
+  provider count table against live provider directories alongside `PACK.md`.
+- Both `bin/hooks/pre-commit` and the active `.git/hooks/pre-commit` trigger
+  `bin/pack check` for changes to either `packs/joshka0/README.md` or
+  `packs/joshka0/SOURCE_NOTES.md`. The hook copies remain byte-identical and
+  retain Kingfisher as the final stage.
+
+### Blocker 2 — declared empty profile tokens
+
+- `catalog/pack.json` now declares only `core`; the empty `infra`, `release`,
+  and `aliases` tokens are gone. Every canonical and native membership uses
+  `core`.
+- The CLI help exposes only `--profiles core` and `--full`. Its allowlist is
+  derived from profiles that actually have canonical or native members, so an
+  empty declared token cannot become selectable through catalog data alone.
+- `bin/lib/pack-catalog-check.mjs` rejects any declared profile with zero
+  members. The boundary fixture injects an `unused` profile and proves that
+  failure is detected.
+- The safety fixture no longer uses synthetic non-core profile names.
+- `catalog/README.md` states that `core` is the sole selectable profile and
+  that `--full` currently resolves to the same membership; a future profile
+  must have members before catalog or CLI exposure. Current governing/source
+  docs were aligned to the same one-profile model, while the superseded catalog
+  report explicitly labels its auxiliary selection surface historical.
+
+Public behavior checks confirm that `--profiles infra`, `--profiles release`,
+and `--profiles aliases` are rejected as not allowlisted. Fresh `core` and
+`--full` renders are byte-identical and retain the expected provider entry
+counts.
+
+The final re-gate command returned:
+
+```text
+PACK CHECK
+PASS package validators: 26/26
+PASS catalog validator
+PASS local package links inspected: 101
+PASS no repo-internal symlinks
+PASS secret scan: 0 findings across 206 blobs
+PASS declarative catalog: 26 skills, 121 aliases/external records
+PASS provider-native exceptions: 5
+PASS consumed-root unions validated, including declared Codex Agents+Codex overlap
+PASS render-and-compare parity: 7 live providers
+PASS safe composer fixture: confinement, collision, native shape, atomic success/failure
+PASS check boundary fixture: canonical, secret, catalog, union, route, and docs failures detected
+WARN [catalog-validator] - WARN: caveman has weak routing clarity in SKILL.md
+SUMMARY errors=0 warnings=1
+CHECK: PASS
+```
+
+No Git command, `$HOME` write, provider mutation, permanent deletion, or Phase
+6 work occurred during the re-gate fixes.
+
 PHASE 5: DONE

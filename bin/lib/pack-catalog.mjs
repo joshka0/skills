@@ -19,6 +19,14 @@ export function profilesForSelection(catalog, selection) {
   return selection === "full" ? catalog.profiles : selection
 }
 
+export function selectableProfiles(catalog) {
+  const used = new Set([
+    ...catalog.skills.flatMap((skill) => Object.values(skill.profiles ?? {}).flat()),
+    ...catalog.provider_native_exceptions.flatMap((entry) => entry.profiles ?? [])
+  ])
+  return catalog.profiles.filter((profile) => used.has(profile))
+}
+
 export function catalogEntries(catalog, provider, selection) {
   const selected = new Set(profilesForSelection(catalog, selection))
   const entries = []

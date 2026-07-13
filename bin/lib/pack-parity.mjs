@@ -60,9 +60,13 @@ function checkRoutes(canonical, archetypes, report) {
 function checkDocs(canonical, report) {
   const canonicalNames = new Set(canonical.map((pkg) => pkg.name))
   const actualCounts = Object.fromEntries(PROVIDERS.map((provider) => [provider, fs.readdirSync(path.join(ROOT, "providers", provider)).length]))
-  const pack = fs.readFileSync(path.join(ROOT, "PACK.md"), "utf8")
-  for (const match of pack.matchAll(/^\| `?([a-z-]+)`? \| (\d+) \|/gm)) {
-    if (match[1] in actualCounts && Number(match[2]) !== actualCounts[match[1]]) report.error("docs-count", `PACK.md ${match[1]} says ${match[2]}; live has ${actualCounts[match[1]]}`)
+  for (const doc of ["PACK.md", "packs/joshka0/README.md"]) {
+    const countDoc = fs.readFileSync(path.join(ROOT, doc), "utf8")
+    for (const match of countDoc.matchAll(/^\| `?([a-z-]+)`? \| (\d+) \|/gm)) {
+      if (match[1] in actualCounts && Number(match[2]) !== actualCounts[match[1]]) {
+        report.error("docs-count", `${doc} ${match[1]} says ${match[2]}; live has ${actualCounts[match[1]]}`)
+      }
+    }
   }
   const catalogDirectory = path.join(ROOT, "reports/catalog")
   const datedReports = fs.readdirSync(catalogDirectory)
@@ -87,7 +91,7 @@ function checkDocs(canonical, report) {
   const authoring = fs.readFileSync(path.join(ROOT, "shared/general/skill-authoring/SKILL.md"), "utf8")
   const rubric = fs.readFileSync(path.join(ROOT, "reports/rubric/RUBRIC.md"), "utf8").split(/\r?\n/).slice(0, 12).join("\n")
   if (authoring.includes("repository rubric is the single normative source") || !/historical/i.test(rubric)) report.error("docs-ownership", "skill-authoring references are not yet the sole normative contract")
-  const docs = ["README.md", "PACK.md", "AGENTS.md", "packs/joshka0/SOURCE_NOTES.md"]
+  const docs = ["README.md", "PACK.md", "AGENTS.md", "packs/joshka0/README.md", "packs/joshka0/SOURCE_NOTES.md"]
   const missing = new Set()
   const pathPattern = /`((?:shared|mirrors|bundles|providers|providers-current|archive|loose|reports|packs|bin|home)(?:\/[A-Za-z0-9._-]+)+\/?)`/g
   for (const doc of docs) {

@@ -3,7 +3,7 @@ import path from "node:path"
 import {
   ROOT, PROVIDERS, buildProviderTree, providerPackages, temporaryRoot, trash, treeDiff
 } from "./pack-common.mjs"
-import { catalogEntries } from "./pack-catalog.mjs"
+import { catalogEntries, selectableProfiles } from "./pack-catalog.mjs"
 
 const ARCHETYPES = new Set(["leaf", "private-leaf", "suite", "router", "interaction"])
 const ALIAS_STATUSES = new Set([
@@ -61,6 +61,10 @@ function checkShape(catalog, canonical, report) {
   if (!same(catalog.providers, PROVIDERS)) report.error("catalog-providers", `provider allowlist differs: ${catalog.providers.join(",")}`)
   if (new Set(catalog.profiles).size !== catalog.profiles.length || catalog.profiles.some((profile) => !kebab(profile))) {
     report.error("catalog-profiles", "profile names must be unique kebab-case tokens")
+  }
+  const usedProfiles = new Set(selectableProfiles(catalog))
+  for (const profile of catalog.profiles) {
+    if (!usedProfiles.has(profile)) report.error("catalog-profiles", `${profile} profile has no members`)
   }
   const scopes = [...new Set(canonical.map((pkg) => pkg.path.split("/").slice(0, 2).join("/")))]
   if (!same(catalog.roots?.canonical ?? [], scopes) || catalog.roots?.native !== "native" || catalog.roots?.providers !== "providers") {

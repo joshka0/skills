@@ -12,7 +12,7 @@ It is preserved as evidence only and is superseded by
 
 ## Composition policy
 
-- `core` is the only populated bundle surface. Codex keeps empty `infra`, `release`, and `aliases` directories because its existing `--full` implementation enumerates them; they contain no entries.
+- Historical note: this superseded report described auxiliary empty selection surfaces. They are no longer catalog profiles or CLI tokens; current selection is `core` or `--full` only.
 - The 19 common canonical packages are exposed by every supported overlay. Claude additionally receives `caveman`, `git-guardrails-claude-code`, `grill-me`, `peon-ping`, and `riff-partner`.
 - Claude is the only consumer of `disable-model-invocation`: the three interaction packages are not composed into non-Claude overlays, so no unsupported-key behavior is assumed.
 - Codex exposes `chrome-extension-builder`; the other six profiles expose `product-platform`. This is the router/independently-triggerable-leaf profile split required by rubric section 7: no default overlay exposes both.

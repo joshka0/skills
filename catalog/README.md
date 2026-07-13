@@ -24,9 +24,10 @@ real-file layer.
   to the same canonical source. Other consumer unions reject duplicates.
 
 The fixed provider allowlist remains executable policy in `bin/pack`; changing
-catalog data cannot authorize a new apply target. `core`, `infra`, `release`,
-and `aliases` are profile names. Empty profiles are retained as stable CLI
-selection tokens, not as copied directory bodies.
+catalog data cannot authorize a new apply target. `core` is the only selectable
+profile. `--full` currently resolves to the same membership because no other
+profile has members. A new profile must gain declared membership before it can
+be added to the catalog or exposed by the CLI; empty profile tokens are invalid.
 
 ## Validation
 
@@ -38,7 +39,7 @@ checked-in provider snapshot.
 
 ## Next profile triage method
 
-Language packs remain in default profiles by owner ruling. The next proposal
+Language packs remain in `core` for every provider by owner ruling. The next proposal
 to remove Effect, Elixir, or Go from a default profile must use blinded paired
 tasks: run representative tasks with and without the candidate skill, hide the
 condition from evaluators, score correctness and decision quality against the

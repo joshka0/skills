@@ -43,7 +43,7 @@ continue using catalog render-and-compare until the owner adopts a new model.
 5. For any skill-content edit, follow all four normative references below
    `shared/general/skill-authoring/references/`, archive the pre-rewrite package,
    and run its declared archetype validator.
-6. Update catalog profiles, aliases, exceptions, and consumer declarations when
+6. Update catalog core membership, aliases, exceptions, and consumer declarations when
    exposure changes.
 7. Render and inspect before applying. Apply only when the requested scope
    explicitly authorizes refreshing the live provider tree.
@@ -98,7 +98,7 @@ snapshot is maintained.
 
 ## Routing and catalog policy
 
-- Default profiles expose compact owners and avoid router/child duplication.
+- Default provider views expose compact owners and avoid router/child duplication.
 - `product-platform` owns browser-extension work through a selected reference;
   `chrome-extension-builder` remains only a compatibility alias.
 - `local-dev` owns secret-safe local handoffs; `local-secrets` remains only a

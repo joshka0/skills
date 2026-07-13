@@ -11,13 +11,13 @@ const HELP = `Usage: bin/pack <command> [options]
 Commands:
   check                                  Validate packages and the effective catalog
   render [--all|--provider NAME]         Render a pure preview under a temporary root
-         [--profiles LIST|--full]
+         [--profiles core|--full]
   apply  (--all|--provider NAME)         Atomically exchange a complete providers tree
-         [--profiles LIST|--full]
+         [--profiles core|--full]
   install [--apply]                      Preview or reconcile the seven home skill roots
 
 Providers: ${PROVIDERS.join(", ")}
-Profiles: ${PROFILES.join(", ")}
+Selectable profiles: ${PROFILES.join(", ")}
 
 render defaults to all providers and the core profile. --bundles remains a compatibility spelling.
 apply requires an explicit scope.

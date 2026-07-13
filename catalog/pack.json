@@ -19,15 +19,12 @@
     "gemini-antigravity"
   ],
   "profiles": [
-    "core",
-    "infra",
-    "release",
-    "aliases"
+    "core"
   ],
   "profile_decisions": {
-    "codex_chrome_profile": "product-platform owns the browser-extension target in every catalog profile; chrome-extension-builder is a routed compatibility alias, not a standalone slot. Phase 4 applies that desired exposure to live providers.",
-    "claude_interaction_metadata": "Claude alone receives the three explicit interaction packages; other profiles omit them rather than relying on unknown-key handling.",
-    "language_packs": "Effect, Elixir, and Go remain in default profiles by owner ruling; catalog/README.md defines the blinded paired-task method required for the next triage."
+    "codex_chrome_profile": "product-platform owns the browser-extension target in the core profile for every provider; chrome-extension-builder is a routed compatibility alias, not a standalone slot.",
+    "claude_interaction_metadata": "Claude alone receives the three explicit interaction packages; other providers omit them rather than relying on unknown-key handling.",
+    "language_packs": "Effect, Elixir, and Go remain in core membership for every provider by owner ruling; catalog/README.md defines the blinded paired-task method required for the next triage."
   },
   "skills": [
     {

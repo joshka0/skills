@@ -65,7 +65,7 @@ render, but that proves current parity rather than byte identity with the Phase
 | Other consumer roots | Kept and narrowed | One declared root each; duplicate policy is `reject`. |
 | `providers-current/` snapshot parity | Replaced | Fresh full render-and-compare of content and modes in every `bin/pack check`. |
 | Bundle body copies | Replaced | Renderer copies the canonical package exactly once per selected provider membership. |
-| Empty auxiliary bundle directories | Replaced | Stable catalog profile tokens `infra`, `release`, and `aliases`; an empty selected result still fails closed. |
+| Empty auxiliary bundle directories | Replaced | Phase 2 temporarily retained empty selection tokens; the Phase 5 re-gate removed them because profiles must have members. |
 | Old manifests, bundles, and snapshot evidence | Preserved | Dated Phase 2 history; no permanent deletion. |
 
 No canonical skill body was intentionally edited in Phase 2, so the
