@@ -1,0 +1,1732 @@
+{
+  "schema_version": 1,
+  "updated": "2026-07-13",
+  "roots": {
+    "canonical": [
+      "shared/general",
+      "shared/claude"
+    ],
+    "native": "native",
+    "providers": "providers"
+  },
+  "providers": [
+    "agents",
+    "claude",
+    "codex",
+    "droid",
+    "factory",
+    "gemini",
+    "gemini-antigravity"
+  ],
+  "profiles": [
+    "core",
+    "infra",
+    "release",
+    "aliases"
+  ],
+  "skills": [
+    {
+      "name": "agent-orchestration",
+      "path": "shared/general/agent-orchestration",
+      "archetype": "suite",
+      "category": "orchestration",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Coordinate bounded live agent dispatch, swarm integration, collaboration, delta briefs, and optional mux transport. Use when users invoke /delegate-codex, /swarm, collaboration-protocol, a delta brief, a Zellij swarm, or live agent dispatch."
+      ],
+      "do_not_use_when": [
+        "a durable goal, phase gate, or GOAL_LEDGER.md is needed; goal-protocol owns that lifecycle",
+        "a one-shot PRD, issue slice, reviewed plan, or durable agent brief is wanted; planning-workflow owns that artifact",
+        "the request operates Herdr or Maestri private transport surfaces"
+      ],
+      "aliases": [
+        {
+          "name": "agent-collaboration",
+          "status": "alias",
+          "reason": "Non-goal durable collaboration is the collaborate mode of agent-orchestration."
+        },
+        {
+          "name": "agent-swarm",
+          "status": "reference-or-mode",
+          "reason": "Swarm dispatch and integration are modes of agent-orchestration."
+        },
+        {
+          "name": "codex-swarm",
+          "status": "reference-or-mode",
+          "reason": "Swarm dispatch routes through agent-orchestration; mux transport remains a selected adapter."
+        },
+        {
+          "name": "collaboration-ledger",
+          "status": "alias",
+          "reason": "Non-goal collaboration ledgers are maintained by agent-orchestration collaborate mode."
+        },
+        {
+          "name": "collaboration-meta",
+          "status": "alias",
+          "reason": "Multi-agent collaboration metadata routes through agent-orchestration collaborate mode."
+        },
+        {
+          "name": "collaboration-protocol",
+          "status": "merged-or-legacy",
+          "reason": "Durable non-goal collaboration is the collaborate mode of agent-orchestration."
+        },
+        {
+          "name": "delegate-codex",
+          "status": "reference-or-mode",
+          "reason": "Bounded live delegation is the delegate mode of agent-orchestration."
+        },
+        {
+          "name": "delta-brief",
+          "status": "merged-or-legacy",
+          "reason": "Durable stale-context updates are the delta-brief mode of agent-orchestration."
+        },
+        {
+          "name": "multi-agent-collaboration",
+          "status": "alias",
+          "reason": "Non-goal multi-agent collaboration routes through agent-orchestration collaborate mode."
+        },
+        {
+          "name": "red-team-collaboration",
+          "status": "alias",
+          "reason": "Independent critical collaboration passes route through agent-orchestration collaborate mode."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "caveman",
+      "path": "shared/general/caveman",
+      "archetype": "interaction",
+      "category": "tooling",
+      "priority": "user-invocable-only",
+      "status": "user-invocable-only",
+      "use_when": [
+        "Use a compact technical communication mode with a clear safety exception. Use only when the user explicitly says \"caveman mode\", \"use caveman\", or invokes /caveman."
+      ],
+      "do_not_use_when": [
+        "the user did not explicitly invoke caveman mode",
+        "a safety warning, irreversible-action confirmation, or clarification would be less clear in compressed form"
+      ],
+      "aliases": [],
+      "profiles": {
+        "claude": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "chrome-extension-builder",
+      "path": "shared/general/chrome-extension-builder",
+      "archetype": "leaf",
+      "category": "product-platform",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Build browser extensions with MV3-safe state, typed messages, isolated content UI, and narrow permissions. Use when a service worker, content script, extension storage, permission, or browser message changes."
+      ],
+      "do_not_use_when": [
+        "the work has no browser-extension surface",
+        "a product-platform routing decision is needed before an extension implementation boundary"
+      ],
+      "aliases": [],
+      "profiles": {
+        "codex": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "code-quality",
+      "path": "shared/general/code-quality",
+      "archetype": "suite",
+      "category": "code",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Run evidence-based code-quality, non-Go diagnosis, and merge-readiness passes. Use when users request thermonuclear review, ruthless test strategy, TDD, zero tech debt, ShoeHorn migration, or a merge gate."
+      ],
+      "do_not_use_when": [
+        "a Go performance regression or Go verification claim is the first concern; go-lang owns it",
+        "a Kubernetes or infrastructure-as-code desired/live failure is the concern; infra-bundles owns it"
+      ],
+      "aliases": [
+        {
+          "name": "diagnose",
+          "status": "merged-or-legacy",
+          "reason": "Non-Go source diagnosis is the diagnose mode of code-quality; Go and infrastructure retain explicit precedence."
+        },
+        {
+          "name": "hard-cut",
+          "status": "reference-or-mode",
+          "reason": "Intentional compatibility deletion is the clean-slate mode of code-quality."
+        },
+        {
+          "name": "improve-codebase-architecture",
+          "status": "merged-or-legacy",
+          "reason": "Architecture seam analysis is the architecture mode of code-quality."
+        },
+        {
+          "name": "migrate-to-shoehorn",
+          "status": "reference-or-mode",
+          "reason": "Test-only ShoeHorn migration is part of code-quality test strategy."
+        },
+        {
+          "name": "quality-gate",
+          "status": "merged-or-legacy",
+          "reason": "Merge readiness is the quality-gate mode of code-quality."
+        },
+        {
+          "name": "regression-tests",
+          "status": "reference-or-mode",
+          "reason": "Deterministic regression coverage is the regression mode of code-quality."
+        },
+        {
+          "name": "ruthless-test-strategy",
+          "status": "merged-or-legacy",
+          "reason": "Test value/cost selection is the test-strategy mode of code-quality."
+        },
+        {
+          "name": "small-composable-code",
+          "status": "reference-or-mode",
+          "reason": "Small coherent implementation and sprawl review are code-quality modes."
+        },
+        {
+          "name": "tdd",
+          "status": "reference-or-mode",
+          "reason": "Red-green-refactor work is the tdd mode of code-quality."
+        },
+        {
+          "name": "thermo-nuclear-code-quality-review",
+          "status": "merged-or-legacy",
+          "reason": "Thermonuclear maintainability review is the review-sprawl mode of code-quality."
+        },
+        {
+          "name": "thermo-nuclear-review",
+          "status": "alias",
+          "reason": "Short name for the code-quality thermonuclear review trigger."
+        },
+        {
+          "name": "thermonuclear-review",
+          "status": "alias",
+          "reason": "Common spelling for the code-quality thermonuclear review trigger."
+        },
+        {
+          "name": "zero-tech-debt",
+          "status": "merged-or-legacy",
+          "reason": "Intentional day-one cleanup is the clean-slate mode of code-quality."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "crew",
+      "path": "shared/general/crew",
+      "archetype": "leaf",
+      "category": "orchestration",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Run a sustained multi-agent campaign with a cross-family crew, durable verdict files, re-gate loops, and trigger chains. Use when the user says crew, full crew, or adversarial convergence."
+      ],
+      "do_not_use_when": [
+        "one bounded task needs one agent; agent-orchestration owns delegate/swarm",
+        "the request is Herdr transport syntax",
+        "short interactive work below roughly an hour or three workstreams"
+      ],
+      "aliases": [],
+      "profiles": {
+        "claude": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "design-family",
+      "path": "shared/general/design-family",
+      "archetype": "suite",
+      "category": "design",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Shape production interfaces through build, review, and improve modes. Use when users request frontend design, UI audit, UI critique, UI improve, UI tune, or userinterface-wiki guidance."
+      ],
+      "do_not_use_when": [
+        "an Expo, React Native, styling-adapter, native API, or platform implementation decision is needed; product-platform owns it",
+        "a throwaway state-model harness or competing UI variant is needed only to answer one question; prototype owns it"
+      ],
+      "aliases": [
+        {
+          "name": "design-family-router",
+          "status": "alias",
+          "reason": "Production interface build, review, and improve work routes through design-family."
+        },
+        {
+          "name": "frontend-design",
+          "status": "merged-or-legacy",
+          "reason": "Production interface construction is the build mode of design-family."
+        },
+        {
+          "name": "ui-audit",
+          "status": "merged-or-legacy",
+          "reason": "Interface audit is the review mode of design-family."
+        },
+        {
+          "name": "ui-critique",
+          "status": "merged-or-legacy",
+          "reason": "Interface critique is the review mode of design-family."
+        },
+        {
+          "name": "ui-improve",
+          "status": "merged-or-legacy",
+          "reason": "Interface improvement is the improve mode of design-family."
+        },
+        {
+          "name": "ui-tune",
+          "status": "merged-or-legacy",
+          "reason": "Interface tuning is the improve mode of design-family."
+        },
+        {
+          "name": "userinterface-wiki",
+          "status": "merged-or-legacy",
+          "reason": "Retained cross-framework interface invariants are selected through design-family standards."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "effect-framework",
+      "path": "shared/general/effect-framework",
+      "archetype": "suite",
+      "category": "framework",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Apply Effect decision policy for services, lifecycles, typed failures, concurrent flows, test layers, and upgrades. Use when Context.Service/Layer, Scope/runtime, Exit/Cause, Fiber/Stream, @effect/vitest, or v3-to-v4 code needs a boundary decision."
+      ],
+      "do_not_use_when": [
+        "generic TypeScript or source-code diagnosis is needed; code-quality owns it",
+        "desired-versus-live infrastructure failure diagnosis is needed; infra-bundles owns it"
+      ],
+      "aliases": [
+        {
+          "name": "effect-framework-architecture",
+          "status": "merged-or-legacy",
+          "reason": "Effect system shape is a mode of effect-framework."
+        },
+        {
+          "name": "effect-framework-concurrency-streams",
+          "status": "merged-or-legacy",
+          "reason": "Effect concurrency and stream boundaries are a mode of effect-framework."
+        },
+        {
+          "name": "effect-framework-errors",
+          "status": "merged-or-legacy",
+          "reason": "Effect failure boundaries are a mode of effect-framework."
+        },
+        {
+          "name": "effect-framework-migration",
+          "status": "merged-or-legacy",
+          "reason": "Effect migration assessment is a mode of effect-framework."
+        },
+        {
+          "name": "effect-framework-runtime-resources",
+          "status": "merged-or-legacy",
+          "reason": "Effect runtime lifecycle and resources are a mode of effect-framework."
+        },
+        {
+          "name": "effect-framework-services-layers",
+          "status": "merged-or-legacy",
+          "reason": "Effect services and layers are a mode of effect-framework."
+        },
+        {
+          "name": "effect-framework-testing",
+          "status": "merged-or-legacy",
+          "reason": "Effect test proof is a mode of effect-framework."
+        },
+        {
+          "name": "effect-v4",
+          "status": "alias",
+          "reason": "Effect v4 boundary work routes through effect-framework."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "elixir-lang",
+      "path": "shared/general/elixir-lang",
+      "archetype": "suite",
+      "category": "language",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Apply Elixir/OTP decision policy for process topology, supervision, pipelines, fault signals, tests, and runtime evidence. Use when a GenServer, Supervisor, Task/Broadway flow, :telemetry boundary, ExUnit process test, ETS/mailbox, or NIF/port decision needs a boundary."
+      ],
+      "do_not_use_when": [
+        "generic source-code diagnosis is needed; code-quality owns it",
+        "desired-versus-live infrastructure failure diagnosis is needed; infra-bundles owns it"
+      ],
+      "aliases": [
+        {
+          "name": "beam",
+          "status": "alias",
+          "reason": "BEAM/OTP boundary work routes through elixir-lang."
+        },
+        {
+          "name": "elixir-lang-concurrency-pipelines",
+          "status": "merged-or-legacy",
+          "reason": "Elixir concurrent flows are a mode of elixir-lang."
+        },
+        {
+          "name": "elixir-lang-fault-observability",
+          "status": "merged-or-legacy",
+          "reason": "Elixir failure signals are a mode of elixir-lang."
+        },
+        {
+          "name": "elixir-lang-otp-design",
+          "status": "merged-or-legacy",
+          "reason": "Elixir OTP shape is a mode of elixir-lang."
+        },
+        {
+          "name": "elixir-lang-performance-interop",
+          "status": "merged-or-legacy",
+          "reason": "Elixir runtime evidence is a mode of elixir-lang."
+        },
+        {
+          "name": "elixir-lang-supervision-processes",
+          "status": "merged-or-legacy",
+          "reason": "Elixir process topology is a mode of elixir-lang."
+        },
+        {
+          "name": "elixir-lang-testing",
+          "status": "merged-or-legacy",
+          "reason": "Elixir test boundaries are a mode of elixir-lang."
+        },
+        {
+          "name": "otp",
+          "status": "alias",
+          "reason": "OTP boundary work routes through elixir-lang."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "git-guardrails-claude-code",
+      "path": "shared/general/git-guardrails-claude-code",
+      "archetype": "private-leaf",
+      "category": "tooling",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Install a Claude Code PreToolUse guard that blocks named destructive Git commands before execution. Use when the user requests Claude Git guardrails, blocked push, or protection from reset/clean."
+      ],
+      "do_not_use_when": [
+        "general Git safety is wanted without a Claude Code PreToolUse hook",
+        "the target scope or settings/hook merge boundary is ambiguous"
+      ],
+      "aliases": [],
+      "profiles": {
+        "claude": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "go-lang",
+      "path": "shared/general/go-lang",
+      "archetype": "suite",
+      "category": "language",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Apply a compact Go decision policy for public contracts, goroutine lifetimes, and verification evidence. Use when an exported Go API, error boundary, goroutine, race, benchmark, or Go performance regression needs a decision; non-Go diagnosis belongs to code-quality."
+      ],
+      "do_not_use_when": [
+        "non-Go source-code diagnosis is needed; code-quality owns it",
+        "Kubernetes or infrastructure-as-code desired/live failure diagnosis is needed; infra-bundles owns it"
+      ],
+      "aliases": [
+        {
+          "name": "go-lang-concurrency",
+          "status": "merged-or-legacy",
+          "reason": "Goroutine lifetime decisions are a mode of go-lang."
+        },
+        {
+          "name": "go-lang-design",
+          "status": "merged-or-legacy",
+          "reason": "Go public-contract decisions are a mode of go-lang."
+        },
+        {
+          "name": "go-lang-errors",
+          "status": "merged-or-legacy",
+          "reason": "Go public-contract and error-boundary decisions are a mode of go-lang."
+        },
+        {
+          "name": "go-lang-packages-api",
+          "status": "merged-or-legacy",
+          "reason": "Go public-contract and package boundary decisions are a mode of go-lang."
+        },
+        {
+          "name": "go-lang-performance",
+          "status": "merged-or-legacy",
+          "reason": "Go verification-evidence decisions are a mode of go-lang."
+        },
+        {
+          "name": "go-lang-testing",
+          "status": "merged-or-legacy",
+          "reason": "Go verification-evidence decisions are a mode of go-lang."
+        },
+        {
+          "name": "golang",
+          "status": "alias",
+          "reason": "Common name for Go boundary and verification work."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "goal-protocol",
+      "path": "shared/general/goal-protocol",
+      "archetype": "suite",
+      "category": "planning",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Run a traceable durable-goal lifecycle through convergence, dossier, approvals, parent-traced packets, and ledger updates. Use when users invoke /goal, codex-goal, /goal-council, /code-council, /goal-orchestrator, or six-phase."
+      ],
+      "do_not_use_when": [
+        "a one-shot PRD, issue slice, or reviewed implementation plan is wanted; planning-workflow owns it",
+        "approved packets need live delegation, monitoring, review, or integration; agent-orchestration owns that execution surface"
+      ],
+      "aliases": [
+        {
+          "name": "code-council",
+          "status": "reference-or-mode",
+          "reason": "Implementation dossiers and parent traceability are the blueprint mode of goal-protocol."
+        },
+        {
+          "name": "codex-goal",
+          "status": "reference-or-mode",
+          "reason": "The durable GOAL.md contract and start handoff are the goal-file mode of goal-protocol."
+        },
+        {
+          "name": "goal-council",
+          "status": "reference-or-mode",
+          "reason": "Goal convergence, stress testing, review, pivot, and compaction are goal-protocol converge work."
+        },
+        {
+          "name": "goal-factory",
+          "status": "alias",
+          "reason": "Durable goal lifecycle work routes through goal-protocol."
+        },
+        {
+          "name": "goal-ledger",
+          "status": "alias",
+          "reason": "GOAL_LEDGER.md state and returned dispatch evidence are maintained by goal-protocol."
+        },
+        {
+          "name": "goal-orchestrator",
+          "status": "reference-or-mode",
+          "reason": "Approved parent-traced packets and wave state are the orchestrate mode of goal-protocol; live dispatch stays with agent-orchestration."
+        },
+        {
+          "name": "goal-system",
+          "status": "alias",
+          "reason": "Durable goal lifecycle work routes through goal-protocol."
+        },
+        {
+          "name": "six-phase-dev",
+          "status": "merged-or-legacy",
+          "reason": "Human-gated phased design is the six-phase mode of goal-protocol."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "grill-me",
+      "path": "shared/general/grill-me",
+      "archetype": "interaction",
+      "category": "planning",
+      "priority": "user-invocable-only",
+      "status": "user-invocable-only",
+      "use_when": [
+        "Interrogate a plan one question at a time until its decisions are explicit. Use when the user says \"grill me\"; \"grill me with docs\" selects the docs mode."
+      ],
+      "do_not_use_when": [
+        "an ordinary planning, review, or implementation request does not explicitly invoke grill me",
+        "the user has not supplied a plan or design scope to interrogate"
+      ],
+      "aliases": [
+        {
+          "name": "grill-with-docs",
+          "status": "reference-or-mode",
+          "reason": "Documentation-aware interrogation is the docs mode of grill-me."
+        }
+      ],
+      "profiles": {
+        "claude": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "gtr",
+      "path": "shared/general/gtr",
+      "archetype": "private-leaf",
+      "category": "orchestration",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Operate Git Worktree Runner with configured worktree topology and destructive-operation guardrails. Use when the user names git gtr, a gtr worktree, or an isolated gtr workspace."
+      ],
+      "do_not_use_when": [
+        "Git worktree work does not use the installed git gtr surface",
+        "a destructive worktree action lacks the user's confirmation"
+      ],
+      "aliases": [
+        {
+          "name": "git-worktree-runner",
+          "status": "alias",
+          "reason": "Configured Git Worktree Runner workflows route through gtr."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "herdr",
+      "path": "shared/general/herdr",
+      "archetype": "private-leaf",
+      "category": "orchestration",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Operate local Herdr workspaces, panes, and agent transport safely from its CLI. Use when a task names Herdr or needs a Herdr pane read, literal agent send, pane command, or workspace operation."
+      ],
+      "do_not_use_when": [
+        "generic agent dispatch does not operate a Herdr transport surface",
+        "the installed Herdr CLI or target state cannot be verified"
+      ],
+      "aliases": [],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "infra-bundles",
+      "path": "shared/general/infra-bundles",
+      "archetype": "router",
+      "category": "infra",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Route Kubernetes and IaC desired/live work through kubernetes-operations, kubernetes-platform, iac-operations, or iac-platform. Use when a task names a Kubernetes cluster, Terraform/OpenTofu state, a Terraform/OpenTofu plan, IaC drift, infrastructure recovery, or a Kubernetes rollout."
+      ],
+      "do_not_use_when": [
+        "generic source-code diagnosis is needed; code-quality owns it",
+        "product planning or implementation design is needed; planning-workflow or product-platform owns it"
+      ],
+      "aliases": [
+        {
+          "name": "audit-k8s",
+          "status": "reference-or-mode",
+          "reason": "Kubernetes audit work is selected through infra-bundles."
+        },
+        {
+          "name": "audit-terraform",
+          "status": "reference-or-mode",
+          "reason": "Terraform/OpenTofu audit work is selected through infra-bundles."
+        },
+        {
+          "name": "debug-k8s",
+          "status": "reference-or-mode",
+          "reason": "Kubernetes diagnosis is selected through infra-bundles."
+        },
+        {
+          "name": "drift-terraform",
+          "status": "reference-or-mode",
+          "reason": "Terraform/OpenTofu drift work is selected through infra-bundles."
+        },
+        {
+          "name": "infra-router",
+          "status": "alias",
+          "reason": "Kubernetes and Terraform/OpenTofu desired/live routing is handled by infra-bundles."
+        },
+        {
+          "name": "k8s-op",
+          "status": "merged-or-legacy",
+          "reason": "Kubernetes operational work is selected through infra-bundles."
+        },
+        {
+          "name": "kubernetes-platform",
+          "status": "merged-or-legacy",
+          "reason": "Kubernetes platform work is selected through infra-bundles."
+        },
+        {
+          "name": "ship-k8s",
+          "status": "reference-or-mode",
+          "reason": "Kubernetes rollout and shipping work is selected through infra-bundles."
+        },
+        {
+          "name": "ship-terraform",
+          "status": "reference-or-mode",
+          "reason": "Terraform/OpenTofu shipping work is selected through infra-bundles."
+        },
+        {
+          "name": "terraform-op",
+          "status": "merged-or-legacy",
+          "reason": "Terraform/OpenTofu operational work is selected through infra-bundles."
+        },
+        {
+          "name": "terraform-platform",
+          "status": "merged-or-legacy",
+          "reason": "Terraform/OpenTofu platform work is selected through infra-bundles."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "local-dev",
+      "path": "shared/general/local-dev",
+      "archetype": "suite",
+      "category": "tooling",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Operate local development topology through selected Portless, isolation, proxy, or project-context modes without storing credentials or machine facts. Use when configuring a local dev route, isolated workspace, dev proxy, or durable project context."
+      ],
+      "do_not_use_when": [
+        "a credential value or secret lookup is needed",
+        "a production deployment, cloud, or generic code-quality decision is needed instead of local development topology"
+      ],
+      "aliases": [
+        {
+          "name": "teach-context",
+          "status": "merged-or-legacy",
+          "reason": "Durable project context is the context mode of local-dev."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "local-http-browser-use",
+      "path": "shared/general/local-http-browser-use",
+      "archetype": "private-leaf",
+      "category": "tooling",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Operate a user-authorized visible browser through its local HTTP bridge with observe-act-verify and sensitive-action consent. Use when BROWSER_BRIDGE_URL is available for Chrome or Brave web-app interaction."
+      ],
+      "do_not_use_when": [
+        "BROWSER_BRIDGE_URL is unavailable",
+        "the browser session is not user-authorized or a sensitive action lacks consent"
+      ],
+      "aliases": [
+        {
+          "name": "browser-bridge",
+          "status": "alias",
+          "reason": "Local HTTP browser-bridge workflows route through local-http-browser-use."
+        },
+        {
+          "name": "http-browser-use",
+          "status": "alias",
+          "reason": "Local HTTP browser-bridge workflows route through local-http-browser-use."
+        },
+        {
+          "name": "local-browser-bridge",
+          "status": "alias",
+          "reason": "Local HTTP browser-bridge workflows route through local-http-browser-use."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "maestri",
+      "path": "shared/general/maestri",
+      "archetype": "suite",
+      "category": "orchestration",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Operate Maestri canvas participants, connected notes, and portal browser nodes with exact transport and fresh accessibility refs. Use when the user names Maestri, a canvas participant, connected note, or Maestri portal."
+      ],
+      "do_not_use_when": [
+        "generic collaboration or terminal transport does not operate a Maestri surface",
+        "the required Maestri target or fresh portal accessibility state cannot be verified"
+      ],
+      "aliases": [
+        {
+          "name": "maestri-portal",
+          "status": "reference-or-mode",
+          "reason": "Maestri portal work is a mode of maestri."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "peon-ping",
+      "path": "shared/claude/peon-ping",
+      "archetype": "private-leaf",
+      "category": "tooling",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Control the installed Claude Code peon-ping notification hook without exposing its full configuration. Use when the user names peon-ping, sound mute/resume, volume, sound pack, rotation, or notification category."
+      ],
+      "do_not_use_when": [
+        "the installed peon-ping hook or requested live configuration field is absent",
+        "generic operating-system notification settings or a full configuration dump is wanted"
+      ],
+      "aliases": [],
+      "profiles": {
+        "claude": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "planning-workflow",
+      "path": "shared/general/planning-workflow",
+      "archetype": "suite",
+      "category": "planning",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Produce governed one-shot PRDs, reviewed plans, issue work, triage, AFK briefs, setup, and out-of-scope records. Use when users request a PRD, reviewed implementation plan, issue triage, issue slicing, agent brief, or /setup-matt-pocock-skills."
+      ],
+      "do_not_use_when": [
+        "durable multi-session goals, phase gates, or a GOAL_LEDGER.md are needed; goal-protocol owns them",
+        "the work is live agent dispatch or wave execution without a one-shot artifact; agent-orchestration owns it"
+      ],
+      "aliases": [
+        {
+          "name": "plan-build",
+          "status": "merged-or-legacy",
+          "reason": "Reviewed implementation plans are the reviewed-plan mode of planning-workflow."
+        },
+        {
+          "name": "setup-matt-pocock-skills",
+          "status": "merged-or-legacy",
+          "reason": "Planning and triage context setup is the setup mode of planning-workflow."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "product-platform",
+      "path": "shared/general/product-platform",
+      "archetype": "router",
+      "category": "product-platform",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Route product platform work to mobile, expo-platform, uniwind-migration, terminal-ui, or chrome-extension-builder. Use when an Expo/RN platform, Expo SDK, NativeWind migration, OpenTUI interface, or browser extension needs an owner."
+      ],
+      "do_not_use_when": [
+        "interface-design intent is needed; design-family owns it",
+        "installed Uniwind styling decisions are needed; uniwind owns them",
+        "generic source-code diagnosis or local runtime setup is needed; code-quality or local-dev owns it"
+      ],
+      "aliases": [
+        {
+          "name": "building-native-ui",
+          "status": "merged-or-legacy",
+          "reason": "Its durable mobile interface delta is the mobile target of product-platform."
+        },
+        {
+          "name": "expo-platform",
+          "status": "merged-or-legacy",
+          "reason": "Expo platform evidence is the expo-platform target of product-platform."
+        },
+        {
+          "name": "migrate-nativewind-to-uniwind",
+          "status": "merged-or-legacy",
+          "reason": "NativeWind-to-Uniwind migration is the uniwind-migration target of product-platform."
+        },
+        {
+          "name": "mobile-rn",
+          "status": "merged-or-legacy",
+          "reason": "Its durable mobile platform delta is the mobile target of product-platform."
+        },
+        {
+          "name": "opentui",
+          "status": "merged-or-legacy",
+          "reason": "OpenTUI decisions are the terminal-ui target of product-platform."
+        },
+        {
+          "name": "opentui-tui-builder",
+          "status": "merged-or-legacy",
+          "reason": "OpenTUI decisions are the terminal-ui target of product-platform."
+        },
+        {
+          "name": "react-native-platform",
+          "status": "merged-or-legacy",
+          "reason": "React Native platform decisions are the mobile target of product-platform."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "prototype",
+      "path": "shared/general/prototype",
+      "archetype": "suite",
+      "category": "planning",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Build a throwaway executable prototype that answers one design question through a state-model harness or competing UI variants. Use when the user explicitly asks to prototype a state machine, data model, interaction, or alternative UI."
+      ],
+      "do_not_use_when": [
+        "the requested work is intended as production implementation",
+        "a production-interface decision or generic code change is wanted without a disposable experiment"
+      ],
+      "aliases": [],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "release-bundles",
+      "path": "shared/general/release-bundles",
+      "archetype": "suite",
+      "category": "release",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Assess mobile-store release readiness with evidence gates for builds, quality, metadata, safety, commerce, access, and submission. Use when an App Store or Google Play release, TestFlight/Play track, release metadata, privacy/rating declaration, subscription, or submission automation needs a verdict."
+      ],
+      "do_not_use_when": [
+        "app implementation or build-workflow design is needed; product-platform owns it",
+        "generic source-code diagnosis is needed; code-quality owns it",
+        "the request would mutate release state without explicit user confirmation"
+      ],
+      "aliases": [
+        {
+          "name": "android-play-accessibility-age-rating-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the accessibility-rating-regulated release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-ai-ugc-safety-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the privacy-safety-permissions release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-console-eas-automation-bridge",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the submission-automation release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-data-safety-permissions-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the privacy-safety-permissions release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-iap-subscriptions-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the subscriptions-commerce release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-production-checklist",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the production-overview release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-quality-prelaunch-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the testing-quality release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-sensitive-category-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the accessibility-rating-regulated release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-store-listing-metadata-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the metadata release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-submission-packet-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the submission-automation release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "android-play-testing-track-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the testing-quality release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-accessibility-age-rating-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the accessibility-rating-regulated release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-ai-privacy-safety-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the privacy-safety-permissions release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-asc-cli-automation-bridge",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the submission-automation release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-build-binary-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the binary-build release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-iap-subscription-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the subscriptions-commerce release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-metadata-storefront-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the metadata release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-production-checklist",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the production-overview release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-submission-packet-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the submission-automation release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "apple-testflight-release-readiness",
+          "status": "merged-or-legacy",
+          "reason": "Its durable gates are assessed by the testing-quality release mode; the mirror body is import evidence, not a runtime target."
+        },
+        {
+          "name": "mobile-store-readiness",
+          "status": "alias",
+          "reason": "Mobile store-release readiness routes through release-bundles."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "repoprompt-pro-review",
+      "path": "shared/general/repoprompt-pro-review",
+      "archetype": "private-leaf",
+      "category": "tooling",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Prepare a bounded RepoPrompt context export for an external reviewer without Context Builder or Oracle/send. Use when the user names RepoPrompt, ChatGPT Pro review, selected files, or a review export."
+      ],
+      "do_not_use_when": [
+        "Context Builder, Oracle, or send operations are requested",
+        "a general code review is wanted without a bounded RepoPrompt context export"
+      ],
+      "aliases": [
+        {
+          "name": "mirrors/repoprompt/agents",
+          "status": "vendor-source",
+          "reason": "RepoPrompt rp-* sources remain archived vendor workflows; repoprompt-pro-review is the retained local owner."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "riff-partner",
+      "path": "shared/general/riff-partner",
+      "archetype": "interaction",
+      "category": "planning",
+      "priority": "user-invocable-only",
+      "status": "user-invocable-only",
+      "use_when": [
+        "Run an explicit idea-stage thought-partner riff that commits to a grounded verdict and pressure-tests it. Use only when the user explicitly asks to riff, asks for a thought partner, or invokes riff-partner."
+      ],
+      "do_not_use_when": [
+        "ordinary implementation, debugging, review, or a generic request for an opinion is made",
+        "the user did not explicitly ask to riff or for a thought partner"
+      ],
+      "aliases": [],
+      "profiles": {
+        "claude": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "skill-authoring",
+      "path": "shared/general/skill-authoring",
+      "archetype": "suite",
+      "category": "tooling",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Apply this pack's normative skill-design contract to create, consolidate, or review canonical skills. Use when authoring a SKILL.md, choosing an archetype, or running the pack acceptance gate."
+      ],
+      "do_not_use_when": [
+        "a generic application-code task does not change a canonical skill",
+        "a standing skill is only a compatibility alias, generic knowledge, or a one-off setup note"
+      ],
+      "aliases": [],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
+      "name": "uniwind",
+      "path": "shared/general/uniwind",
+      "archetype": "leaf",
+      "category": "product-platform",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Apply Uniwind conventions for RN styling, setup, static class names, themes, and bindings. Use when Uniwind Metro/CSS, className, a theme token, a color prop, or a style failure needs a decision."
+      ],
+      "do_not_use_when": [
+        "the work is a NativeWind-to-Uniwind migration; product-platform owns it",
+        "the issue is generic rendering or source diagnosis rather than Uniwind configuration, class, token, binding, or style resolution"
+      ],
+      "aliases": [
+        {
+          "name": "uniwind-excellence-rn",
+          "status": "merged-or-legacy",
+          "reason": "React Native Uniwind conventions route through the retained uniwind leaf."
+        },
+        {
+          "name": "uniwind-rn-android",
+          "status": "merged-or-legacy",
+          "reason": "Android-specific Uniwind conventions route through the retained uniwind leaf."
+        },
+        {
+          "name": "uniwind-rn-ios",
+          "status": "merged-or-legacy",
+          "reason": "iOS-specific Uniwind conventions route through the retained uniwind leaf."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    }
+  ],
+  "external_records": [
+    {
+      "name": "mirrors/foxctl",
+      "canonical": null,
+      "status": "vendor-source",
+      "reason": "Foxctl sources are imported vendor material; selected canonical deltas are retained without treating the mirror tree as runtime targets."
+    },
+    {
+      "name": "mirrors/mattpocock/skills",
+      "canonical": null,
+      "status": "vendor-source",
+      "reason": "Matt Pocock sources are imported vendor material, not active canonical package homes."
+    },
+    {
+      "name": "native-data-fetching",
+      "canonical": null,
+      "status": "archive-only",
+      "reason": "CUT: generic fetch/cache/auth guidance has no retained non-default delta; the archived source is historical evidence only."
+    },
+    {
+      "name": "providers/codex/.system",
+      "canonical": null,
+      "status": "system-installed",
+      "reason": "Provider system skills are installed surface area, not authored source for this pack."
+    },
+    {
+      "name": "setup-pre-commit",
+      "canonical": null,
+      "status": "archive-only",
+      "reason": "CUT: repository hook stacks should be inferred from current project evidence rather than a standing pack skill."
+    },
+    {
+      "name": "zoom-out",
+      "canonical": null,
+      "status": "archive-only",
+      "reason": "CUT: the request itself supplies the broader-context instruction; no durable non-default delta remains."
+    }
+  ],
+  "provider_native_exceptions": [
+    {
+      "provider": "agents",
+      "name": "agent-vault-cli",
+      "source": "native/agents/agent-vault-cli",
+      "kind": "skill",
+      "profiles": [
+        "core"
+      ],
+      "compose_note": "Provider-owned package; native frontmatter is preserved byte-for-byte."
+    },
+    {
+      "provider": "agents",
+      "name": "agent-vault-http",
+      "source": "native/agents/agent-vault-http",
+      "kind": "skill",
+      "profiles": [
+        "core"
+      ],
+      "compose_note": "Provider-owned package; native frontmatter is preserved byte-for-byte."
+    },
+    {
+      "provider": "codex",
+      "name": ".system",
+      "source": "native/codex/.system",
+      "kind": "system-tree",
+      "profiles": [
+        "core"
+      ],
+      "compose_note": "Codex system marker and package children are preserved as one native tree."
+    },
+    {
+      "provider": "gemini-antigravity",
+      "name": "heroui-pro-design-taste",
+      "source": "native/gemini-antigravity/heroui-pro-design-taste",
+      "kind": "skill",
+      "profiles": [
+        "core"
+      ],
+      "compose_note": "Provider marketplace package."
+    },
+    {
+      "provider": "gemini-antigravity",
+      "name": "heroui-react-pro",
+      "source": "native/gemini-antigravity/heroui-react-pro",
+      "kind": "skill",
+      "profiles": [
+        "core"
+      ],
+      "compose_note": "Provider marketplace package."
+    }
+  ],
+  "consumed_roots": {
+    "agents": {
+      "roots": [
+        {
+          "consumer": "agents",
+          "provider": "agents",
+          "root": "$HOME/.agents/skills"
+        }
+      ],
+      "duplicate_policy": "reject"
+    },
+    "claude": {
+      "roots": [
+        {
+          "consumer": "claude",
+          "provider": "claude",
+          "root": "$HOME/.claude/skills"
+        }
+      ],
+      "duplicate_policy": "reject"
+    },
+    "codex": {
+      "roots": [
+        {
+          "consumer": "codex",
+          "provider": "agents",
+          "root": "$HOME/.agents/skills"
+        },
+        {
+          "consumer": "codex",
+          "provider": "codex",
+          "root": "${CODEX_HOME:-$HOME/.codex}/skills"
+        }
+      ],
+      "duplicate_policy": "allow-declared-identical-canonical",
+      "declared_duplicate_skills": [
+        "agent-orchestration",
+        "code-quality",
+        "design-family",
+        "effect-framework",
+        "elixir-lang",
+        "go-lang",
+        "goal-protocol",
+        "gtr",
+        "herdr",
+        "infra-bundles",
+        "local-dev",
+        "local-http-browser-use",
+        "maestri",
+        "planning-workflow",
+        "prototype",
+        "release-bundles",
+        "repoprompt-pro-review",
+        "skill-authoring",
+        "uniwind"
+      ]
+    },
+    "droid": {
+      "roots": [
+        {
+          "consumer": "droid",
+          "provider": "droid",
+          "root": "$HOME/.droid/skills"
+        }
+      ],
+      "duplicate_policy": "reject"
+    },
+    "factory": {
+      "roots": [
+        {
+          "consumer": "factory",
+          "provider": "factory",
+          "root": "$HOME/.factory/skills"
+        }
+      ],
+      "duplicate_policy": "reject"
+    },
+    "gemini": {
+      "roots": [
+        {
+          "consumer": "gemini",
+          "provider": "gemini",
+          "root": "$HOME/.gemini/skills"
+        }
+      ],
+      "duplicate_policy": "reject"
+    },
+    "gemini-antigravity": {
+      "roots": [
+        {
+          "consumer": "gemini-antigravity",
+          "provider": "gemini-antigravity",
+          "root": "$HOME/.gemini/antigravity/skills"
+        }
+      ],
+      "duplicate_policy": "reject"
+    }
+  },
+  "excluded_generated_outputs": {
+    "providers/codex-routed": "Generated non-install output is outside the supported provider and consumer set.",
+    "providers/opencode": "Placeholder outside the supported install-root set."
+  }
+}

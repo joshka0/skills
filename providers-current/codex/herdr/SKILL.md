@@ -32,7 +32,9 @@ Operate Herdr — a terminal multiplexer and runtime for coding agents — throu
 
 - Do not guess targets or IDs. Parse them from JSON responses, never from sidebar order or examples.
 - Use `--no-focus` for background work; keep the user's focus in their pane unless they asked to switch.
-- Default new work to a sibling split in the current tab and cwd; create a workspace, tab, worktree, or different cwd only when the user explicitly requests that topology.
+- **One pane per task, always labeled**: each new independent task gets its own split, renamed to its role/task (`herdr pane rename <id> "<role>"`) before work starts. Reuse a pane only for follow-ups to that pane's existing task; never queue an unrelated task into a busy or differently-labeled pane.
+- Default new work to a sibling split in the current tab and cwd; create a workspace, tab, or different cwd only when the user requests that topology.
+- **Parallel writers get isolated checkouts**: when two or more agents will mutate the same repo concurrently, give each its own `herdr worktree create --branch <task> --label <task>` instead of sharing the checkout; file-disjoint sharing is only for explicitly coordinated same-wave edits with a named coordinator.
 - Quote literal messages so the calling shell cannot expand metacharacters. Never send secrets through Herdr.
 - Do not close workspaces, tabs, panes, or sessions you did not create unless the user explicitly asked.
 - Reads render at the pane's current size: on crowded layouts prefer `recent-unwrapped`, and if output is still clipped, `pane zoom --on`, read, then `--off` — never leave a zoom you set.

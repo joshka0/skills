@@ -4,32 +4,10 @@ import { spawnSync } from "node:child_process"
 import {
   ROOT, parseFrontmatter, walk
 } from "./pack-common.mjs"
+import { loadCatalog } from "./pack-catalog.mjs"
 import { checkParity } from "./pack-parity.mjs"
 import { runSafetySelfTest } from "./pack-self-test.mjs"
 import { runCheckBoundarySelfTest } from "./pack-check-fixture.mjs"
-
-const ARCHETYPES = {
-  "agent-orchestration": "suite", caveman: "interaction", "chrome-extension-builder": "leaf",
-  "code-quality": "suite", crew: "leaf", "design-family": "suite", "effect-framework": "suite",
-  "elixir-lang": "suite", "git-guardrails-claude-code": "private-leaf", "go-lang": "suite",
-  "goal-protocol": "suite", "grill-me": "interaction", gtr: "private-leaf", herdr: "private-leaf",
-  "infra-bundles": "router", "local-dev": "suite", "local-http-browser-use": "private-leaf",
-  maestri: "suite", "peon-ping": "private-leaf", "planning-workflow": "suite",
-  "product-platform": "router", prototype: "suite", "release-bundles": "suite",
-  "repoprompt-pro-review": "private-leaf", "riff-partner": "interaction", "skill-authoring": "suite",
-  uniwind: "leaf"
-}
-
-function readManifest(report) {
-  const file = path.join(ROOT, "manifests/skills.jsonl")
-  const rows = []
-  for (const [index, line] of fs.readFileSync(file, "utf8").split(/\r?\n/).entries()) {
-    if (!line.trim()) continue
-    try { rows.push(JSON.parse(line)) }
-    catch (error) { report.error("manifest-json", `manifests/skills.jsonl:${index + 1}: ${error.message}`) }
-  }
-  return rows
-}
 
 function discoverCanonical(report) {
   const packages = []
@@ -66,11 +44,11 @@ function reporter() {
   }
 }
 
-function validatePackages(packages, report) {
+function validatePackages(packages, archetypes, report) {
   let passed = 0
   for (const pkg of packages) {
-    const archetype = ARCHETYPES[pkg.name]
-    if (!archetype) { report.error("archetype", `${pkg.name} has no transitional archetype`); continue }
+    const archetype = archetypes[pkg.name]
+    if (!archetype) { report.error("archetype", `${pkg.name} has no catalog archetype`); continue }
     const result = spawnSync(path.join(ROOT, "bin/validate-skill.sh"), [pkg.path, archetype], {
       cwd: ROOT, encoding: "utf8"
     })
@@ -80,7 +58,7 @@ function validatePackages(packages, report) {
   if (passed === packages.length) report.pass(`package validators: ${passed}/${packages.length}`)
   const catalog = spawnSync(process.execPath, ["scripts/validate-skills.mjs"], { cwd: ROOT, encoding: "utf8" })
   if (catalog.status !== 0) report.error("legacy-validator", (catalog.stdout || catalog.stderr).trim())
-  else report.pass("legacy manifest validator")
+  else report.pass("catalog validator")
   for (const line of catalog.stdout.split(/\r?\n/).filter((line) => line.includes("WARN:"))) {
     report.warn("legacy-validator", line.trim())
   }
@@ -117,8 +95,8 @@ function checkLinks(packages, report) {
 function checkSecrets(report) {
   const executable = spawnSync("sh", ["-c", "command -v kingfisher"], { encoding: "utf8" })
   if (executable.status !== 0) { report.error("secrets", "kingfisher is required for redacted secret scanning"); return }
-  const targets = ["shared", "home", "bundles", "providers/codex/.system", "bin", "scripts", "manifests",
-    "overlay-manifest.json", "README.md", "PACK.md", "AGENTS.md", "packs/joshka0"].filter((target) => fs.existsSync(path.join(ROOT, target)))
+  const targets = ["shared", "native", "catalog", "home", "bin", "scripts",
+    "README.md", "PACK.md", "AGENTS.md", "packs/joshka0"].filter((target) => fs.existsSync(path.join(ROOT, target)))
   const args = ["--no-update-check", "scan", ...targets,
     "--git-history", "none", "--commit-metadata=false", "--redact", "--no-validate",
     "--confidence", "medium", "--format", "json"]
@@ -135,12 +113,13 @@ function checkSecrets(report) {
 
 export function runCheck() {
   const report = reporter()
-  const rows = readManifest(report)
+  const catalog = loadCatalog(ROOT)
+  const archetypes = Object.fromEntries(catalog.skills.map((skill) => [skill.name, skill.archetype]))
   const canonical = discoverCanonical(report)
-  validatePackages(canonical, report)
+  validatePackages(canonical, archetypes, report)
   checkLinks(canonical, report)
   checkSecrets(report)
-  checkParity(rows, canonical, ARCHETYPES, report)
+  checkParity(catalog, canonical, archetypes, report)
   if (process.env.PACK_SKIP_SELF_TEST !== "1") {
     runSafetySelfTest(report)
     runCheckBoundarySelfTest(report)

@@ -4,25 +4,16 @@ import os from "node:os"
 import path from "node:path"
 import { spawnSync } from "node:child_process"
 import { fileURLToPath } from "node:url"
+import { catalogEntries, consumerProviders, loadCatalog, nativeEntries } from "./pack-catalog.mjs"
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
+export const CATALOG = loadCatalog(ROOT)
 export const PROVIDERS = [
   "agents", "claude", "codex", "droid", "factory", "gemini", "gemini-antigravity"
 ]
-export const BUNDLES = ["core", "infra", "release", "aliases"]
-export const CONSUMERS = {
-  agents: ["agents"],
-  claude: ["claude"],
-  codex: ["agents", "codex"],
-  droid: ["droid"],
-  factory: ["factory"],
-  gemini: ["gemini"],
-  "gemini-antigravity": ["gemini-antigravity"]
-}
-export const NATIVE_ENTRIES = {
-  agents: ["agent-vault-cli", "agent-vault-http"],
-  codex: [".system"],
-  "gemini-antigravity": ["heroui-pro-design-taste", "heroui-react-pro"]
-}
+export const PROFILES = CATALOG.profiles
+export const BUNDLES = PROFILES
+export const CONSUMERS = consumerProviders(CATALOG)
+export const NATIVE_ENTRIES = nativeEntries(CATALOG)
 export function fail(message) {
   throw new Error(message)
 }
@@ -113,23 +104,6 @@ function preserveExistingModes(reference, target) {
   }
   fs.chmodSync(target, fs.statSync(reference).mode & 0o7777)
 }
-function bundlesFor(provider, selection, root) {
-  if (selection === "full") {
-    return BUNDLES.filter((name) => fs.existsSync(path.join(root, "bundles", provider, name)))
-  }
-  return selection
-}
-function allowedBundleNames(root, provider) {
-  const manifest = path.join(root, "manifests/skills.jsonl")
-  if (!fs.existsSync(manifest)) fail("composition manifest is missing: manifests/skills.jsonl")
-  const names = new Set(NATIVE_ENTRIES[provider] ?? [])
-  for (const [index, line] of fs.readFileSync(manifest, "utf8").split(/\r?\n/).entries()) {
-    if (!line.trim()) continue
-    try { names.add(JSON.parse(line).name) }
-    catch (error) { fail(`invalid composition manifest line ${index + 1}: ${error.message}`) }
-  }
-  return names
-}
 function validatePackageSource(source, entryName) {
   assertNoSymlinks(source)
   const skill = path.join(source, "SKILL.md")
@@ -166,7 +140,7 @@ function readPackage(skill, directoryName) {
   const fm = parseFrontmatter(fs.readFileSync(skill, "utf8"))
   return { ...fm, directoryName, skill }
 }
-function validateRenderedProvider(provider, destination) {
+function validateRenderedProvider(provider, destination, requiredNative) {
   for (const entry of fs.readdirSync(destination, { withFileTypes: true })) {
     if (entry.name === ".system") {
       validateCodexSystem(path.join(destination, entry.name))
@@ -183,7 +157,7 @@ function validateRenderedProvider(provider, destination) {
     if (seen.has(pkg.name)) fail(`rendered ${provider} name collision: ${pkg.name} in ${seen.get(pkg.name)} and ${pkg.skill}`)
     seen.set(pkg.name, pkg.skill)
   }
-  for (const required of NATIVE_ENTRIES[provider] ?? []) {
+  for (const required of requiredNative) {
     if (!fs.existsSync(path.join(destination, required))) fail(`render would drop required ${provider} native entry: ${required}`)
   }
 }
@@ -205,38 +179,28 @@ function validateCodexSystem(systemRoot) {
   if (!packages) fail("Codex .system contains no skill packages")
 }
 function composeProvider(provider, destination, selection, root) {
+  const catalog = loadCatalog(root)
   const liveProvider = path.join(root, "providers", provider)
   fs.mkdirSync(destination, { recursive: true, mode: fs.statSync(liveProvider).mode & 0o777 })
   fs.chmodSync(destination, fs.statSync(liveProvider).mode & 0o777)
   const origins = new Map()
-  const allowedNames = allowedBundleNames(root, provider)
-  for (const bundle of bundlesFor(provider, selection, root)) {
-    const bundleDir = path.join(root, "bundles", provider, bundle)
-    if (!fs.existsSync(bundleDir)) fail(`missing bundle directory: bundles/${provider}/${bundle}`)
-    assertConfinedPath(root, bundleDir)
-    for (const entry of fs.readdirSync(bundleDir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      const source = path.join(bundleDir, entry.name)
-      if (!allowedNames.has(entry.name)) fail(`bundle entry is absent from the catalog/native allowlist: ${provider}/${entry.name}`)
-      if (origins.has(entry.name)) {
-        fail(`composition collision for ${provider}/${entry.name}: ${origins.get(entry.name)} and bundles/${provider}/${bundle}`)
-      }
-      origins.set(entry.name, `bundles/${provider}/${bundle}`)
-      validatePackageSource(source, entry.name)
-      copyTree(source, path.join(destination, entry.name))
-    }
+  const entries = catalogEntries(catalog, provider, selection)
+  for (const entry of entries) {
+    const source = path.join(root, entry.source)
+    if (!fs.existsSync(source)) fail(`catalog composition source is missing: ${entry.source}`)
+    assertConfinedPath(root, source)
+    if (origins.has(entry.name)) fail(`composition collision for ${provider}/${entry.name}: ${origins.get(entry.name)} and ${entry.owner}`)
+    origins.set(entry.name, entry.owner)
+    if (entry.kind === "system-tree") validateCodexSystem(source)
+    else validatePackageSource(source, entry.name)
+    copyTree(source, path.join(destination, entry.name))
   }
-  if (origins.size === 0) fail(`selected bundles produce an empty ${provider} overlay`)
-  if (provider === "codex") {
-    const source = path.join(root, "providers", "codex", ".system")
-    if (!fs.existsSync(source)) fail("required Codex native source is missing: providers/codex/.system")
-    validateCodexSystem(source)
-    if (origins.has(".system")) fail("composition collision for codex/.system")
-    copyTree(source, path.join(destination, ".system"))
-  }
+  if (origins.size === 0) fail(`selected profiles produce an empty ${provider} overlay`)
   preserveExistingModes(liveProvider, destination)
-  validateRenderedProvider(provider, destination)
+  validateRenderedProvider(provider, destination, nativeEntries(catalog)[provider] ?? [])
 }
 export function buildProviderTree(outputRoot, selectedProviders, bundleSelection, sourceRoot = ROOT) {
+  const catalog = loadCatalog(sourceRoot)
   const liveRoot = path.join(sourceRoot, "providers")
   const output = path.join(outputRoot, "providers")
   assertConfinedPath(sourceRoot, liveRoot)
@@ -249,7 +213,7 @@ export function buildProviderTree(outputRoot, selectedProviders, bundleSelection
     copyTree(path.join(liveRoot, entry.name), path.join(output, entry.name))
   }
   for (const provider of selectedProviders) {
-    if (!PROVIDERS.includes(provider)) fail(`provider is not allowlisted: ${provider}`)
+    if (!PROVIDERS.includes(provider) || !catalog.providers.includes(provider)) fail(`provider is not allowlisted: ${provider}`)
     if (!fs.existsSync(path.join(liveRoot, provider))) fail(`live provider root is missing: providers/${provider}`)
     composeProvider(provider, path.join(output, provider), bundleSelection, sourceRoot)
   }

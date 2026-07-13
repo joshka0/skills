@@ -11,11 +11,17 @@ herdr pane layout --pane "$HERDR_PANE_ID"
 herdr pane split --current --direction right --no-focus   # or --direction down
 ```
 
-Read `result.pane.pane_id` from the JSON response, then label the pane:
+Read `result.pane.pane_id` from the JSON response, then label the pane — this
+is a required step, not optional polish; unlabeled panes make `agent list` and
+mixed fleets illegible:
 
 ```sh
 herdr pane rename <returned-pane-id> "reviewer"
 ```
+
+One pane per task: split fresh for each independent task instead of queuing
+unrelated work into an existing pane; a pane's label should stay true to what
+is running in it.
 
 ## Launch an agent interactively
 
@@ -69,7 +75,19 @@ Zoom changes the user's shared UI — always turn it back off immediately after 
 
 ## Organization
 
-Use workspace and tab commands for organization: one workspace per repo family or durable mission, a tab per independent task lane, a split pane for a helper working in the same lane. Use `herdr worktree` commands only when you intentionally want Herdr to create, open, or remove a Git checkout. Use `herdr notification show` for user-visible status, never for agent-to-agent transport.
+Use workspace and tab commands for organization: one workspace per repo family or durable mission, a tab per independent task lane, a split pane for a helper working in the same lane. Use `herdr notification show` for user-visible status, never for agent-to-agent transport.
+
+## Worktrees for parallel writers
+
+When multiple agents will mutate the same repo concurrently, isolate each writer in its own checkout instead of sharing one:
+
+```sh
+herdr worktree create --cwd <repo> --branch <task-branch> --label <task> --no-focus
+herdr worktree list --cwd <repo>
+herdr worktree remove --workspace <id>   # after the branch is merged or archived
+```
+
+Read the created workspace/pane IDs from the JSON and label the panes as usual. Remove worktrees only after verifying the branch's work is merged or archive-tagged.
 
 ## Agent-target transport
 
