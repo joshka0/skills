@@ -87,8 +87,10 @@ cuts, and the Codex system-installed surface. They are not canonical slots.
 - `mirrors/mattpocock/skills` preserves the pinned Matt Pocock upstream import.
   Retained deltas were consolidated into catalog owners; the mirror is not a
   live profile.
-- `mirrors/impeccable` and `mirrors/emilkowalski` preserve design-source
-  evidence used by `design-family`. Phase 5 owns any scheduled mirror trim.
+- `mirrors/impeccable` retains its pin, license, and only the source files cited
+  by the `design-family` preservation ledger; the rest is recoverable from the
+  pinned upstream commit. `mirrors/emilkowalski` preserves the separate motion
+  and Apple-physicality evidence used by the same canonical owner.
 - `mirrors/repoprompt/agents` preserves inactive RepoPrompt workflows; it is not
   a generated provider input.
 - The catalog also preserves the absent Foxctl vendor ledger as an external

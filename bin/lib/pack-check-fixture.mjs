@@ -1,6 +1,5 @@
 import fs from "node:fs"
 import path from "node:path"
-import crypto from "node:crypto"
 import { spawnSync } from "node:child_process"
 import { ROOT, temporaryRoot, trash } from "./pack-common.mjs"
 
@@ -50,11 +49,13 @@ export function runCheckBoundarySelfTest(report) {
     fs.appendFileSync(path.join(fixture, "shared/general/product-platform/SKILL.md"), "\n| `fixture-cycle` | fixture only | `infra-bundles` |\n")
     fs.appendFileSync(path.join(fixture, "shared/general/infra-bundles/SKILL.md"), "\n| `fixture-cycle` | fixture only | `product-platform` |\n")
 
-    const accessTail = crypto.randomBytes(16).toString("base64url").toUpperCase().replace(/[^A-Z0-9]/g, "").padEnd(16, "Z").slice(0, 16)
-    const secretTail = crypto.randomBytes(36).toString("base64url").slice(0, 40)
-    const githubTail = crypto.randomBytes(36).toString("base64url").slice(0, 36)
+    // Assemble fixed built-in-rule examples at runtime so this source remains
+    // secret-scan clean while the fixture never depends on random alphabets or
+    // token checksums.
+    const accessKey = ["AKIA", "7M4N2P8Q", "6R3S9T5V"].join("")
+    const secretKey = ["Ab3dE5fGh7Jk9Mn2Pq4R", "s6Tu8Vw0Xy1Za3Bc5De7"].join("")
     fs.appendFileSync(path.join(fixture, "native/agents/agent-vault-cli/SKILL.md"),
-      `\naws_access_key_id = ${"AK"}IA${accessTail}\naws_secret_access_key = ${secretTail}\nfixture_token = ghp_${githubTail}\n`)
+      `\naws_access_key_id = ${accessKey}\naws_secret_access_key = ${secretKey}\n`)
 
     const result = spawnSync(path.join(fixture, "bin/pack"), ["check"], {
       cwd: fixture,
@@ -66,9 +67,12 @@ export function runCheckBoundarySelfTest(report) {
     const expected = [
       "[canonical-shape] misplaced skill contract", "[catalog-membership] canonical package omitted from catalog: fixture-omitted",
       "[catalog-provider] agents", "[consumer-union] codex",
-      "[route] route cycle begins at", "[docs-membership] current catalog report includes retired retired-fixture", "[secrets]"
+      "[route] route cycle begins at", "[docs-membership] current catalog report includes retired retired-fixture"
     ]
     const missing = expected.filter((needle) => !output.includes(needle))
+    if (!/ERROR \[secrets\] [1-9][0-9]* redacted finding\(s\)/.test(output)) {
+      missing.push("[secrets] redacted finding")
+    }
     if (result.status === 0 || missing.length) report.error("check-self-test", `boundary fixture missed: ${missing.join(", ") || "nonzero exit"}`)
     else report.pass("check boundary fixture: canonical, secret, catalog, union, route, and docs failures detected")
   } catch (error) {

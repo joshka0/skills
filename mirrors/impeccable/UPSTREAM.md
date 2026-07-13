@@ -4,3 +4,7 @@ Vendored from https://github.com/pbakaus/impeccable at commit 7190295f3de31bc1e1
 To refresh: re-clone upstream, diff against this directory, and re-apply any intentional local patches.
 
 2026-07-10: selected durable deltas are composed into `shared/general/design-family`; this mirror remains import evidence and is never a provider or runtime target.
+
+2026-07-13: Phase 5 trimmed the mirror to this provenance file, `LICENSE`, and
+the source files cited by the Design Family preservation ledger. Everything
+else was moved to Trash and remains recoverable from the pinned commit above.

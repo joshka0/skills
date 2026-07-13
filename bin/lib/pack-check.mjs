@@ -92,6 +92,20 @@ function checkLinks(packages, report) {
   else report.pass("no repo-internal symlinks")
 }
 
+function kingfisherSummary(output) {
+  const trimmed = output.trim()
+  const candidates = [trimmed, ...trimmed.split(/\r?\n/).reverse()]
+  for (const candidate of candidates) {
+    if (!candidate) continue
+    try {
+      const parsed = JSON.parse(candidate)
+      if (parsed && !Array.isArray(parsed) && Number.isFinite(Number(parsed.findings)) &&
+          Number.isFinite(Number(parsed.blobs_scanned))) return parsed
+    } catch { /* Kingfisher emits a pretty finding object before its compact summary. */ }
+  }
+  throw new Error("Kingfisher summary is absent")
+}
+
 function checkSecrets(report) {
   const executable = spawnSync("sh", ["-c", "command -v kingfisher"], { encoding: "utf8" })
   if (executable.status !== 0) { report.error("secrets", "kingfisher is required for redacted secret scanning"); return }
@@ -101,9 +115,12 @@ function checkSecrets(report) {
     "--git-history", "none", "--commit-metadata=false", "--redact", "--no-validate",
     "--confidence", "medium", "--format", "json"]
   const scan = spawnSync(executable.stdout.trim(), args, { cwd: ROOT, encoding: "utf8" })
-  if (scan.status !== 0) { report.error("secrets", "kingfisher scan failed (values suppressed)"); return }
+  if (scan.status !== 0 && scan.status !== 200) {
+    report.error("secrets", "kingfisher scan failed (values suppressed)")
+    return
+  }
   try {
-    const result = JSON.parse(scan.stdout.trim())
+    const result = kingfisherSummary(scan.stdout)
     const ruleFindings = (result.findings_by_rule ?? []).reduce((total, item) => total + Number(item[1] ?? 0), 0)
     const findings = Math.max(Number(result.findings ?? 0), ruleFindings)
     if (findings) report.error("secrets", `${findings} redacted finding(s)`)
