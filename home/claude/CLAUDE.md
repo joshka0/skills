@@ -66,8 +66,8 @@ Independence includes framing, not just weights: your brief transmits your bias 
 | Security/privacy/auth/abuse review | `security-reviewer` (Fable, native) |
 | Adversarial critique when externals unavailable | `adversarial-reviewer` (Opus, native) |
 
-### TEMPORARY DEMOTION (2026-07-12, until the claudex/codex subagent issue is solved)
-All codex/claudex tiers run one notch down: ultra→max, max→xhigh. Effective now: claudex Fable=`sol(max)`, Opus=`sol(xhigh)`, Sonnet=`luna(max)`, Haiku=`luna(xhigh)` (unchanged); fan-out panes `terra(max)`; adversarial reviews `sol(max)`; codex config default `sol(xhigh)`. The surrounding sections describe the TARGET state — restore the alias and ~/.codex/config.toml and delete this block when the issue is resolved.
+### COST-MINDFUL TIERS (2026-07-13, in effect)
+All codex/claudex tiers run one notch down from the target table above: ultra→max, max→xhigh. Effective now: claudex Fable=`sol(max)`, Opus=`sol(xhigh)`, Sonnet=`luna(max)`, Haiku=`luna(xhigh)` (unchanged); fan-out panes `terra(max)`; **adversarial reviews `sol(max)`**; codex config default `sol(xhigh)`. The surrounding sections describe the TARGET state; this block is the operating state. Originally a workaround for a claudex/codex subagent issue, now retained deliberately for cost control — `sol(ultra)` is ~3x the cost of `sol(max)` for a ~1.2-point AA Index gain. Do not promote to ultra without asking.
 
 ### External agents (via herdr)
 Launch pattern (verified): `herdr pane split --pane "$HERDR_PANE_ID" --direction down --no-focus`, read `pane_id` from the JSON, then `herdr pane run <pane-id> "<launch command>"`, wait for `agent-status idle`, and submit the task with another `pane run`. Note: `--current` can mis-resolve to another workspace — pass `--pane "$HERDR_PANE_ID"` explicitly.
