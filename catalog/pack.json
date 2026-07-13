@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "updated": "2026-07-13",
   "roots": {
     "canonical": [
@@ -888,14 +888,14 @@
       "path": "shared/general/local-dev",
       "archetype": "suite",
       "category": "tooling",
-      "priority": "default",
-      "status": "active-source",
+      "priority": "specialist",
+      "status": "specialist-source",
       "use_when": [
-        "Operate local topology and secret-safe handoffs through route, isolation, proxy, context, or credential-injection modes. Use when configuring a local route, sandbox, dev proxy, project context, or local secret handoff."
+        "Operate local route/worktree topology and secret-safe credential handoffs. Use when configuring Portless, a development proxy, an isolated worktree route, or named-secret injection."
       ],
       "do_not_use_when": [
-        "a credential value or secret lookup is needed",
-        "a production deployment, cloud, or generic code-quality decision is needed instead of local development topology"
+        "a named injector or Agent Vault tool operation is requested; its provider-specific skill owns exact commands",
+        "browser interaction, generic sandbox selection, or project-context writing is requested without a route or secret boundary"
       ],
       "aliases": [
         {
@@ -905,8 +905,8 @@
         },
         {
           "name": "teach-context",
-          "status": "merged-or-legacy",
-          "reason": "Durable project context is the context mode of local-dev."
+          "status": "archive-only",
+          "reason": "Wave 2 retired generic project-context capture because it does not clear the standalone existence bar; the original remains in history."
         }
       ],
       "profiles": {
@@ -1062,7 +1062,7 @@
       "priority": "specialist",
       "status": "specialist-source",
       "use_when": [
-        "Produce governed one-shot PRDs, reviewed plans, issue work, triage, AFK briefs, setup, and out-of-scope records. Use when users request a PRD, reviewed implementation plan, issue triage, issue slicing, agent brief, or /setup-matt-pocock-skills."
+        "Produce governed one-shot PRDs, reviewed plans, issue slices, and triage decisions. Use when the user requests a PRD, reviewed implementation plan, issue slicing, issue triage, or an AFK-ready issue brief."
       ],
       "do_not_use_when": [
         "durable multi-session goals, phase gates, or a GOAL_LEDGER.md are needed; goal-protocol owns them",
@@ -1076,8 +1076,8 @@
         },
         {
           "name": "setup-matt-pocock-skills",
-          "status": "merged-or-legacy",
-          "reason": "Planning and triage context setup is the setup mode of planning-workflow."
+          "status": "archive-only",
+          "reason": "Wave 2 retired the branded setup mode; issue and triage modes retain only the missing-configuration preflight."
         }
       ],
       "profiles": {
@@ -1621,21 +1621,18 @@
       "compose_note": "Provider marketplace package."
     }
   ],
-  "consumed_roots": {
-    "agents": {
+  "consumers": {
+    "claude-code": {
+      "loader": "claude-code",
+      "display_name": "Claude Code",
+      "precedence": "single-root",
+      "evidence": {
+        "report": "reports/rebuild-2026-07/runtime-evidence-2026-07-13.md",
+        "verified_on": "2026-07-13",
+        "basis": "installed-and-approved-root"
+      },
       "roots": [
         {
-          "consumer": "agents",
-          "provider": "agents",
-          "root": "$HOME/.agents/skills"
-        }
-      ],
-      "duplicate_policy": "reject"
-    },
-    "claude": {
-      "roots": [
-        {
-          "consumer": "claude",
           "provider": "claude",
           "root": "$HOME/.claude/skills"
         }
@@ -1643,14 +1640,20 @@
       "duplicate_policy": "reject"
     },
     "codex": {
+      "loader": "codex",
+      "display_name": "Codex",
+      "precedence": "co-loaded-identical",
+      "evidence": {
+        "report": "reports/rebuild-2026-07/runtime-evidence-2026-07-13.md",
+        "verified_on": "2026-07-13",
+        "basis": "live-session-and-approved-gate"
+      },
       "roots": [
         {
-          "consumer": "codex",
           "provider": "agents",
           "root": "$HOME/.agents/skills"
         },
         {
-          "consumer": "codex",
           "provider": "codex",
           "root": "${CODEX_HOME:-$HOME/.codex}/skills"
         }
@@ -1680,41 +1683,78 @@
       ]
     },
     "droid": {
+      "loader": "droid",
+      "display_name": "Droid",
+      "precedence": "single-root",
+      "evidence": {
+        "report": "reports/rebuild-2026-07/runtime-evidence-2026-07-13.md",
+        "verified_on": "2026-07-13",
+        "basis": "installed-and-primary-docs"
+      },
       "roots": [
         {
-          "consumer": "droid",
-          "provider": "droid",
-          "root": "$HOME/.droid/skills"
-        }
-      ],
-      "duplicate_policy": "reject"
-    },
-    "factory": {
-      "roots": [
-        {
-          "consumer": "factory",
           "provider": "factory",
           "root": "$HOME/.factory/skills"
         }
       ],
       "duplicate_policy": "reject"
     },
-    "gemini": {
+    "gemini-cli": {
+      "loader": "gemini-cli",
+      "display_name": "Gemini CLI",
+      "precedence": "ordered-last-wins",
+      "evidence": {
+        "report": "reports/rebuild-2026-07/runtime-evidence-2026-07-13.md",
+        "verified_on": "2026-07-13",
+        "basis": "live-cli-and-installed-docs"
+      },
       "roots": [
         {
-          "consumer": "gemini",
           "provider": "gemini",
           "root": "$HOME/.gemini/skills"
+        },
+        {
+          "provider": "agents",
+          "root": "$HOME/.agents/skills"
         }
       ],
-      "duplicate_policy": "reject"
+      "duplicate_policy": "allow-declared-identical-canonical",
+      "declared_duplicate_skills": [
+        "agent-orchestration",
+        "code-quality",
+        "design-family",
+        "effect-framework",
+        "elixir-lang",
+        "go-lang",
+        "goal-protocol",
+        "gtr",
+        "herdr",
+        "infra-bundles",
+        "local-dev",
+        "local-http-browser-use",
+        "maestri",
+        "planning-workflow",
+        "product-platform",
+        "prototype",
+        "release-bundles",
+        "repoprompt-pro-review",
+        "skill-authoring",
+        "uniwind"
+      ]
     },
-    "gemini-antigravity": {
+    "antigravity-ide": {
+      "loader": "antigravity-ide",
+      "display_name": "Google Antigravity IDE",
+      "precedence": "single-root",
+      "evidence": {
+        "report": "reports/rebuild-2026-07/runtime-evidence-2026-07-13.md",
+        "verified_on": "2026-07-13",
+        "basis": "installed-and-primary-docs"
+      },
       "roots": [
         {
-          "consumer": "gemini-antigravity",
           "provider": "gemini-antigravity",
-          "root": "$HOME/.gemini/antigravity/skills"
+          "root": "$HOME/.gemini/config/skills"
         }
       ],
       "duplicate_policy": "reject"

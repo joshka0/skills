@@ -14,10 +14,9 @@ bin/pack             the only active pack entrypoint
 ```
 
 `providers/` is the current generated real-file delivery layer, not an authored
-source. Phase 6 will separately test whether per-skill symlink distribution can
-replace it across all seven consumers. Until that trial passes its gate,
-`providers/` remains the live installed view; the catalog, validator, rubric,
-and membership model are stable either way.
+source. Phase 6 was killed because direct links would erase the render/apply
+promotion boundary and the proposed seven-consumer topology was not real.
+Registry distribution, if revisited, is a separate export-only experiment.
 
 ## Work with the pack
 
@@ -40,20 +39,23 @@ complete candidate and atomically exchanges the whole provider tree. `install`
 previews by default; its apply mode reconciles home-root links but never edits a
 home configuration file.
 
-## Current install mappings
+## Catalog install mappings
 
-| Consumer | Install root | Current generated source |
-| --- | --- | --- |
-| Codex | `${CODEX_HOME:-$HOME/.codex}/skills` (fallback `$HOME/.codex/skills`) | `providers/codex` |
-| Agents | `$HOME/.agents/skills` | `providers/agents` |
-| Factory | `$HOME/.factory/skills` | `providers/factory` |
-| Claude | `$HOME/.claude/skills` | `providers/claude` |
-| Gemini | `$HOME/.gemini/skills` | `providers/gemini` |
-| Gemini Antigravity | `$HOME/.gemini/antigravity/skills` | `providers/gemini-antigravity` |
-| Droid | `$HOME/.droid/skills` | `providers/droid` |
+| Installed view | Install root | Generated source | Executable consumers |
+| --- | --- | --- | --- |
+| Shared Agents root | `$HOME/.agents/skills` | `providers/agents` | Codex, Gemini CLI |
+| Claude Code | `$HOME/.claude/skills` | `providers/claude` | Claude Code |
+| Codex-specific | `${CODEX_HOME:-$HOME/.codex}/skills` (fallback `$HOME/.codex/skills`) | `providers/codex` | Codex |
+| Droid | `$HOME/.factory/skills` | `providers/factory` | Droid |
+| Gemini-specific | `$HOME/.gemini/skills` | `providers/gemini` | Gemini CLI |
+| Google Antigravity IDE | `$HOME/.gemini/config/skills` | `providers/gemini-antigravity` | Antigravity IDE |
 
-Codex consumes both the Agents root and its Codex-specific root. The catalog
-declares that union and permits only named, byte-identical canonical overlaps.
+The catalog models five executable consumers separately from seven generated
+provider views. Codex co-loads the Agents and Codex roots with 20 required
+byte-identical overlaps. Gemini loads the Gemini root and then the higher-
+precedence Agents root with the same 20 overlaps; that also exposes both Agent
+Vault packages, pending an owner decision. `providers/droid` remains a legacy
+generated compatibility view, not a supported executable-consumer mapping.
 
 ## Governance
 

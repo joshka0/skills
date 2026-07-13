@@ -1,6 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
 import { ROOT, atomicExchange, buildProviderTree, temporaryRoot, trash } from "./pack-common.mjs"
+import { installMappings } from "./pack-catalog.mjs"
 
 function packageAt(directory, name) {
   fs.mkdirSync(directory, { recursive: true })
@@ -9,14 +10,14 @@ function packageAt(directory, name) {
 
 function writeCatalog(fixture, mutate = () => {}) {
   const catalog = {
-    schema_version: 1,
+    schema_version: 2,
     providers: ["droid", "codex"],
     profiles: ["core"],
     skills: [{
       name: "new-skill", path: "shared/general/new-skill", profiles: { droid: ["core"], codex: ["core"] }
     }],
     provider_native_exceptions: [],
-    consumed_roots: {}
+    consumers: {}
   }
   mutate(catalog)
   fs.mkdirSync(path.join(fixture, "catalog"), { recursive: true })
@@ -38,6 +39,27 @@ export function runSafetySelfTest(report) {
     writeCatalog(fixture)
     packageAt(path.join(fixture, "providers/droid/old-skill"), "old-skill")
     packageAt(path.join(fixture, "shared/general/new-skill"), "new-skill")
+
+    const installs = installMappings({
+      providers: ["agents", "gemini"],
+      consumers: {
+        first: { roots: [{ provider: "agents", root: "$HOME/.agents/skills" }] },
+        second: { roots: [
+          { provider: "gemini", root: "$HOME/.gemini/skills" },
+          { provider: "agents", root: "$HOME/.agents/skills" }
+        ] }
+      }
+    })
+    if (installs.length !== 2 || installs.find((entry) => entry.provider === "agents")?.consumers.length !== 2) {
+      throw new Error("consumer install mappings did not deduplicate a shared root")
+    }
+    expectFailure(() => installMappings({
+      providers: ["agents", "gemini"],
+      consumers: {
+        first: { roots: [{ provider: "agents", root: "$HOME/.agents/skills" }] },
+        second: { roots: [{ provider: "gemini", root: "$HOME/.agents/skills" }] }
+      }
+    }), /maps to both agents and gemini/)
 
     const rendered = buildProviderTree(path.join(work, "render"), ["droid"], ["core"], fixture)
     if (!fs.existsSync(path.join(rendered, "droid/new-skill/SKILL.md"))) throw new Error("fixture render omitted its new package")
@@ -82,7 +104,7 @@ export function runSafetySelfTest(report) {
       throw new Error("atomic exchange did not swap directory identities")
     }
     expectFailure(() => atomicExchange(left, path.join(work, "missing"), ROOT), /atomic provider exchange failed/)
-    report.pass("safe composer fixture: confinement, collision, native shape, atomic success/failure")
+    report.pass("safe composer fixture: consumer installs, confinement, collision, native shape, atomic success/failure")
   } catch (error) {
     report.error("composer-self-test", error.message)
   } finally {

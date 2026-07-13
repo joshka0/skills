@@ -17,10 +17,10 @@ the current delivery boundary.
 | Generated delivery | `providers/` | Current live real-file views; never an authored source. |
 | Retired campaign inputs | `history/rebuild-2026-07` | Historical evidence only. |
 
-The generated delivery layer is explicitly transitional in design terms:
-Phase 6 will trial per-skill symlink distribution and adopt it only if all seven
-consumers pass. These source, catalog, validation, and membership decisions do
-not depend on the trial outcome.
+Phase 6 was killed because direct links would erase the render/apply promotion
+boundary and the proposed consumer topology conflated provider views with
+loaders. Registry distribution, if revisited, is a separate export-only
+experiment.
 
 ## Canonical membership
 
@@ -118,9 +118,25 @@ The complete native exception set is:
 - `providers/gemini-antigravity/heroui-react-pro` from
   `native/gemini-antigravity/heroui-react-pro`
 
-No canonical package is provider-native. Codex consumes both Agents and Codex
-roots, so its declared 20 canonical overlaps must stay byte-identical. All
-other consumer models reject duplicates.
+No canonical package is provider-native.
+
+## Executable consumers and install mappings
+
+| Executable consumer / view | Ordered install root | Generated source |
+| --- | --- | --- |
+| Shared root for Codex and Gemini CLI | `$HOME/.agents/skills` | `providers/agents` |
+| Claude Code | `$HOME/.claude/skills` | `providers/claude` |
+| Codex-specific | `${CODEX_HOME:-$HOME/.codex}/skills` | `providers/codex` |
+| Droid | `$HOME/.factory/skills` | `providers/factory` |
+| Gemini-specific | `$HOME/.gemini/skills` | `providers/gemini` |
+| Google Antigravity IDE | `$HOME/.gemini/config/skills` | `providers/gemini-antigravity` |
+
+Codex co-loads Agents and Codex, so its 20 canonical overlaps must stay
+byte-identical. Gemini loads Gemini and then the higher-precedence Agents root;
+its same 20 overlaps must also remain identical. That union currently exposes
+`agent-vault-cli` and `agent-vault-http` to Gemini, pending an owner decision.
+The legacy `providers/droid` view remains generated but is not a supported
+install root; Droid uses the Factory view and root.
 
 ## Language profile ruling
 

@@ -28,10 +28,10 @@ history/            retired inputs and dated evidence
 bin/pack             sole active pack command
 ```
 
-`providers/` is generated and live today, but may be transitional. Phase 6 is a
-separate, gated trial of per-skill symlink distribution across all seven
-consumers. Do not implement or assume that result during ordinary maintenance;
-continue using catalog render-and-compare until the owner adopts a new model.
+`providers/` is generated and live today. Phase 6 was killed because direct
+links would remove the render/apply promotion boundary and its consumer model
+was invalid. A future registry proposal is export-only and separately gated;
+ordinary maintenance continues to use catalog render-and-compare.
 
 ## Editing rules
 
@@ -60,25 +60,26 @@ bin/pack install --apply
 ```
 
 `check` validates all 26 canonical packages, local links, secrets, catalog
-membership, native inputs, consumed-root unions, generated parity, governing
+membership, native inputs, executable-consumer unions, generated parity, governing
 docs, and fixtures. `render` is pure. `apply` builds and validates a complete
 candidate before atomically exchanging the whole provider tree; displaced data
 goes to Trash.
 
-## Current install mappings
+## Catalog install mappings
 
-| Consumer | Install root | Current generated source |
-| --- | --- | --- |
-| Codex | `${CODEX_HOME:-$HOME/.codex}/skills` (fallback `$HOME/.codex/skills`) | `providers/codex` |
-| Agents | `$HOME/.agents/skills` | `providers/agents` |
-| Factory | `$HOME/.factory/skills` | `providers/factory` |
-| Claude | `$HOME/.claude/skills` | `providers/claude` |
-| Gemini | `$HOME/.gemini/skills` | `providers/gemini` |
-| Gemini Antigravity | `$HOME/.gemini/antigravity/skills` | `providers/gemini-antigravity` |
-| Droid | `$HOME/.droid/skills` | `providers/droid` |
+| Installed view | Install root | Current generated source | Executable consumers |
+| --- | --- | --- | --- |
+| Shared Agents root | `$HOME/.agents/skills` | `providers/agents` | Codex, Gemini CLI |
+| Claude Code | `$HOME/.claude/skills` | `providers/claude` | Claude Code |
+| Codex-specific | `${CODEX_HOME:-$HOME/.codex}/skills` (fallback `$HOME/.codex/skills`) | `providers/codex` | Codex |
+| Droid | `$HOME/.factory/skills` | `providers/factory` | Droid |
+| Gemini-specific | `$HOME/.gemini/skills` | `providers/gemini` | Gemini CLI |
+| Google Antigravity IDE | `$HOME/.gemini/config/skills` | `providers/gemini-antigravity` | Antigravity IDE |
 
-Codex consumes both the Agents and Codex roots. Only the catalog-declared set
-of 20 byte-identical canonical overlaps is accepted.
+Codex co-loads Agents and Codex with 20 byte-identical canonical overlaps.
+Gemini loads its specific root and then the higher-precedence Agents root with
+the same 20 overlaps; Agent Vault exposure through Agents remains an open owner
+decision. The legacy `providers/droid` view is not an install mapping.
 
 ## Provider-native boundary
 

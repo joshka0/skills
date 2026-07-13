@@ -3,7 +3,7 @@ import path from "node:path"
 import {
   ROOT, PROVIDERS, buildProviderTree, providerPackages, temporaryRoot, trash, treeDiff
 } from "./pack-common.mjs"
-import { catalogEntries, selectableProfiles } from "./pack-catalog.mjs"
+import { catalogEntries, installMappings, selectableProfiles } from "./pack-catalog.mjs"
 
 const ARCHETYPES = new Set(["leaf", "private-leaf", "suite", "router", "interaction"])
 const ALIAS_STATUSES = new Set([
@@ -12,6 +12,8 @@ const ALIAS_STATUSES = new Set([
 ])
 const same = (left, right) => JSON.stringify([...left].sort()) === JSON.stringify([...right].sort())
 const kebab = (value) => typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
+const PRECEDENCE = new Set(["single-root", "ordered-last-wins", "co-loaded-identical"])
+const INSTALL_ROOT = /^(?:\$HOME\/[A-Za-z0-9._/-]+|\$\{CODEX_HOME:-\$HOME\/\.codex\}\/skills)$/
 
 function checkSkills(catalog, canonical, report) {
   const discovered = new Map(canonical.map((pkg) => [pkg.name, pkg]))
@@ -98,14 +100,32 @@ function checkProviderMembership(catalog, report) {
 
 function checkConsumers(catalog, canonical, report) {
   const canonicalByName = new Map(canonical.map((pkg) => [pkg.name, pkg]))
-  if (!same(Object.keys(catalog.consumed_roots ?? {}), PROVIDERS)) report.error("consumer-model", "consumer keys differ from supported providers")
-  for (const [consumer, model] of Object.entries(catalog.consumed_roots ?? {})) {
+  const consumers = Object.entries(catalog.consumers ?? {})
+  if ("consumed_roots" in catalog) report.error("consumer-model", "retired consumed_roots schema remains")
+  if (!consumers.length) report.error("consumer-model", "at least one executable consumer is required")
+  const loaders = new Set()
+  const overlapping = []
+  for (const [consumer, model] of consumers) {
+    if (!kebab(consumer) || model.loader !== consumer || loaders.has(model.loader)) {
+      report.error("consumer-model", `${consumer}: loader identity must be unique and match the consumer key`)
+    }
+    loaders.add(model.loader)
+    if (typeof model.display_name !== "string" || !model.display_name.trim()) report.error("consumer-model", `${consumer}: display_name is required`)
+    if (!PRECEDENCE.has(model.precedence)) report.error("consumer-model", `${consumer}: invalid precedence ${model.precedence ?? "<missing>"}`)
+    const evidence = model.evidence ?? {}
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(evidence.verified_on ?? "") || !kebab(evidence.basis) ||
+        !/^reports\/rebuild-2026-07\/runtime-evidence-\d{4}-\d{2}-\d{2}\.md$/.test(evidence.report ?? "") ||
+        !fs.existsSync(path.join(ROOT, evidence.report ?? "<missing>"))) {
+      report.error("consumer-model", `${consumer}: dated runtime evidence is missing or invalid`)
+    }
     if (!Array.isArray(model.roots) || !model.roots.length) { report.error("consumer-model", `${consumer}: roots must be non-empty`); continue }
+    if (model.precedence === "single-root" && model.roots.length !== 1) report.error("consumer-model", `${consumer}: single-root precedence requires exactly one root`)
+    if (model.precedence !== "single-root" && model.roots.length < 2) report.error("consumer-model", `${consumer}: ${model.precedence} requires multiple ordered roots`)
     const seenRoots = new Set()
     const names = new Map()
     const duplicates = new Map()
     for (const root of model.roots) {
-      if (root.consumer !== consumer || !PROVIDERS.includes(root.provider) || !/^\$HOME\/|^\$\{CODEX_HOME:-\$HOME\//.test(root.root ?? "")) {
+      if (!PROVIDERS.includes(root.provider) || !INSTALL_ROOT.test(root.root ?? "")) {
         report.error("consumer-model", `${consumer}: invalid consumed root`)
       }
       if (seenRoots.has(root.root)) report.error("consumer-model", `${consumer}: duplicate root ${root.root}`)
@@ -119,6 +139,7 @@ function checkConsumers(catalog, canonical, report) {
     const declared = model.declared_duplicate_skills ?? []
     if (model.duplicate_policy === "reject" && actual.length) report.error("consumer-union", `${consumer}: duplicate names ${actual.join(", ")}`)
     else if (model.duplicate_policy === "allow-declared-identical-canonical") {
+      overlapping.push(consumer)
       if (!same(actual, declared)) report.error("consumer-union", `${consumer}: declared overlap differs from actual overlap`)
       for (const name of actual) {
         const canonicalPkg = canonicalByName.get(name)
@@ -130,8 +151,12 @@ function checkConsumers(catalog, canonical, report) {
         }
       }
     } else if (model.duplicate_policy !== "reject") report.error("consumer-model", `${consumer}: unknown duplicate policy ${model.duplicate_policy}`)
+    if (model.precedence === "co-loaded-identical" && model.duplicate_policy !== "allow-declared-identical-canonical") {
+      report.error("consumer-model", `${consumer}: co-loaded-identical requires declared identical overlaps`)
+    }
   }
-  report.pass("consumed-root unions validated, including declared Codex Agents+Codex overlap")
+  try { installMappings(catalog) } catch (error) { report.error("consumer-model", error.message) }
+  report.pass(`executable consumer unions validated: ${consumers.length}; declared overlaps: ${overlapping.sort().join(", ")}`)
 }
 
 function checkRender(catalog, report) {
@@ -142,7 +167,7 @@ function checkRender(catalog, report) {
       const differences = treeDiff(path.join(ROOT, "providers", provider), path.join(rendered, provider))
       if (differences.length) report.error("render-live", `${provider}: ${differences.join(", ")}`)
     }
-    report.pass("render-and-compare parity: 7 live providers")
+    report.pass(`render-and-compare parity: ${PROVIDERS.length} live providers`)
   } catch (error) { report.error("render", error.message) }
   finally { trash(preview) }
 }

@@ -22,7 +22,9 @@ export function runCheckBoundarySelfTest(report) {
     const fixture = path.join(work, "repo")
     for (const input of [
       "bin", "shared", "native", "catalog", "home", "providers", "scripts",
-      "packs/joshka0", "reports/catalog", "reports/rubric", "README.md", "PACK.md", "AGENTS.md"
+      "packs/joshka0", "reports/catalog", "reports/rubric",
+      "reports/rebuild-2026-07/runtime-evidence-2026-07-13.md",
+      "README.md", "PACK.md", "AGENTS.md"
     ]) copyInput(input, fixture)
 
     writeSkill(path.join(fixture, "shared/general/fixture-omitted"), "fixture-omitted")
@@ -33,7 +35,8 @@ export function runCheckBoundarySelfTest(report) {
     const agentsSkill = pack.skills.find((skill) => skill.profiles?.agents)
     delete agentsSkill.profiles.agents
     pack.profiles.push("unused")
-    pack.consumed_roots.codex.declared_duplicate_skills = []
+    pack.consumers.codex.declared_duplicate_skills = []
+    delete pack.consumers["antigravity-ide"].evidence
     fs.writeFileSync(packPath, `${JSON.stringify(pack, null, 2)}\n`)
 
     const reportDirectory = path.join(fixture, "reports/catalog")
@@ -68,6 +71,7 @@ export function runCheckBoundarySelfTest(report) {
     const expected = [
       "[canonical-shape] misplaced skill contract", "[catalog-membership] canonical package omitted from catalog: fixture-omitted",
       "[catalog-provider] agents", "[catalog-profiles] unused profile has no members", "[consumer-union] codex",
+      "[consumer-model] antigravity-ide: dated runtime evidence is missing or invalid",
       "[route] route cycle begins at", "[docs-membership] current catalog report includes retired retired-fixture"
     ]
     const missing = expected.filter((needle) => !output.includes(needle))

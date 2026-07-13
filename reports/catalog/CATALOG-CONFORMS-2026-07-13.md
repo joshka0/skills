@@ -7,10 +7,9 @@ owner-bound aliases, six external records, and five provider-native exceptions.
 All seven live provider views are exact content-and-mode matches for a fresh
 full catalog render. This report supersedes `CATALOG-CONFORMS.md`.
 
-The verdict covers the current generated real-file distribution. Phase 6 may
-trial per-skill symlink distribution, but no result is assumed here; archetype,
-alias, membership, consumer-union, validation, and rubric governance remain the
-same under either delivery model.
+The verdict covers the current generated real-file distribution after Wave 2.
+Phase 6 is killed; registry distribution, if revisited, is an export-only
+experiment and does not replace this promotion boundary.
 
 ## Catalog composition
 
@@ -19,9 +18,17 @@ same under either delivery model.
   `native/`; imported material under `mirrors/` is not implicitly composed.
 - `bin/pack render --all --full` is the parity authority. No provider snapshot
   or copied bundle body participates in composition.
-- Codex consumes the Agents and Codex views together. Exactly 20 named
-  canonical overlaps are allowed, and only while both copies remain identical
-  to the same canonical source. Other consumers reject duplicates.
+- Catalog schema v2 separates seven provider views from five executable
+  consumers and records loader identity, ordered roots, precedence, and dated
+  evidence in `reports/rebuild-2026-07/runtime-evidence-2026-07-13.md`.
+- Codex co-loads Agents and Codex. Gemini loads Gemini and then the higher-
+  precedence Agents root. Each union declares the same 20 canonical overlaps,
+  allowed only while both copies remain identical to the canonical source.
+- Gemini also receives `agent-vault-cli` and `agent-vault-http` uniquely through
+  the Agents root. That is declared current exposure and an open owner decision.
+- Droid is the one executable loader at `$HOME/.factory/skills` using
+  `providers/factory`. `providers/droid` remains a legacy generated
+  compatibility view, not a supported install mapping.
 - The Chrome extension delta is a routed reference under `product-platform`;
   `chrome-extension-builder` is an alias, not a retained package.
 - The local credential-handoff delta is the `local-dev` secrets mode;
@@ -95,21 +102,21 @@ child.
 
 ### A30 — canonical/catalog/render/provider parity
 
-The pre-apply full render differed from live providers at exactly 130 paths.
-Every path belonged to the accepted Phase 3 allowlist:
-`agent-orchestration`, `crew`, `chrome-extension-builder`, `gtr`, `herdr`,
-`local-dev`, `product-platform`, `release-bundles`, or `skill-authoring`.
-Unexpected drift was zero. The complete provider tree was then atomically
-exchanged; a fresh render has zero content-or-mode differences from live.
+The Wave 2 pre-apply full render differed from live providers at exactly 84
+paths: six `local-dev` paths and six `planning-workflow` paths in each of seven
+views. Unexpected package drift was zero. The complete provider tree was then
+atomically exchanged; a fresh render has zero content-or-mode differences from
+live. The post-apply provider fingerprint is
+`9e0e8a99d0839941f23e0d49eb9329c0ad1dd967047387355363ee8d79d1adff`.
 
 ### A31 — applied and consumed views
 
 The reviewed render and applied tree have the same seven entry counts shown
 above. The atomic path built a complete sibling candidate, exchanged the whole
 provider root, moved the displaced tree to Trash, and left no stage directory.
-The consumed-root validator passes the Codex Agents-plus-Codex union and all
-single-root consumers. Provider names and frontmatter names remain unique per
-physical view.
+The executable-consumer validator passes five consumers, including the declared
+Codex and Gemini overlaps and Gemini's ordered precedence. Provider names and
+frontmatter names remain unique per physical view.
 
 ## Collision matrix
 
@@ -119,6 +126,8 @@ physical view.
 | Legacy Chrome skill name | `product-platform` alias | none | Alias selects the routed reference; no standalone exposure exists. |
 | Local secret handoff | `local-dev` secrets mode | Agents native credential tools | Exact Agent Vault operation selects the native tool; generic local handoff selects Local Dev. |
 | Store credential evidence | `release-bundles` | `local-dev` secrets mode | Release owns readiness evidence; Local Dev owns value-free injection only. |
+| Portless route, worktree route, proxy, reachability | `local-dev` topology mode | `gtr`, `local-http-browser-use` | Exact Gtr operation selects Gtr; browser interaction selects Local HTTP Browser Use; local topology remains with Local Dev. |
+| PRD, reviewed plan, issue slice, triage, AFK-ready brief | `planning-workflow` | `goal-protocol`, `agent-orchestration` | One-shot artifact selects Planning Workflow; durable goals and live dispatch retain their owners. |
 | Crew campaign | `crew` | `agent-orchestration` | Explicit Crew/sustained convergence selects Crew; bounded dispatch selects Agent Orchestration. |
 | Skill or catalog acceptance | `skill-authoring` | `code-quality` | Skill package/archetype/catalog artifact selects Skill Authoring. |
 
@@ -130,7 +139,7 @@ physical view.
 - **A05–A10 PASS:** all names, homes, frontmatter, description budgets, trigger
   ownership, and explicit interaction boundaries pass the catalog validator and
   the collision matrix above.
-- **A11–A14 PASS:** all 26 package validators pass; 101 local package links
+- **A11–A14 PASS:** all 26 package validators pass; 95 local package links
   resolve; package and reference budgets pass.
 - **A15 PASS:** catalog ownership and generated exposure are complete and
   non-overlapping as recorded above.
@@ -143,28 +152,27 @@ physical view.
   pass after the atomic apply.
 - **A32 PASS:** the package set validates against the normative skill-authoring
   contract and its accepted pilot shapes.
-- **A33 PASS/N/A:** the Phase 3 Chrome consolidation strictly shrank its combined
-  owner; no Phase 4 skill body was rewritten.
-- **A34 PASS:** Phase 3 records the semantic preservation ledgers. Phase 4
-  preserved all four pre-regeneration governing documents under
-  `history/rebuild-2026-07/phase-4/pre-regeneration/` and retained the prior
-  catalog report as explicitly superseded history.
-- **A35 PASS/N/A:** Phase 3 archives all rewritten skill originals. Phase 4
-  touched no canonical skill content.
+- **A33 PASS:** the Phase 3 Chrome consolidation remains strictly smaller;
+  Wave 2 shrank `local-dev` by 1,789 bytes and `planning-workflow` by 1,345
+  bytes against their archived originals.
+- **A34 PASS:** Phase 3 ledgers remain valid; the Wave 2 report accounts for
+  every retained, merged, and dropped Local Dev and Planning Workflow delta.
+- **A35 PASS:** Wave 2 preserves both complete pre-rewrite packages under
+  `history/rebuild-2026-07/wave-2/pre-rewrite/shared/general/`.
 
 ## Validation evidence
 
 ```text
 PASS package validators: 26/26
 PASS catalog validator
-PASS local package links inspected: 101
+PASS local package links inspected: 95
 PASS no repo-internal symlinks
-PASS secret scan: 0 findings across 206 blobs
+PASS secret scan: 0 findings across 200 blobs
 PASS declarative catalog: 26 skills, 121 aliases/external records
 PASS provider-native exceptions: 5
-PASS consumed-root unions validated, including declared Codex Agents+Codex overlap
+PASS executable consumer unions validated: 5; declared overlaps: codex, gemini-cli
 PASS render-and-compare parity: 7 live providers
 ```
 
 The validator retains one non-blocking warning for Caveman routing clarity. The
-final Phase 4 check result is recorded in the Phase 4 campaign report.
+final Wave 2 check result is recorded in the Wave 2 campaign report.

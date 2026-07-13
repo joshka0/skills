@@ -2,8 +2,9 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import {
-  ROOT, PROVIDERS, PROFILES, atomicExchange, buildProviderTree, fail, temporaryRoot, trash, treeDiff
+  ROOT, CATALOG, PROVIDERS, PROFILES, atomicExchange, buildProviderTree, fail, temporaryRoot, trash, treeDiff
 } from "./pack-common.mjs"
+import { installMappings } from "./pack-catalog.mjs"
 import { runCheck } from "./pack-check.mjs"
 
 const HELP = `Usage: bin/pack <command> [options]
@@ -14,7 +15,7 @@ Commands:
          [--profiles core|--full]
   apply  (--all|--provider NAME)         Atomically exchange a complete providers tree
          [--profiles core|--full]
-  install [--apply]                      Preview or reconcile the seven home skill roots
+  install [--apply]                      Preview or reconcile catalog-declared home skill roots
 
 Providers: ${PROVIDERS.join(", ")}
 Selectable profiles: ${PROFILES.join(", ")}
@@ -109,15 +110,11 @@ function apply(args) {
 function installRoots() {
   const home = os.homedir()
   const codexHome = process.env.CODEX_HOME || path.join(home, ".codex")
-  return [
-    ["codex", path.join(codexHome, "skills")],
-    ["agents", path.join(home, ".agents/skills")],
-    ["factory", path.join(home, ".factory/skills")],
-    ["claude", path.join(home, ".claude/skills")],
-    ["gemini", path.join(home, ".gemini/skills")],
-    ["gemini-antigravity", path.join(home, ".gemini/antigravity/skills")],
-    ["droid", path.join(home, ".droid/skills")]
-  ]
+  return installMappings(CATALOG).map(({ provider, root }) => {
+    if (root === "${CODEX_HOME:-$HOME/.codex}/skills") return [provider, path.join(codexHome, "skills")]
+    if (root.startsWith("$HOME/")) return [provider, path.join(home, root.slice("$HOME/".length))]
+    fail(`unsupported catalog install root: ${root}`)
+  })
 }
 
 function lstat(target) {

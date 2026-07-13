@@ -17,11 +17,13 @@ real-file layer.
 - `external_records` preserves alias-ledger entries that intentionally have no
   canonical skill, including vendor sources, archived cuts, and provider
   system surface.
-- `consumed_roots` describes the roots each consumer loads. The Codex model
-  includes both `$HOME/.agents/skills` and
-  `${CODEX_HOME:-$HOME/.codex}/skills`; its existing canonical overlap is
-  declared by name and accepted only while every duplicate remains identical
-  to the same canonical source. Other consumer unions reject duplicates.
+- `consumers` is schema-v2 loader truth, independent of provider views. Each
+  executable consumer has a loader identity, ordered roots, precedence rule,
+  and separately dated evidence. Codex co-loads Agents and Codex; Gemini loads
+  Gemini then the higher-precedence Agents root. Both declare the same 20
+  canonical overlaps and accept them only while every copy remains identical.
+  Gemini's union also exposes the two Agents-native Agent Vault packages; that
+  exposure is declared current reality and remains an open owner decision.
 
 The fixed provider allowlist remains executable policy in `bin/pack`; changing
 catalog data cannot authorize a new apply target. `core` is the only selectable
@@ -32,8 +34,8 @@ be added to the catalog or exposed by the CLI; empty profile tokens are invalid.
 ## Validation
 
 `bin/pack check` verifies catalog schema and membership, aliases, canonical
-archetypes and routing descriptions, provider-native sources, consumed-root
-unions, package gates, secrets, links, and routes. It then performs a fresh
+archetypes and routing descriptions, provider-native sources, executable-
+consumer unions and evidence, package gates, secrets, links, and routes. It then performs a fresh
 full render and byte/mode comparison against every live provider. There is no
 checked-in provider snapshot.
 

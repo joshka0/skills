@@ -4,6 +4,7 @@ import {
   ROOT, PROVIDERS, CONSUMERS, NATIVE_ENTRIES, providerPackages
 } from "./pack-common.mjs"
 import { checkCatalog } from "./pack-catalog-check.mjs"
+import { installMappings } from "./pack-catalog.mjs"
 
 function routeRelations(canonical, archetypes) {
   const relations = []
@@ -57,7 +58,7 @@ function checkRoutes(canonical, archetypes, report) {
   for (const start of routeGraph.keys()) visit(start, new Set(), start)
 }
 
-function checkDocs(canonical, report) {
+function checkDocs(catalogData, canonical, report) {
   const canonicalNames = new Set(canonical.map((pkg) => pkg.name))
   const actualCounts = Object.fromEntries(PROVIDERS.map((provider) => [provider, fs.readdirSync(path.join(ROOT, "providers", provider)).length]))
   for (const doc of ["PACK.md", "packs/joshka0/README.md"]) {
@@ -92,6 +93,7 @@ function checkDocs(canonical, report) {
   const rubric = fs.readFileSync(path.join(ROOT, "reports/rubric/RUBRIC.md"), "utf8").split(/\r?\n/).slice(0, 12).join("\n")
   if (authoring.includes("repository rubric is the single normative source") || !/historical/i.test(rubric)) report.error("docs-ownership", "skill-authoring references are not yet the sole normative contract")
   const docs = ["README.md", "PACK.md", "AGENTS.md", "packs/joshka0/README.md", "packs/joshka0/SOURCE_NOTES.md"]
+  const mappings = installMappings(catalogData)
   const missing = new Set()
   const pathPattern = /`((?:shared|mirrors|bundles|providers|providers-current|archive|loose|reports|packs|bin|home)(?:\/[A-Za-z0-9._-]+)+\/?)`/g
   for (const doc of docs) {
@@ -101,10 +103,9 @@ function checkDocs(canonical, report) {
       const claimed = match[1].replace(/\/$/, "")
       if (!fs.existsSync(path.join(ROOT, claimed))) missing.add(`${doc}: ${match[1]}`)
     }
-    if (doc !== "packs/joshka0/SOURCE_NOTES.md") {
-      for (const provider of PROVIDERS) {
-        const rootToken = provider === "gemini-antigravity" ? ".gemini/antigravity/skills" : `.${provider}/skills`
-        if (!text.includes(rootToken) || !text.includes(`providers/${provider}`)) report.error("docs-install", `${doc} omits the ${provider} install mapping`)
+    for (const mapping of mappings) {
+      if (!text.includes(mapping.root) || !text.includes(`providers/${mapping.provider}`)) {
+        report.error("docs-install", `${doc} omits ${mapping.root} -> providers/${mapping.provider}`)
       }
     }
   }
@@ -127,5 +128,5 @@ function checkDocs(canonical, report) {
 export function checkParity(catalog, canonical, archetypes, report) {
   checkCatalog(catalog, canonical, report)
   checkRoutes(canonical, archetypes, report)
-  checkDocs(canonical, report)
+  checkDocs(catalog, canonical, report)
 }

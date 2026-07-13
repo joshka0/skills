@@ -7,11 +7,14 @@ export function loadCatalog(root) {
   let catalog
   try { catalog = JSON.parse(fs.readFileSync(file, "utf8")) }
   catch (error) { throw new Error(`invalid composition catalog: ${error.message}`) }
-  if (catalog.schema_version !== 1) throw new Error(`unsupported catalog schema: ${catalog.schema_version ?? "<missing>"}`)
+  if (catalog.schema_version !== 2) throw new Error(`unsupported catalog schema: ${catalog.schema_version ?? "<missing>"}`)
   if (!Array.isArray(catalog.providers) || !catalog.providers.length) throw new Error("catalog providers must be a non-empty array")
   if (!Array.isArray(catalog.profiles) || !catalog.profiles.length) throw new Error("catalog profiles must be a non-empty array")
   if (!Array.isArray(catalog.skills)) throw new Error("catalog skills must be an array")
   if (!Array.isArray(catalog.provider_native_exceptions)) throw new Error("catalog provider_native_exceptions must be an array")
+  if (!catalog.consumers || typeof catalog.consumers !== "object" || Array.isArray(catalog.consumers)) {
+    throw new Error("catalog consumers must be an object")
+  }
   return catalog
 }
 
@@ -44,9 +47,29 @@ export function catalogEntries(catalog, provider, selection) {
 }
 
 export function consumerProviders(catalog) {
-  return Object.fromEntries(Object.entries(catalog.consumed_roots ?? {}).map(([consumer, model]) => [
+  return Object.fromEntries(Object.entries(catalog.consumers ?? {}).map(([consumer, model]) => [
     consumer, model.roots?.map((root) => root.provider) ?? []
   ]))
+}
+
+export function installMappings(catalog) {
+  const mappings = new Map()
+  for (const [consumer, model] of Object.entries(catalog.consumers ?? {})) {
+    for (const root of model.roots ?? []) {
+      const existing = mappings.get(root.root)
+      if (existing && existing.provider !== root.provider) {
+        throw new Error(`install root ${root.root} maps to both ${existing.provider} and ${root.provider}`)
+      }
+      if (existing) existing.consumers.push(consumer)
+      else mappings.set(root.root, { provider: root.provider, root: root.root, consumers: [consumer] })
+    }
+  }
+  const providerOrder = new Map(catalog.providers.map((provider, index) => [provider, index]))
+  return [...mappings.values()].sort((left, right) =>
+    (providerOrder.get(left.provider) ?? Number.MAX_SAFE_INTEGER) -
+      (providerOrder.get(right.provider) ?? Number.MAX_SAFE_INTEGER) ||
+    left.root.localeCompare(right.root)
+  )
 }
 
 export function nativeEntries(catalog) {

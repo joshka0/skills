@@ -3,7 +3,7 @@
 Catalog snapshot: 2026-07-13. `catalog/pack.json` is the composition source of
 truth for 26 canonical packages, 115 owner-bound aliases, six external records,
 five provider-native exceptions, one selectable `core` profile across seven
-providers, and seven consumer models.
+provider views, and five executable-consumer models.
 
 ## Layer model
 
@@ -12,7 +12,7 @@ providers, and seven consumer models.
 | `shared/general` | Canonical cross-provider packages. |
 | `shared/claude` | Canonical Claude-specific package source. |
 | `mirrors/` | Imported upstream evidence; never an implicit live source. |
-| `catalog/pack.json` | Package metadata, aliases, profiles, exceptions, and consumed roots. |
+| `catalog/pack.json` | Package metadata, aliases, profiles, exceptions, executable consumers, ordered roots, and evidence. |
 | `native/agents` | Agents-owned exception sources. |
 | `native/codex` | Codex-owned system source. |
 | `native/gemini-antigravity` | Gemini Antigravity marketplace sources. |
@@ -20,32 +20,46 @@ providers, and seven consumer models.
 | `history/rebuild-2026-07` | Dated retired inputs and preservation ledgers. |
 | `bin/pack` | Sole active check/render/apply/install entrypoint. |
 
-The generated provider layer may be transitional: Phase 6 will test per-skill
-symlink distribution against all seven real consumers. No adoption is assumed,
-and the governance/catalog model remains authoritative under either result.
+Phase 6 was killed: direct per-skill links would remove the validated promotion
+boundary, and provider views are not one-to-one with executable consumers. A
+future registry proposal is a separate export-only experiment.
 
 ## Provider results
 
 All counts are derived from current `core` membership plus catalog-declared
 native exceptions.
 
-| Provider | Entries | Canonical | Native | Current install root |
-| --- | ---: | ---: | ---: | --- |
-| `agents` | 22 | 20 | 2 | `$HOME/.agents/skills` |
-| `claude` | 26 | 26 | 0 | `$HOME/.claude/skills` |
-| `codex` | 21 | 20 | 1 | `${CODEX_HOME:-$HOME/.codex}/skills` (fallback `$HOME/.codex/skills`) |
-| `droid` | 20 | 20 | 0 | `$HOME/.droid/skills` |
-| `factory` | 20 | 20 | 0 | `$HOME/.factory/skills` |
-| `gemini` | 20 | 20 | 0 | `$HOME/.gemini/skills` |
-| `gemini-antigravity` | 22 | 20 | 2 | `$HOME/.gemini/antigravity/skills` |
+| Provider | Entries | Canonical | Native |
+| --- | ---: | ---: | ---: |
+| `agents` | 22 | 20 | 2 |
+| `claude` | 26 | 26 | 0 |
+| `codex` | 21 | 20 | 1 |
+| `droid` | 20 | 20 | 0 |
+| `factory` | 20 | 20 | 0 |
+| `gemini` | 20 | 20 | 0 |
+| `gemini-antigravity` | 22 | 20 | 2 |
 
 Current generated sources are `providers/agents`, `providers/claude`,
 `providers/codex`, `providers/droid`, `providers/factory`, `providers/gemini`,
 and `providers/gemini-antigravity`.
 
-Codex also consumes `$HOME/.agents/skills`; its 20 declared duplicate canonical
-names must remain byte-identical to the same sources. Every other consumer
-rejects duplicate names.
+## Executable consumers and install roots
+
+| Executable consumer / view | Ordered install root | Generated source |
+| --- | --- | --- |
+| Shared root for Codex and Gemini CLI | `$HOME/.agents/skills` | `providers/agents` |
+| Claude Code | `$HOME/.claude/skills` | `providers/claude` |
+| Codex-specific | `${CODEX_HOME:-$HOME/.codex}/skills` (fallback `$HOME/.codex/skills`) | `providers/codex` |
+| Droid | `$HOME/.factory/skills` | `providers/factory` |
+| Gemini-specific | `$HOME/.gemini/skills` | `providers/gemini` |
+| Google Antigravity IDE | `$HOME/.gemini/config/skills` | `providers/gemini-antigravity` |
+
+Codex co-loads its two roots and requires its 20 overlaps to remain identical.
+Gemini loads the Gemini root then the higher-precedence Agents root, also with
+20 identical overlaps. The latter union exposes both Agent Vault packages;
+whether to retain that exposure is an open owner decision. `providers/droid`
+is retained as a legacy generated compatibility view while the one supported
+Droid loader maps to the Factory root.
 
 ## Canonical catalog
 
