@@ -25,7 +25,7 @@
     "aliases"
   ],
   "profile_decisions": {
-    "codex_chrome_profile": "Codex exposes chrome-extension-builder instead of product-platform; other live profiles expose product-platform. Phase 3 will merge the leaf into the router before Phase 4 regeneration.",
+    "codex_chrome_profile": "product-platform owns the browser-extension target in every catalog profile; chrome-extension-builder is a routed compatibility alias, not a standalone slot. Phase 4 applies that desired exposure to live providers.",
     "claude_interaction_metadata": "Claude alone receives the three explicit interaction packages; other profiles omit them rather than relying on unknown-key handling.",
     "language_packs": "Effect, Elixir, and Go remain in default profiles by owner ruling; catalog/README.md defines the blinded paired-task method required for the next triage."
   },
@@ -143,27 +143,6 @@
       }
     },
     {
-      "name": "chrome-extension-builder",
-      "path": "shared/general/chrome-extension-builder",
-      "archetype": "leaf",
-      "category": "product-platform",
-      "priority": "specialist",
-      "status": "specialist-source",
-      "use_when": [
-        "Build browser extensions with MV3-safe state, typed messages, isolated content UI, and narrow permissions. Use when a service worker, content script, extension storage, permission, or browser message changes."
-      ],
-      "do_not_use_when": [
-        "the work has no browser-extension surface",
-        "a product-platform routing decision is needed before an extension implementation boundary"
-      ],
-      "aliases": [],
-      "profiles": {
-        "codex": [
-          "core"
-        ]
-      }
-    },
-    {
       "name": "code-quality",
       "path": "shared/general/code-quality",
       "archetype": "suite",
@@ -171,7 +150,7 @@
       "priority": "default",
       "status": "active-source",
       "use_when": [
-        "Run evidence-based code-quality, non-Go diagnosis, and merge-readiness passes. Use when users request thermonuclear review, ruthless test strategy, TDD, zero tech debt, ShoeHorn migration, or a merge gate."
+        "Run evidence-based code-quality, non-Go diagnosis, and merge-readiness passes. Use when users request thermonuclear review, ruthless test strategy, TDD, zero tech debt, architecture deepening, or a merge gate."
       ],
       "do_not_use_when": [
         "a Go performance regression or Go verification claim is the first concern; go-lang owns it",
@@ -298,7 +277,7 @@
       "priority": "specialist",
       "status": "specialist-source",
       "use_when": [
-        "Shape production interfaces through build, review, and improve modes. Use when users request frontend design, UI audit, UI critique, UI improve, UI tune, or userinterface-wiki guidance."
+        "Shape production interfaces through build, review, improve, motion, and Apple-physicality modes. Use when users request frontend design, UI audit/critique, UI improve/tune, animation review, Apple-like gestures, or Impeccable depth."
       ],
       "do_not_use_when": [
         "an Expo, React Native, styling-adapter, native API, or platform implementation decision is needed; product-platform owns it",
@@ -740,7 +719,7 @@
       ],
       "do_not_use_when": [
         "Git worktree work does not use the installed git gtr surface",
-        "a destructive worktree action lacks the user's confirmation"
+        "the requested action would permanently delete a worktree, delete a branch, or use destructive Git"
       ],
       "aliases": [
         {
@@ -781,7 +760,7 @@
       "priority": "default",
       "status": "active-source",
       "use_when": [
-        "Operate local Herdr workspaces, panes, and agent transport safely from its CLI. Use when a task names Herdr or needs a Herdr pane read, literal agent send, pane command, or workspace operation."
+        "Operate Herdr workspaces, panes, and agent transport from its CLI. Use when the user names Herdr or wants to message, read, wait on, or coordinate another local terminal agent or pane; Maestri owns canvas agents."
       ],
       "do_not_use_when": [
         "generic agent dispatch does not operate a Herdr transport surface",
@@ -915,13 +894,18 @@
       "priority": "default",
       "status": "active-source",
       "use_when": [
-        "Operate local development topology through selected Portless, isolation, proxy, or project-context modes without storing credentials or machine facts. Use when configuring a local dev route, isolated workspace, dev proxy, or durable project context."
+        "Operate local topology and secret-safe handoffs through route, isolation, proxy, context, or credential-injection modes. Use when configuring a local route, sandbox, dev proxy, project context, or local secret handoff."
       ],
       "do_not_use_when": [
         "a credential value or secret lookup is needed",
         "a production deployment, cloud, or generic code-quality decision is needed instead of local development topology"
       ],
       "aliases": [
+        {
+          "name": "local-secrets",
+          "status": "reference-or-mode",
+          "reason": "Secret-safe local credential injection and value-free handoff are the secrets mode of local-dev."
+        },
         {
           "name": "teach-context",
           "status": "merged-or-legacy",
@@ -1131,7 +1115,7 @@
       "priority": "specialist",
       "status": "specialist-source",
       "use_when": [
-        "Route product platform work to mobile, expo-platform, uniwind-migration, terminal-ui, or chrome-extension-builder. Use when an Expo/RN platform, Expo SDK, NativeWind migration, OpenTUI interface, or browser extension needs an owner."
+        "Route product-platform work across mobile, Expo, Uniwind migration, terminal UI, and browser extensions. Use when an Expo/RN platform, Expo SDK, NativeWind migration, OpenTUI interface, or extension runtime boundary needs an owner."
       ],
       "do_not_use_when": [
         "interface-design intent is needed; design-family owns it",
@@ -1143,6 +1127,11 @@
           "name": "building-native-ui",
           "status": "merged-or-legacy",
           "reason": "Its durable mobile interface delta is the mobile target of product-platform."
+        },
+        {
+          "name": "chrome-extension-builder",
+          "status": "reference-or-mode",
+          "reason": "Browser-extension runtime and product engineering are the browser-extension target of product-platform."
         },
         {
           "name": "expo-platform",
@@ -1192,6 +1181,9 @@
           "core"
         ],
         "gemini-antigravity": [
+          "core"
+        ],
+        "codex": [
           "core"
         ]
       }
@@ -1682,6 +1674,7 @@
         "local-http-browser-use",
         "maestri",
         "planning-workflow",
+        "product-platform",
         "prototype",
         "release-bundles",
         "repoprompt-pro-review",

@@ -8,6 +8,8 @@ description: "Run a sustained multi-agent campaign with a cross-family crew, dur
 Run a long-horizon campaign — cleanup, migration, integration, release — with
 a cross-family crew. The orchestrator plans, casts, synthesizes, and owns final
 state; agents read, watch, execute, and refute. Campaign memory lives in files.
+Write agent memory only when the user explicitly requests it and the active
+memory policy permits it.
 
 ## Do not use when
 
@@ -17,21 +19,11 @@ state; agents read, watch, execute, and refute. Campaign memory lives in files.
 
 ## Casting
 
-Different weights don't share blindspots. Same-family review inherits the same
-biases; cast reviewers from a different family than the author whenever stakes
-are high. Session-tested roster, cheapest first (model tiers per the CLAUDE.md
-assignment table, including any temporary demotion in force):
-
-| Role | Agent | Cast for |
-| --- | --- | --- |
-| Scout / watcher | grok (herdr pane) | Recon, CI/pipeline watches, branch/worktree forensics, infra spin-up, fast second opinions. Cheap, fast, tireless. |
-| Mechanical verifier | sonnet (Agent tool, explicit model) | Scoped read-only forensics in parallel batches: staleness checks, unpushed-work detection, dirty-state audits. |
-| Executor | codex terra (herdr pane) | Large-scale implementation from a reviewed plan. May be blocked by its own policy hooks — see Safety rails. |
-| Adversary / gate | codex sol (herdr pane) | Plan verdicts, implementation audits, re-gates, high-stakes synthesis. Treat as a peer, not an underling. |
-| Orchestrator | you | Casting, briefs, synthesis, owner interviews, destructive actions, final state. Execute personally when workers are blocked or the work needs full campaign context. |
-
-Never Haiku. Always pass explicit models. Delegate reading- and watching-heavy
-work; keep judgment, synthesis, and irreversible actions.
+Discover the current roster and model capabilities from the execution surface;
+pass an explicit model where supported. Cast scout/watch, mechanical verifier,
+executor, independent adversary, and orchestrator roles by current capability
+and cost. Use a different model family for high-stakes review when available,
+and keep final synthesis and authorized external mutations with the orchestrator.
 
 **Quarantine your own framing.** Your brief transmits your bias to everyone who
 reads it — a cross-family reviewer working only from your summary is still
@@ -54,7 +46,7 @@ Every delegation is a self-contained brief and a durable report:
 3. **Watch**: poll the file with a background loop
    (`until grep -q "VERDICT" file; do sleep 30; done`), not the agent's screen.
 4. **Archive**: when the campaign ends, commit the reports dir to
-   `docs/archive/<campaign>-<date>/` before deleting the workspace. The
+   `docs/archive/<campaign>-<date>/` before moving the workspace to Trash. The
    adversarial history is part of the deliverable.
 
 ## The re-gate loop
@@ -85,8 +77,9 @@ pipeline → play the manual job the moment it is playable → agent watches it 
 plays the follow-up on success → you act on the terminal verdict file.
 
 Rules: loops poll cheap read-only state with generous timeouts and print what
-they saw; anything destructive stays with the orchestrator; summaries report
-what fired, not that a loop ran.
+they saw; authorized external mutations stay with the orchestrator, filesystem
+cleanup stays Trash-only, and destructive Git stays forbidden; summaries
+report what fired, not that a loop ran.
 
 ## Greening pipelines: peel the onion
 
@@ -99,22 +92,29 @@ diagnoses get your own eyes on the raw trace — watchers mislabel.
 
 Batch genuinely-owner decisions (product rulings, forbidden-language conflicts,
 destructive scope) into a single AskUserQuestion interview with a recommended
-option first. The moment rulings land, record them in the governing doc *and*
-memory, in the same turn. Anything the user parks stays parked.
+option first. The moment rulings land, record them in the governing doc; update
+agent memory only when the user explicitly requests it and memory policy permits
+the write. Anything the user parks stays parked.
 
 ## Safety rails
 
-- **Archive before delete**: unmerged branches get `archive/<name>-<date>` tags
-  pushed before deletion; superseded WIP gets a tag before its worktree dies.
-- **Verify before discard**: "merged" claims are checked with
-  `git merge-base --is-ancestor` / `git log main..HEAD`, never trusted from a
-  tool summary. Unique local work blocks removal until reviewed.
+- **Preserve before Trash**: archive campaign reports and record the branch or
+  revision that owns unique work before moving a filesystem workspace to Trash.
+- **Verify before cleanup**: "merged" claims are checked against repository
+  evidence, never trusted from a tool summary. Unique local work blocks even a
+  reversible Trash move until reviewed.
+- **Trash only, never destructive Git**: move filesystem removals with
+  `/usr/bin/trash <path>`. Confirmation, delegation, or an archive tag never
+  authorizes permanent deletion, Git clean/reset, bulk discard, or branch
+  deletion.
 - **Mass destructive remote actions need the user to see the named list.**
 - **Policy blocks are answers, not obstacles**: when a worker's hooks forbid an
-  action, reassign (usually to yourself) — never work around its guardrails.
+  action, change the approach or stop — never reassign merely to bypass its
+  guardrails.
 
 ## Campaign close
 
-Update memory with completion state and non-obvious learnings, reconcile
-governing docs, archive the reports, tear down panes/worktrees/branches after
-verifying containment, and end with the estate smaller than you found it.
+Reconcile governing docs, archive the reports, and close panes after verifying
+containment. Move requested filesystem cleanup to Trash; do not delete branches
+or use destructive Git. Update agent memory only when explicitly requested and
+permitted, and end with the estate smaller than you found it.

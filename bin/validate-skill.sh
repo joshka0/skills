@@ -1,7 +1,7 @@
 #!/bin/sh
 # Usage: validate-skill.sh <skill_dir> <archetype>
 # archetype: leaf | private-leaf | suite | router | interaction
-# Mechanical gate from reports/rubric/RUBRIC.md section 13.
+# Mechanical gate from shared/general/skill-authoring/references/.
 set -eu
 
 skill_dir="${1:?skill dir}"; archetype="${2:?leaf|private-leaf|suite|router|interaction}"

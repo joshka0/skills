@@ -1,6 +1,11 @@
-> Living contract: `shared/general/skill-authoring/references/` as of 2026-07-10.
+# Historical skill design rubric — superseded
 
-# Skill Design Rubric — Executor Contract
+Status: **historical as of 2026-07-13**. This report is preserved as convergence
+evidence and is not normative. The single current contract is
+`shared/general/skill-authoring/references/`; repository instructions outrank
+that contract. Do not reconcile current packages against the frozen text below.
+
+## Frozen executor contract
 
 Status: **converged canonical rubric** for the post-triage `joshka0` skills pack. Produced from two independent blind drafts (`sol.md` as skeleton, amendments from `fable.md`), pending adversarial review and pilot validation. On execution this becomes the new `skill-authoring` content.
 
