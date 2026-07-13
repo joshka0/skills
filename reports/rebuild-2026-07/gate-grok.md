@@ -91,3 +91,21 @@ One attack succeeded (see blockers).
 VERDICT: REJECTED
 1. packs/joshka0/README.md materially stale and ungated (old counts, retired paths as current truth; not covered by checkDocs/pre-commit).
 2. Non-core profile tokens (infra/release/aliases) produce empty-overlay failures on direct use despite being declared and CLI-accepted.
+
+## Re-gate 2026-07-13 (blockers only)
+
+Executor addressed the two blockers (per commit landing). Verified **only** the specified items against live state.
+
+(1) packs/joshka0/README.md now states current truth (26 canonical, one selectable `core` profile, correct model with no bundles/providers-current/overlay-manifest as live truth, correct counts, core-only notes) **and** is inside both gates:
+- checkDocs list in `bin/lib/pack-parity.mjs:92`: `const docs = ["README.md", "PACK.md", "AGENTS.md", "packs/joshka0/README.md", "packs/joshka0/SOURCE_NOTES.md"]`
+- pre-commit trigger regex in `bin/hooks/pre-commit:12`: `packs/joshka0/(README|SOURCE_NOTES)\.md$`
+
+(2) infra/release/aliases profile tokens are fully gone:
+- `catalog/pack.json:21`: `"profiles": [ "core" ]` (only; no other profile tokens)
+- CLI: `bin/lib/pack-cli.mjs:14-16` (help examples: `--profiles core|--full`), `20` (Selectable profiles: ${PROFILES.join}), `30` (default ["core"]); `bin/lib/pack-common.mjs:13` (PROFILES = selectableProfiles(CATALOG)); `bin/lib/pack-catalog.mjs:22` (selectableProfiles filters catalog.profiles to those used in skills/natives). `bin/pack render --profiles infra` now rejects with "ERROR: profile is not allowlisted: infra".
+- Docs: PACK.md, README.md, AGENTS.md, catalog/README.md, packs/joshka0/README.md all describe only `core` as selectable profile (no infra/release/aliases tokens as profiles).
+- `bin/pack check` (re-run 2026-07-13): CHECK: PASS (0 errors; same 1 WARN; full parity, unions, docs, composer self-tests pass).
+
+No other files or behaviors inspected.
+
+VERDICT: APPROVED

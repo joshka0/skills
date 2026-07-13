@@ -30,8 +30,12 @@ Start the agent's normal executable so its interactive TUI opens — Codex: `cod
 ```sh
 herdr pane run <pane-id> "codex"
 herdr wait agent-status <pane-id> --status idle --timeout 30000
+herdr pane run <pane-id> "/rename diff-reviewer"
 herdr pane run <pane-id> "Review the current diff and report only actionable findings."
 ```
+
+Send the session rename only when the agent's slash help lists such a command;
+match it to the pane label so live view and session history tell one story.
 
 `pane run` sends the text and Enter together — use it for initial prompts and follow-ups instead of coordinating `pane send-text` plus `pane send-keys enter`. Reserve `send-text`/`send-keys` for partial input that must not submit yet.
 
