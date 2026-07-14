@@ -57,8 +57,8 @@ Independence includes framing, not just weights: your brief transmits your bias 
 
 ### Codex tiers (2026-07-14, per Tibo — Codex lead — supersedes AA-index anchors)
 **`gpt-5.6-sol` is the model. Effort is the dial.**
-- **`sol(medium)` — the daily driver.** Default for interactive work and scoped subagents. Do not reach past it out of habit.
-- **`sol(xhigh)` — really hard problems.** Deep review, design convergence, gnarly debugging.
+- **`sol(medium)` — the daily driver.** Default for delegated coding work and scoped subagents. Do not reach past it out of habit.
+- **`sol(xhigh)` — really hard problems and the orchestrator seat.** Main interactive driver, deep review, design convergence, gnarly debugging.
 - **`sol(max)` — the ceiling.** Adversarial passes and highest-stakes synthesis. (Tibo recommends `ultra` for absolute best; **we cap at max** for usage. Do not use ultra without asking.)
 - **`luna(xhigh)` — very defined, repetitive work** any model could do: mechanical edits, searches, bulk renames. If the task needs judgment, it is not a luna task.
 - **`terra` — retired.** Do not use it; sol at the right effort covers its ground.
@@ -70,7 +70,7 @@ Escalate by *effort*, not by model. The old "never run sol below max" rule is de
 | --- | --- |
 | Defined repetitive subagent (search, bulk mechanical edits) | claudex haiku slot = `luna(xhigh)` |
 | Scoped subagent (research, focused impl) | claudex sonnet slot = `sol(medium)` |
-| Main interactive driver / daily default | claudex Fable slot = `sol(medium)` |
+| Main interactive driver / orchestrator | claudex Fable slot = `sol(xhigh)` |
 | Substantive single delegated task | `codex -m gpt-5.6-sol -c model_reasoning_effort=medium` pane; raise to `xhigh` if genuinely hard |
 | Wide parallel execution (peers, never a cascade — see fan-out cap) | sol panes, one level deep |
 | Deep review, design convergence, hard problems | claudex opus slot = `sol(xhigh)` |
@@ -82,7 +82,7 @@ Escalate by *effort*, not by model. The old "never run sol below max" rule is de
 ### External agents (via herdr)
 Launch pattern (verified): `herdr pane split --pane "$HERDR_PANE_ID" --direction down --no-focus`, read `pane_id` from the JSON, then `herdr pane run <pane-id> "<launch command>"`, wait for `agent-status idle`, and submit the task with another `pane run`. Note: `--current` can mis-resolve to another workspace — pass `--pane "$HERDR_PANE_ID"` explicitly.
 
-**Prefer `claudex` over raw `codex`** — the Claude Code harness (skills, hooks, guards) on Codex models via local CLIProxyAPI; better fit for our orchestration pattern. Launch `claudex` in the pane (zsh alias; needs the cliproxyapi brew service running). Its slots: Fable=`gpt-5.6-sol(medium)` (session default), Opus=`gpt-5.6-sol(xhigh)`, Sonnet=`gpt-5.6-sol(medium)`, Haiku=`gpt-5.6-luna(xhigh)`; override per session with `claudex --model "<id>(<effort>)"` — effort goes in parentheses in the model name. Stray hardcoded `claude-*` IDs from background calls are remapped to Codex models by the proxy's `oauth-model-alias` config — if a claudex session throws model-not-found API errors, check that alias block in `/opt/homebrew/etc/cliproxyapi.conf`.
+**Prefer `claudex` over raw `codex`** — the Claude Code harness (skills, hooks, guards) on Codex models via local CLIProxyAPI; better fit for our orchestration pattern. Launch `claudex` in the pane (zsh alias; needs the cliproxyapi brew service running). Its slots: Fable=`gpt-5.6-sol(xhigh)` (session default — the orchestrator seat; keeps the adversary at `max` genuinely above the author), Opus=`gpt-5.6-sol(xhigh)`, Sonnet=`gpt-5.6-sol(medium)`, Haiku=`gpt-5.6-luna(xhigh)`; override per session with `claudex --model "<id>(<effort>)"` — effort goes in parentheses in the model name. Stray hardcoded `claude-*` IDs from background calls are remapped to Codex models by the proxy's `oauth-model-alias` config — if a claudex session throws model-not-found API errors, check that alias block in `/opt/homebrew/etc/cliproxyapi.conf`.
 
 **Claudex subagents must be subdivided by task weight, never left to inherit the session default.** Pass an explicit slot or model per subagent: haiku slot (=luna xhigh — this is NOT Anthropic Haiku; the never-Haiku rule does not apply here) for defined repetitive work and searches; sonnet slot (=sol medium) for scoped implementation and research; opus slot (=sol xhigh) for genuinely hard review. Same principle as the native-subagent explicit-model rule, applied through the slot map.
 
