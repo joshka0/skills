@@ -59,6 +59,30 @@ its entire assigned task by itself, without spawning subagents of its own.**
   bigger than its brief. A blocker honestly reported is a good outcome; a
   recursive delegation cascade is not.
 
+## Model and effort selection (2026-07-14, per Tibo — Codex lead)
+
+**`gpt-5.6-sol` is the model. Effort is the dial.** When you spawn a subagent or
+choose your own effort, pick by task weight — never reach past what the work
+needs, and never under-power a task whose wrong answer is expensive.
+
+- **`sol(medium)` — the daily driver.** Default for ordinary implementation,
+  research, and scoped subagent work. Do not escalate out of habit.
+- **`sol(xhigh)` — really hard problems.** Deep review, design convergence,
+  gnarly debugging, anything where you are genuinely stuck at medium.
+- **`sol(max)` — the ceiling.** Adversarial passes and highest-stakes synthesis
+  only. (`ultra` exists above it; do not use it — ask the user first.)
+- **`luna` — very defined, repetitive work** any model could do: mechanical
+  edits, bulk renames, searches. Its effort tier is a deliberate speed-vs-
+  intelligence trade: `low`/`medium` when the task is truly mechanical and
+  throughput matters, `high`/`xhigh` when a well-defined task still has a subtle
+  edge (ambiguous matches, collisions, exceptions to the pattern) and a silent
+  wrong answer would be costly. If the task needs judgment, it is not a luna
+  task — use sol.
+- **`terra` is retired.** Do not use it. Sol at the right effort covers its ground.
+
+Escalate by *effort*, not by model. State the model and effort you chose for each
+subagent in your report.
+
 ## Working with a task brief
 
 - Treat the brief file, spec, and named ground-truth artifacts as the contract.
