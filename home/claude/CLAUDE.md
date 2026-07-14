@@ -47,7 +47,7 @@ You (Fable) are the orchestrator: plan, decompose, synthesize; keep your own con
 
 ### Cross-family first
 
-> **FOXWAY EXCEPTION (user directive 2026-07-13): never use grok or any xAI model for Foxway work or data — no grok panes, subagents, or one-shot queries. This overrides every grok mention below. For Foxway, cross-family review of Anthropic-authored work routes through claudex/codex (sol/luna/terra); OpenAI-authored work gets Anthropic (Fable/Opus) review. Every brief handed to another agent for a Foxway task must restate this prohibition explicitly — pane agents read this file and will otherwise follow the grok guidance on their own.**
+> **FOXWAY EXCEPTION (user directive 2026-07-13): never use grok or any xAI model for Foxway work or data — no grok panes, subagents, or one-shot queries. This overrides every grok mention below. For Foxway, cross-family review of Anthropic-authored work routes through claudex/codex (sol/luna); OpenAI-authored work gets Anthropic (Fable/Opus) review. Every brief handed to another agent for a Foxway task must restate this prohibition explicitly — pane agents read this file and will otherwise follow the grok guidance on their own.**
 
 For adversarial review, fresh eyes, independent verification, or high-stakes synthesis, prefer agents from a *different* model family over your own subagents. Different weights don't share blindspots — same-family review inherits the same biases and misses the same errors. Fall back to native subagents only when external agents are unavailable or the task is trivial.
 
@@ -55,50 +55,50 @@ The rule generalizes: **pick the reviewer from a different family than the execu
 
 Independence includes framing, not just weights: your brief transmits your bias to everyone who reads it — a cross-family reviewer working only from your summary is still reviewing inside your frame. Brief reviewers against the ground-truth artifacts (spec, kernel, originals, raw traces), never only your digest, and put your brief itself in scope for refutation.
 
+### Codex tiers (2026-07-14, per Tibo — Codex lead — supersedes AA-index anchors)
+**`gpt-5.6-sol` is the model. Effort is the dial.**
+- **`sol(medium)` — the daily driver.** Default for interactive work and scoped subagents. Do not reach past it out of habit.
+- **`sol(xhigh)` — really hard problems.** Deep review, design convergence, gnarly debugging.
+- **`sol(max)` — the ceiling.** Adversarial passes and highest-stakes synthesis. (Tibo recommends `ultra` for absolute best; **we cap at max** for usage. Do not use ultra without asking.)
+- **`luna(xhigh)` — very defined, repetitive work** any model could do: mechanical edits, searches, bulk renames. If the task needs judgment, it is not a luna task.
+- **`terra` — retired.** Do not use it; sol at the right effort covers its ground.
+
+Escalate by *effort*, not by model. The old "never run sol below max" rule is dead — it existed only because terra dominated sol's low tiers, and terra is gone.
+
 ### Assignment table
 | Work | Engine |
 | --- | --- |
-| Light mechanical subagent (search, small edits) | claudex haiku slot = `luna(xhigh)` |
-| Scoped subagent (research, focused impl) | claudex sonnet slot (operating: `sol(medium)`) |
-| Substantive single delegated task (too big for luna, no fan-out) | `codex -m gpt-5.6-terra -c model_reasoning_effort=ultra` pane |
-| Large fan-out execution | terra-ultra codex pane (Codex-native subagents) |
-| Main interactive driver / frontier default | claudex = `sol(ultra)` |
-| Deep review, design convergence | claudex opus slot = `sol(max)` |
-| Adversarial review / red-team pass | `sol(ultra)` by explicit model name — always ultra for adversaries |
+| Defined repetitive subagent (search, bulk mechanical edits) | claudex haiku slot = `luna(xhigh)` |
+| Scoped subagent (research, focused impl) | claudex sonnet slot = `sol(medium)` |
+| Main interactive driver / daily default | claudex Fable slot = `sol(medium)` |
+| Substantive single delegated task | `codex -m gpt-5.6-sol -c model_reasoning_effort=medium` pane; raise to `xhigh` if genuinely hard |
+| Wide parallel execution (peers, never a cascade — see fan-out cap) | sol panes, one level deep |
+| Deep review, design convergence, hard problems | claudex opus slot = `sol(xhigh)` |
+| Adversarial review / red-team pass | `sol(max)` by explicit model name — the adversary gets the ceiling |
 | Opus-class standalone fresh eyes / second opinion | grok pane (`grok-build`) |
 | Security/privacy/auth/abuse review | `security-reviewer` (Fable, native) |
 | Adversarial critique when externals unavailable | `adversarial-reviewer` (Opus, native) |
 
-### COST-MINDFUL TIERS (2026-07-13, in effect)
-All codex/claudex tiers run one notch down from the target table above: ultra→max, max→xhigh. Effective now: claudex Fable=`sol(max)`, Opus=`sol(xhigh)`, Sonnet=`sol(medium)` (lived-experience override 2026-07-13: big model at light effort beats luna(max)/luna(ultra) for scoped subagents despite the index — the one sanctioned below-max sol seat), Haiku=`luna(xhigh)` (unchanged); subagent default `sol(medium)`; fan-out panes `terra(max)`; **adversarial reviews `sol(max)`**; codex config default `sol(xhigh)`. The surrounding sections describe the TARGET state; this block is the operating state. Originally a workaround for a claudex/codex subagent issue, now retained deliberately for cost control — `sol(ultra)` is ~3x the cost of `sol(max)` for a ~1.2-point AA Index gain. Do not promote to ultra without asking.
-
 ### External agents (via herdr)
 Launch pattern (verified): `herdr pane split --pane "$HERDR_PANE_ID" --direction down --no-focus`, read `pane_id` from the JSON, then `herdr pane run <pane-id> "<launch command>"`, wait for `agent-status idle`, and submit the task with another `pane run`. Note: `--current` can mis-resolve to another workspace — pass `--pane "$HERDR_PANE_ID"` explicitly.
 
-**Prefer `claudex` over raw `codex`** — the Claude Code harness (skills, hooks, guards) on Codex models via local CLIProxyAPI; better fit for our orchestration pattern. Launch `claudex` in the pane (zsh alias; needs the cliproxyapi brew service running). Its slots (anchored to Artificial Analysis Coding Agent Index v1.1 scores): Fable=`gpt-5.6-sol(ultra)` (session default, 80.2), Opus=`gpt-5.6-sol(max)` (79, ~30% cheaper than ultra), Sonnet=`gpt-5.6-luna(ultra)` (74.5 — the value knee; beats Opus 4.8 max at a fraction of the cost), Haiku=`gpt-5.6-luna(xhigh)` (68); override per session with `claudex --model "<id>(<effort>)"` — effort goes in parentheses in the model name. Stray hardcoded `claude-*` IDs from background calls are remapped to Codex models by the proxy's `oauth-model-alias` config — if a claudex session throws model-not-found API errors, check that alias block in `/opt/homebrew/etc/cliproxyapi.conf`.
+**Prefer `claudex` over raw `codex`** — the Claude Code harness (skills, hooks, guards) on Codex models via local CLIProxyAPI; better fit for our orchestration pattern. Launch `claudex` in the pane (zsh alias; needs the cliproxyapi brew service running). Its slots: Fable=`gpt-5.6-sol(medium)` (session default), Opus=`gpt-5.6-sol(xhigh)`, Sonnet=`gpt-5.6-sol(medium)`, Haiku=`gpt-5.6-luna(xhigh)`; override per session with `claudex --model "<id>(<effort>)"` — effort goes in parentheses in the model name. Stray hardcoded `claude-*` IDs from background calls are remapped to Codex models by the proxy's `oauth-model-alias` config — if a claudex session throws model-not-found API errors, check that alias block in `/opt/homebrew/etc/cliproxyapi.conf`.
 
-**Claudex subagents must be subdivided by task weight, never left to inherit the session default** — inheriting means every trivial search runs on sol(ultra) and burns tokens. Pass an explicit slot or model per subagent: haiku slot (=luna xhigh — this is NOT Anthropic Haiku; the never-Haiku rule does not apply here) for light mechanical work and searches; sonnet slot (=sol medium under the operating tiers — see the cost-mindful block) for scoped implementation and research; opus slot for the deepest review/adversarial passes. Same principle as the native-subagent explicit-model rule, applied through the slot map.
-
-**Fan-out split**: claudex subagenting on terra is tricky — when a task needs an agent that itself spreads many subagents, launch a raw `codex -m gpt-5.6-terra -c model_reasoning_effort=ultra` pane (Codex-native fan-out) instead of spawning subagents inside claudex. Claudex subagents stay on the luna tiers.
+**Claudex subagents must be subdivided by task weight, never left to inherit the session default.** Pass an explicit slot or model per subagent: haiku slot (=luna xhigh — this is NOT Anthropic Haiku; the never-Haiku rule does not apply here) for defined repetitive work and searches; sonnet slot (=sol medium) for scoped implementation and research; opus slot (=sol xhigh) for genuinely hard review. Same principle as the native-subagent explicit-model rule, applied through the slot map.
 
 **Codex fan-out cap** (`~/.codex/AGENTS.md`, versioned at `home/codex/AGENTS.md`): codex agents are capped at **one level of delegation** — a subagent must finish its whole task without sub-delegating, because deep recursive fan-out burns enormous token budgets. So: decompose work into complete, self-contained units *yourself* before handing it to a codex pane; a fan-out pane may spawn a wide layer of peers, never a cascade. Restate the no-sub-delegation rule in every brief you write to a codex agent — and never brief one with "explore this and delegate what you find."
 
-Codex model IDs, small → large: `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`. Effort tiers, ascending: `low`, `medium`, `high`, `xhigh` ("Extra high" in the picker), `max`, `ultra` (top tier, config-token only — it sits ABOVE max). Role guide with AA Index v1.1 anchors:
-- luna xhigh (68) — light, quick, mechanical tasks.
-- luna ultra (74.5, ~$450/run) — the cost-effectiveness knee; scoped subagent work. Outscores Opus 4.8 max (72.5).
-- terra ultra (77.5, ~$700) — strong workhorse; execution and multi-subagent fan-out. Strictly dominates sol xhigh (77.3, ~$1150) — **never run sol below max**.
-- sol max (79) — deep reviews and design convergence; treat as your peer, not a reviewer-underling.
-- sol ultra (80.2, ~$2400) — the absolute frontier; the main-driver seat, and **always the tier for adversarial reviews** — an adversary must outthink the author, so it gets the top tier, not the discounted one.
+Codex model IDs in use: `gpt-5.6-luna` (defined repetitive work), `gpt-5.6-sol` (everything else). Effort tiers, ascending: `low`, `medium`, `high`, `xhigh` ("Extra high" in the picker), `max`, `ultra` (config-token only — sits ABOVE max; we do not use it without asking). See the Codex tiers block above for which effort goes where.
 
-Raw Codex TUI fallback (when claudex/proxy is unavailable, or Codex-native subagent fan-out is specifically wanted): `codex -m <model> -c model_reasoning_effort=<tier>`.
+Raw Codex TUI (when claudex/proxy is unavailable): `codex -m gpt-5.6-sol -c model_reasoning_effort=<tier>`. Its config default is `sol(medium)`; note a `/model` picker change inside any session rewrites `~/.codex/config.toml` globally.
 
-Grok CLI: launch `grok`; the Grok 4.5 model is the `grok-build` model ID (default — there is no literal `grok-4.5` ID; `grok models` lists `grok-build` and `grok-composer-2.5-fast`). Effort via `--reasoning-effort <effort>` (alias `--effort`) or `/model grok-build [effort]` in the TUI. Exceptionally fast and strong, ~Opus 4.8 level (between terra and sol). **When you want an opus-tier model as a standalone pane agent (not a subagent) — fresh eyes, second opinions, independent review — prefer grok**: same class of capability, much faster, and a third weight family beyond Anthropic and OpenAI. Opus-tier *subagents* still resolve through the slot map (sol via claudex) or `adversarial-reviewer`/Opus natively.
+Grok CLI: launch `grok`; the Grok 4.5 model is the `grok-build` model ID (default — there is no literal `grok-4.5` ID; `grok models` lists `grok-build` and `grok-composer-2.5-fast`). Effort via `--reasoning-effort <effort>` (alias `--effort`) or `/model grok-build [effort]` in the TUI. Exceptionally fast and strong, ~Opus 4.8 level. **When you want an opus-tier model as a standalone pane agent (not a subagent) — fresh eyes, second opinions, independent review — prefer grok**: same class of capability, much faster, and a third weight family beyond Anthropic and OpenAI. Opus-tier *subagents* still resolve through the slot map (sol via claudex) or `adversarial-reviewer`/Opus natively.
 
 ### Native subagents (fallback and in-context work)
 Reasoning-heavy phases → `deep-reasoner` / Fable. Adversarial critique when externals are unavailable → `adversarial-reviewer` / Opus. Security, privacy, auth, secret, browser-automation, or abuse-case review → `security-reviewer` / Fable. Mechanical scoped work → explicit Sonnet agents (`fast-worker`, `sonnet-generalist`, `sonnet-code-reviewer`, `sonnet-researcher`, `sonnet-test-worker`). Never use Haiku; if a smaller subagent is needed, use Sonnet. Always pass an explicit model rather than relying on inheritance unless inheritance is intentional.
 
 ### Working rules
-- High-stakes decisions: task sol ultra + grok (and/or Opus adversarial-reviewer) on the same problem in parallel, blind to each other's answers, then synthesize the best of all.
+- High-stakes decisions: task sol(max) + grok (and/or Opus adversarial-reviewer) on the same problem in parallel, blind to each other's answers, then synthesize the best of all.
 - Independent-then-converge: independent blind artifacts first, then diff and merge; never let reviewers see each other before their first pass.
 - Trust but verify: executor self-reports overclaim — an independent exhaustive review against the originals gates acceptance of any large delegated work, and your own spot-checks are the fast pass, not the gate.
 - Keep the estate tidy: when a task or session finishes, clean up after yourself — close panes and worktrees you created (never ones you didn't), stop background watches and loops, Trash scratch files and retained render/preview roots, and remove or archive stale reports/briefs. Leave the workspace smaller than you found it; cleanup is part of "done", not an optional epilogue.
