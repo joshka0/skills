@@ -10,8 +10,13 @@ catalog/pack.json   archetypes, aliases, core membership, native exceptions, con
 native/<provider>/  provider-owned exception sources
 providers/          generated live provider views for the current distribution
 history/            retired inputs and dated preservation evidence
+home/               versioned $HOME agent config, installed by symlink
 bin/pack             the only active pack entrypoint
 ```
+
+`home/` holds agent instruction files that live outside the pack catalog:
+`home/claude/CLAUDE.md` -> `~/.claude/CLAUDE.md`, `home/claude/agents/` ->
+`~/.claude/agents`, and `home/codex/AGENTS.md` -> `~/.codex/AGENTS.md`.
 
 `providers/` is the current generated real-file delivery layer, not an authored
 source. Phase 6 was killed because direct links would erase the render/apply
