@@ -1,21 +1,36 @@
 # Global Codex instructions
 
-## Deletion safety policy (durable — do not override per session)
+## Destructive-action policy (durable — do not override per session)
 
-- Never permanently delete a file or directory, by any mechanism.
-- All removals must go to the macOS Trash: use `/usr/bin/trash <path>` (or the
-  `rm` on PATH, which is a shim that routes to Trash).
-- Never use `/bin/rm`, `unlink`, `rmdir`, `shred`, `find -delete`,
-  `rsync --delete`, deletion APIs in scripts (Python `os.remove`/`shutil.rmtree`,
-  Node `fs.rm*`/`rimraf`, Ruby `FileUtils.rm*`, Perl `unlink`), or file
-  deletions via `apply_patch`.
-- Never run destructive Git operations: `git clean`, `git reset --hard`,
-  bulk `git checkout .`/`git checkout -- .`/`--force`, bulk `git restore`,
-  or anything that discards uncommitted work.
-- A PreToolUse hook (`~/.codex/hooks/deletion-guard.py`) hard-denies these.
-  If a denied command is genuinely required, STOP and ask the user; only the
-  user may change this policy (by editing this file and the hook). Do not
-  attempt to bypass, disable, or work around the guard.
+**Never destroy work. Not files, not uncommitted changes, not history.**
+
+Files:
+- Never permanently delete a file or directory, by any mechanism. All removals
+  go to the macOS Trash: `/usr/bin/trash <path>` (the `rm` on PATH is a shim
+  that routes there).
+- Never use `/bin/rm`, `unlink`, `rmdir`, `shred`, `truncate`, `dd of=`,
+  `find -delete`, `rsync --delete`, `chmod -R 000`, deletion APIs in scripts
+  (Python `os.remove`/`shutil.rmtree`, Node `fs.rm*`/`rimraf`, Ruby
+  `FileUtils.rm*`), or file deletions via `apply_patch`.
+
+Git — an agent never discards work or rewrites history:
+- **Uncommitted work is sacred.** No `git reset --hard/--merge/--keep`, no
+  `git clean`, no `git checkout .`/`-- <file>`/`-f`, **no `git restore` at all**
+  (even a single file discards changes), no `git rm`.
+- **History and refs are sacred.** No `git rebase`, `commit --amend`,
+  `filter-branch`/`filter-repo`, `reflog expire`, `gc --prune`, `update-ref -d`,
+  `branch -D`, `tag -d`, `stash drop`/`clear`, or `push --force`
+  (including `--force-with-lease`).
+- If the working tree is dirty and in your way: **commit it, or stop and ask.**
+  Never clear it. `git stash` (without drop/clear) is acceptable; losing the
+  stash is not.
+
+Enforcement: a PreToolUse hook (`~/.codex/hooks/deletion-guard.py`) hard-denies
+all of the above, including inside `bash -c`/`sh -c` wrappers; a PostToolUse
+hook (`~/.codex/hooks/mutation-audit.py`) logs every state-mutating command to
+`~/.codex/logs/mutation-audit.log`. If a denied command is genuinely required,
+STOP and ask the user; only the user may perform it or change this policy. Do
+not bypass, disable, or work around the guard.
 
 ## Subagent discipline (fan-out cap)
 
