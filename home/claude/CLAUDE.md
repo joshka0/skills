@@ -81,6 +81,8 @@ Launch pattern (verified): `herdr pane split --pane "$HERDR_PANE_ID" --direction
 
 **Fan-out split**: claudex subagenting on terra is tricky — when a task needs an agent that itself spreads many subagents, launch a raw `codex -m gpt-5.6-terra -c model_reasoning_effort=ultra` pane (Codex-native fan-out) instead of spawning subagents inside claudex. Claudex subagents stay on the luna tiers.
 
+**Codex fan-out cap** (`~/.codex/AGENTS.md`, versioned at `home/codex/AGENTS.md`): codex agents are capped at **one level of delegation** — a subagent must finish its whole task without sub-delegating, because deep recursive fan-out burns enormous token budgets. So: decompose work into complete, self-contained units *yourself* before handing it to a codex pane; a fan-out pane may spawn a wide layer of peers, never a cascade. Restate the no-sub-delegation rule in every brief you write to a codex agent — and never brief one with "explore this and delegate what you find."
+
 Codex model IDs, small → large: `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`. Effort tiers, ascending: `low`, `medium`, `high`, `xhigh` ("Extra high" in the picker), `max`, `ultra` (top tier, config-token only — it sits ABOVE max). Role guide with AA Index v1.1 anchors:
 - luna xhigh (68) — light, quick, mechanical tasks.
 - luna ultra (74.5, ~$450/run) — the cost-effectiveness knee; scoped subagent work. Outscores Opus 4.8 max (72.5).
