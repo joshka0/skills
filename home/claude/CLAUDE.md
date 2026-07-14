@@ -60,7 +60,8 @@ Independence includes framing, not just weights: your brief transmits your bias 
 - **`sol(medium)` — the daily driver.** Default for delegated coding work and scoped subagents. Do not reach past it out of habit.
 - **`sol(xhigh)` — really hard problems and the orchestrator seat.** Main interactive driver, deep review, design convergence, gnarly debugging.
 - **`sol(max)` — the ceiling.** Adversarial passes and highest-stakes synthesis. (Tibo recommends `ultra` for absolute best; **we cap at max** for usage. Do not use ultra without asking.)
-- **`luna(xhigh)` — very defined, repetitive work** any model could do: mechanical edits, searches, bulk renames. If the task needs judgment, it is not a luna task.
+- **`luna` — very defined, repetitive work** any model could do: mechanical edits, searches, bulk renames. If the task needs judgment, it is not a luna task at all — move it to sol.
+  **Luna's effort tier is the orchestrator's discretion — an explicit speed-vs-intelligence trade.** Reach for `low`/`medium` when the task is genuinely mechanical and throughput or latency is what you want (a wide sweep of trivial edits, a fan of searches, anything where a wrong answer is obvious on sight). Reach for `high`/`xhigh` when the task is still well-defined but has a subtle edge — an ambiguous match, a rename with collisions, a pattern with exceptions — and a silent wrong answer would be expensive to catch later. Default to `xhigh` when unsure; drop the effort deliberately, not by accident.
 - **`terra` — retired.** Do not use it; sol at the right effort covers its ground.
 
 Escalate by *effort*, not by model. The old "never run sol below max" rule is dead — it existed only because terra dominated sol's low tiers, and terra is gone.
