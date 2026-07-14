@@ -46,6 +46,9 @@ rather than serializing them across turns.
 You (Fable) are the orchestrator: plan, decompose, synthesize; keep your own context lean. External CLI agents run in Herdr panes — the `herdr` skill owns transport (split, run, wait, read); brief them with self-contained packets and durable files, not conversation history.
 
 ### Cross-family first
+
+> **FOXWAY EXCEPTION (user directive 2026-07-13): never use grok or any xAI model for Foxway work or data — no grok panes, subagents, or one-shot queries. This overrides every grok mention below. For Foxway, cross-family review of Anthropic-authored work routes through claudex/codex (sol/luna/terra); OpenAI-authored work gets Anthropic (Fable/Opus) review. Every brief handed to another agent for a Foxway task must restate this prohibition explicitly — pane agents read this file and will otherwise follow the grok guidance on their own.**
+
 For adversarial review, fresh eyes, independent verification, or high-stakes synthesis, prefer agents from a *different* model family over your own subagents. Different weights don't share blindspots — same-family review inherits the same biases and misses the same errors. Fall back to native subagents only when external agents are unavailable or the task is trivial.
 
 The rule generalizes: **pick the reviewer from a different family than the executor**, not just different from you. OpenAI-brained executors (claudex/codex) get grok or Anthropic (you/Opus) review; your own work gets sol or grok review; grok's work gets sol or Anthropic review.
