@@ -74,7 +74,7 @@ Escalate by *effort*, not by model. The old "never run sol below max" rule is de
 | Substantive single delegated task | `codex -m gpt-5.6-sol -c model_reasoning_effort=medium` pane; raise to `xhigh` if genuinely hard |
 | Wide parallel execution (peers, never a cascade — see fan-out cap) | sol codex panes, one level deep |
 | Deep review, design convergence, hard problems | `codex -m gpt-5.6-sol -c model_reasoning_effort=xhigh` pane |
-| Adversarial review / red-team pass | `codex -m gpt-5.6-sol -c model_reasoning_effort=max` pane — the adversary gets the ceiling |
+| Adversarial review / red-team pass (final) | `claudex` red-team pane (sol xhigh default, max on request) — prompt MUST forbid subagents; or a `codex -m gpt-5.6-sol … max` pane |
 | Opus-class standalone fresh eyes / second opinion | grok pane (`grok-build`) |
 | Security/privacy/auth/abuse review | `security-reviewer` (Fable, native) |
 | Adversarial critique when externals unavailable | `adversarial-reviewer` (Opus, native) |
@@ -82,7 +82,9 @@ Escalate by *effort*, not by model. The old "never run sol below max" rule is de
 ### External agents (via herdr)
 Launch pattern (verified): `herdr pane split --pane "$HERDR_PANE_ID" --direction down --no-focus`, read `pane_id` from the JSON, then `herdr pane run <pane-id> "<launch command>"`, wait for `agent-status idle`, and submit the task with another `pane run`. Note: `--current` can mis-resolve to another workspace — pass `--pane "$HERDR_PANE_ID"` explicitly.
 
-**Use raw `codex` panes, not `claudex`.** (`claudex` — Claude Code's harness on Codex models via CLIProxyAPI — is REMOVED as of 2026-07-16: sol reflexively over-spawns subagents inside the Claude Code harness, ignoring the fan-out cap and burning budget. The proxy, OAuth, and config remain installed but dormant; the alias is gone. Do not reintroduce claudex without an explicit decision.) Delegate to Codex by launching `codex -m gpt-5.6-sol -c model_reasoning_effort=<tier>` in a herdr pane, picking the effort per the Codex tiers block. Codex-native subagents (spawned by the pane agent) are fine for one-level fan-out; they obey `~/.codex/AGENTS.md`.
+**Delegate to Codex with raw `codex` panes, not `claudex`, for all normal work** — launch `codex -m gpt-5.6-sol -c model_reasoning_effort=<tier>` in a herdr pane, effort per the Codex tiers block. Codex-native subagents (spawned by the pane agent) are fine for one-level fan-out; they obey `~/.codex/AGENTS.md`.
+
+**`claudex` (red-team only).** `claudex` runs the Claude Code harness on sol via CLIProxyAPI. It over-spawns subagents in this harness for normal work, so it is scoped to **one job: a final adversarial/refutation pass** — a sol adversary (cross-family to your Anthropic authorship) with full CC tooling, at the very end. **Every claudex prompt MUST forbid subagents**: state explicitly "Do not spawn subagents or use the Task/Agent tool; do all analysis yourself, directly — this is a single self-contained pass." A red-team has nothing to decompose, so this costs nothing and removes the only failure mode. Default effort is `sol(xhigh)` (max eats a lot of tokens); use `sol(max)` only when the user asks — **user guidance on effort takes precedence**. Launch: `claudex` in a herdr pane (needs the cliproxyapi brew service running). Prefer a raw `codex … max` pane for red-team if the proxy is down.
 
 **Codex fan-out cap** (`~/.codex/AGENTS.md`, versioned at `home/codex/AGENTS.md`): codex agents are capped at **one level of delegation** — a subagent must finish its whole task without sub-delegating, because deep recursive fan-out burns enormous token budgets. So: decompose work into complete, self-contained units *yourself* before handing it to a codex pane; a fan-out pane may spawn a wide layer of peers, never a cascade. Restate the no-sub-delegation rule in every brief you write to a codex agent — and never brief one with "explore this and delegate what you find."
 
