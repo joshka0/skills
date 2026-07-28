@@ -18,9 +18,10 @@ empirical shape; tighten them from ledger data after real runs.
 - No real invariant exists (UI copy, one-off scripts, glue) — the gauntlet is
   overhead below genuine correctness stakes; use ordinary implementation and
   review.
-- No spec exists yet → run a grill first (assets/grill-kickoff.md is the
-  template) and emit `spec.md` + `glossary.md`; those files are this skill's
-  input contract.
+- No spec exists yet → run `grill-me` in its `spec` mode first ("grill me a
+  spec"); it emits `spec.md` + `glossary.md`, this skill's input contract.
+  Where grill-me is unavailable, assets/grill-kickoff.md is the portable
+  prompt template.
 - A decision (not an implementation) needs independent passes → that is
   `agent-orchestration` collaborate mode.
 - A multi-stream campaign with its own verdict machinery → `crew` conducts;

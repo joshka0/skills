@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: "Interrogate a plan one question at a time until its decisions are explicit. Use when the user says \"grill me\"; \"grill me with docs\" selects the docs mode."
+description: "Interrogate a plan one question at a time until its decisions are explicit. Use when the user says \"grill me\"; \"with docs\" selects docs mode; \"grill me a spec\" emits spec.md + glossary.md for spec-gauntlet."
 disable-model-invocation: true
 ---
 
@@ -12,8 +12,9 @@ Run an opt-in design interrogation that resolves a plan's decision branches with
 
 | Mode | Select when | Read |
 | --- | --- | --- |
-| `standard` | The user says "grill me" without "with docs" | none |
+| `standard` | The user says "grill me" without a mode phrase | none |
 | `docs` | The user says "grill me with docs" | `references/docs-mode.md` |
+| `spec` | The user says "grill me a spec", or a spec-gauntlet needs its stage-0 inputs | `references/spec-mode.md` |
 
 Select exactly one mode. Do not activate from an ordinary planning, review, or implementation request.
 
@@ -29,7 +30,7 @@ Select exactly one mode. Do not activate from an ordinary planning, review, or i
 - Keep questions tied to a real decision, dependency, or boundary; do not turn the session into a generic interview.
 - Distinguish observed facts from assumptions and unresolved choices.
 - Do not invent agreement or record a domain term or decision that the user has not resolved.
-- In docs mode, read only `references/docs-mode.md` and apply its write boundary.
+- In docs or spec mode, read only the selected reference and apply its write boundary.
 
 ## Stop conditions
 
