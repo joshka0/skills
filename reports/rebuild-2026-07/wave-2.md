@@ -14,7 +14,7 @@ This wave executed W2-P0, W2-P2, and W2-P3. It used no Git command, wrote no
 | W2-P2 `local-dev` trim | Complete | Two active modes remain, the complete pre-rewrite package is archived, and the preservation ledger below accounts for every prior mode and reference. |
 | W2-P3 `planning-workflow` trim | Complete | Four active modes remain, the complete pre-rewrite package is archived, and the preservation ledger below accounts for every prior mode and reference. |
 | Provider refresh | Complete | A pure render exposed only the expected 84 paths; the authorized atomic apply completed; a fresh render and `bin/pack check` pass. |
-| Independent refutation | Closure run pending while this report is first written | The first Grok pass found only the then-missing campaign report/A34 ledger and priority-versus-exposure disclosure. Both are supplied below; the closure verdict will be appended after Grok reads this artifact. |
+| Independent refutation | Complete — `Status: ACK` | The first Grok pass found only the then-missing campaign report/A34 ledger and priority-versus-exposure disclosure. Both were supplied here, and the closure pass found no remaining substantive defect. |
 
 ## W2-P0 — executable consumers, not provider views
 
@@ -224,7 +224,7 @@ altered. No install apply or configuration edit occurred.
 
 ## Validation evidence
 
-Final pre-report integrated check (exit 0):
+Final integrated check after the report and Grok closure (exit 0):
 
 ```text
 PACK CHECK
@@ -255,9 +255,16 @@ findings: the campaign report/A34 ledger did not yet exist, and the
 governing artifact. Those were sequencing findings, not implementation
 failures. This report supplies both requirements. The closure run is performed
 against this artifact with write, Git, web, memory, and sub-agent access
-disabled; its terminal result is recorded here after it returns.
+disabled.
 
-Closure result: **pending**.
+The closure pass verified the schema-v2 five-consumer model, Droid/Factory
+loader collapse, Gemini ordered union and open Agent Vault decision,
+Antigravity root, both active trims and complete archives, both preservation
+ledgers, the priority/exposure distinction, and the coherence of the 84-path
+atomic apply evidence. It found no substantive non-compliance with W2-P0,
+W2-P2, W2-P3, or the Wave 2 rails.
+
+Closure result: **`Status: ACK`**.
 
 ## Explicitly not done
 
@@ -275,4 +282,4 @@ Closure result: **pending**.
   render previews, temporary Grok state, and the displaced provider tree went
   to Trash where applicable.
 
-WAVE 2: BLOCKED final Grok closure run pending
+WAVE 2: DONE

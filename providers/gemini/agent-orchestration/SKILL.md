@@ -1,6 +1,6 @@
 ---
 name: agent-orchestration
-description: "Coordinate bounded live agent dispatch, swarm integration, collaboration, delta briefs, and optional mux transport. Use when users invoke /delegate-codex, /swarm, collaboration-protocol, a delta brief, a Zellij swarm, or live agent dispatch."
+description: "Coordinate engine selection, bounded live agent dispatch, swarm integration, collaboration, delta briefs, and optional mux transport. Use when users invoke /delegate-codex, /swarm, collaboration-protocol, a delta brief, or when choosing the model, harness, or effort tier for delegated or review work."
 ---
 
 # Agent Orchestration
@@ -11,13 +11,14 @@ Coordinate live agent work through bounded packets, explicit ownership, durable 
 
 | Mode | Select when | Read |
 | --- | --- | --- |
+| `engine-selection` | Choosing which model family, harness, or effort tier executes or reviews delegated work | [references/engine-selection.md](references/engine-selection.md) |
 | `delegate` | One bounded task needs one agent | [references/delegate.md](references/delegate.md) |
 | `swarm` | Independent investigations, edits, or reviews can run in parallel | [references/swarm.md](references/swarm.md) |
 | `collaborate` | A decision needs independent passes, preserved dissent, and a critical review | [references/collaborate.md](references/collaborate.md) |
 | `delta-brief` | A settled change must update an agent already working from stale context | [references/delta-brief.md](references/delta-brief.md) |
 | `mux-adapter` | The user explicitly names Zellij, tmux, or another terminal-mux transport | [references/mux-adapter.md](references/mux-adapter.md) |
 
-Select exactly one mode and read only that reference. Combine modes only when the user explicitly requests a sequence; use `mux-adapter` only as an adapter for a selected dispatch mode.
+Select exactly one dispatch mode and read only that reference. Combine modes only when the user explicitly requests a sequence, with two exceptions: `engine-selection` may precede any dispatch mode when the engine or effort choice is not already settled, and `mux-adapter` is only an adapter for a selected dispatch mode.
 
 ## Do not use when
 

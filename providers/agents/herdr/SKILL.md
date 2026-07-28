@@ -10,7 +10,7 @@ Operate Herdr — a terminal multiplexer and runtime for coding agents — throu
 ## Preflight
 
 1. Confirm this agent runs inside a Herdr-managed pane: `test "${HERDR_ENV:-}" = 1`. If it fails, say you are not running inside Herdr and stop; do not control the focused session from outside.
-2. The caller's stable context is injected: `$HERDR_WORKSPACE_ID`, `$HERDR_TAB_ID`, `$HERDR_PANE_ID`. Prefer `--current` for the calling pane; omitting a target can act on the user's focused pane.
+2. The caller's stable context is injected: `$HERDR_WORKSPACE_ID`, `$HERDR_TAB_ID`, `$HERDR_PANE_ID`. Target the calling pane with `--pane "$HERDR_PANE_ID"` — `--current` has been observed mis-resolving to another workspace, and omitting a target can act on the user's focused pane.
 3. Discover syntax from the installed binary: `herdr --help`, then print a command group by running it bare (`herdr pane`, `herdr workspace`, `herdr tab`, `herdr wait`, `herdr worktree`). Never run bare `herdr` for discovery — it launches the TUI — and never probe a mutating command by omitting arguments (`herdr workspace create` is valid with defaults and will execute).
 
 ## Route
@@ -23,7 +23,7 @@ Operate Herdr — a terminal multiplexer and runtime for coding agents — throu
 ## Workflow
 
 1. Inspect live state first: `herdr workspace list`, `herdr pane list --workspace "$HERDR_WORKSPACE_ID"`, `herdr agent list`. Most control commands print JSON; read identifiers and state from those responses.
-2. Target with `--current` or an explicit ID parsed from a JSON response. IDs (`w1`, `w1:t1`, `w1:p1`, `term_...`) are opaque strings; closed IDs are not reused, moved panes get new IDs — re-read after every mutation and never construct an ID from display order.
+2. Target with `--pane "$HERDR_PANE_ID"` or an explicit ID parsed from a JSON response. IDs (`w1`, `w1:t1`, `w1:p1`, `term_...`) are opaque strings; closed IDs are not reused, moved panes get new IDs — re-read after every mutation and never construct an ID from display order.
 3. Act through the pane as the one stable control surface for agents, shells, servers, and logs. `herdr pane run <pane-id> '<text>'` sends the text and Enter together — use it for prompts and follow-ups. `herdr agent send <target> '<text>'` sends literal text to a detected agent; verify submission by reading afterward.
 4. Read before and after acting; wait for the specific state or output you expect (`herdr wait agent-status ...`, `herdr wait output ...`), then re-read.
 5. Keep cross-agent requests self-contained: task, context to read first, allowed scope, prohibitions, and expected return shape.

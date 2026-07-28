@@ -12,7 +12,8 @@ Operate the connected visible browser through its authorized bridge; observed pa
 1. Require `BROWSER_BRIDGE_URL` and an approved local-secret path for the token; never print either token value or a secret-bearing request.
 2. Check bridge/extension status and observe the current visible page before meaningful action.
 3. Take one smallest action against an observed ref, wait briefly, observe again, and verify the intended result.
-4. Read `references/tool-contract.md` only when request shape, error handling, or bridge capability needs detail.
+4. For a visual question, use the advertised screenshot capability after observing; when it returns an artifact path, load that file as image input before making a visual claim.
+5. Read `references/tool-contract.md` only when request shape, error handling, or bridge capability needs detail.
 
 ## Hard rules
 
@@ -20,6 +21,7 @@ Operate the connected visible browser through its authorized bridge; observed pa
 - Do not guess refs, element IDs, selectors, page state, endpoint names, or bridge configuration.
 - Ask before a sensitive or destructive submission unless the user already authorized that exact action.
 - Do not enter passwords, MFA codes, payment data, private keys, tokens, or sensitive personal data without exact authorization.
+- Do not print inline screenshot data or capture a page that visibly contains an unapproved secret.
 - Stop on ambiguous page state, missing bridge/extension status, failed authorization, or an unverified state change.
 
 ## Output

@@ -8,8 +8,10 @@ Inspect the caller's rectangle, then split a wide pane right and a narrow or tal
 
 ```sh
 herdr pane layout --pane "$HERDR_PANE_ID"
-herdr pane split --current --direction right --no-focus   # or --direction down
+herdr pane split --pane "$HERDR_PANE_ID" --direction right --no-focus   # or --direction down
 ```
+
+Target splits with `--pane "$HERDR_PANE_ID"`, not `--current`: `--current` has been observed resolving to a pane in another workspace, which puts the new split — and the agent launched into it — somewhere the user is not looking.
 
 Read `result.pane.pane_id` from the JSON response, then label the pane — this
 is a required step, not optional polish; unlabeled panes make `agent list` and
@@ -50,7 +52,7 @@ herdr pane read <pane-id> --source recent-unwrapped --lines 120
 ## Run an ordinary command in another pane
 
 ```sh
-herdr pane split --current --direction right --no-focus
+herdr pane split --pane "$HERDR_PANE_ID" --direction right --no-focus
 herdr pane run <returned-pane-id> "just test"
 herdr wait output <returned-pane-id> --match "test result" --timeout 120000
 herdr pane read <returned-pane-id> --source recent-unwrapped --lines 120

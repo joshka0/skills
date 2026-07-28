@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-07-13",
+  "updated": "2026-07-25",
   "roots": {
     "canonical": [
       "shared/general",
@@ -1034,6 +1034,51 @@
       }
     },
     {
+      "name": "monid",
+      "path": "shared/general/monid",
+      "archetype": "leaf",
+      "category": "tooling",
+      "priority": "default",
+      "status": "active-source",
+      "use_when": [
+        "Discover and run external data endpoints through the monid CLI under a per-query cost bound. Use when a task needs scraping, enrichment, people/company data, or search results from an outside source, or names monid."
+      ],
+      "do_not_use_when": [
+        "the data is already reachable from the repository, an installed CLI, or an authenticated MCP server",
+        "the task is acting inside a logged-in web session; local-http-browser-use owns the authorized live browser"
+      ],
+      "aliases": [
+        {
+          "name": "monid-cli",
+          "status": "alias",
+          "reason": "Monid catalog discovery and run workflows route through monid."
+        }
+      ],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
+    },
+    {
       "name": "peon-ping",
       "path": "shared/claude/peon-ping",
       "archetype": "private-leaf",
@@ -1529,6 +1574,45 @@
           "core"
         ]
       }
+    },
+    {
+      "name": "vocab-deck",
+      "path": "shared/general/vocab-deck",
+      "archetype": "leaf",
+      "category": "tooling",
+      "priority": "specialist",
+      "status": "specialist-source",
+      "use_when": [
+        "Build an Anki flashcard deck teaching a domain's vocabulary so a learner names and describes things precisely. Use when asked for flashcards or an Anki deck to learn terminology or visual vocabulary from a reference."
+      ],
+      "do_not_use_when": [
+        "the user wants a one-off answer, explanation, or summary rather than a durable study deck",
+        "a reviewed plan, PRD, or issue slice is wanted; planning-workflow owns those artifacts"
+      ],
+      "aliases": [],
+      "profiles": {
+        "agents": [
+          "core"
+        ],
+        "claude": [
+          "core"
+        ],
+        "codex": [
+          "core"
+        ],
+        "droid": [
+          "core"
+        ],
+        "factory": [
+          "core"
+        ],
+        "gemini": [
+          "core"
+        ],
+        "gemini-antigravity": [
+          "core"
+        ]
+      }
     }
   ],
   "external_records": [
@@ -1543,6 +1627,12 @@
       "canonical": null,
       "status": "vendor-source",
       "reason": "Matt Pocock sources are imported vendor material, not active canonical package homes."
+    },
+    {
+      "name": "mirrors/monid",
+      "canonical": "monid",
+      "status": "vendor-source",
+      "reason": "Monid publishes its skill file as vendor material; the verbatim import is retained as provenance while the canonical monid slot owns the retained deltas."
     },
     {
       "name": "native-data-fetching",
