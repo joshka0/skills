@@ -1,0 +1,32 @@
+{
+  "claude_only": [
+    "caveman",
+    "crew",
+    "git-guardrails-claude-code",
+    "grill-me",
+    "peon-ping",
+    "riff-partner"
+  ],
+  "dormant": ["monid"],
+  "providers": {
+    "claude": { "exclude": ["dormant"] },
+    "agents": {
+      "exclude": ["dormant", "claude_only"],
+      "native": ["native/agents/agent-vault-cli", "native/agents/agent-vault-http"]
+    },
+    "codex": {
+      "exclude": ["dormant", "claude_only"],
+      "preserve": [".system"]
+    },
+    "droid": { "exclude": ["dormant", "claude_only"] },
+    "factory": { "exclude": ["dormant", "claude_only"] },
+    "gemini": { "exclude": ["dormant", "claude_only"] },
+    "gemini-antigravity": {
+      "exclude": ["dormant", "claude_only"],
+      "native": [
+        "native/gemini-antigravity/heroui-pro-design-taste",
+        "native/gemini-antigravity/heroui-react-pro"
+      ]
+    }
+  }
+}

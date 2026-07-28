@@ -1,74 +1,57 @@
-# joshka0 Skills Pack
+# joshka0 Skills
 
-This repository is the governed source for a portable local skills pack. The
-current composition model is:
+Personal agent skills, authored once in `skills/`, exposed to every local agent
+harness through symlinks.
 
 ```text
-shared/             canonical locally owned packages
-mirrors/            preserved upstream sources and import evidence
-catalog/pack.json   archetypes, aliases, core membership, native exceptions, consumers
-native/<provider>/  provider-owned exception sources
-providers/          generated live provider views for the current distribution
-history/            retired inputs and dated preservation evidence
-home/               versioned $HOME agent config, installed by symlink
-bin/pack             the only active pack entrypoint
+skills/          canonical skill packages (the only content layer)
+native/          provider-specific packages (agent-vault, heroui)
+providers/       GENERATED symlink farms, one per consumer — gitignored, rebuilt by bin/link
+home/            versioned $HOME agent config, installed by symlink
+manifest.json    per-provider exposure: exclusion groups, native grafts, preserved live entries
+bin/link         rebuilds providers/ from manifest.json
+bin/validate-skill.sh   mechanical gate for skill authoring
+reports/pilot/   golden-example artifacts cited by the skill-authoring contract
 ```
 
-`home/` holds agent instruction files that live outside the pack catalog:
-`home/claude/CLAUDE.md` -> `~/.claude/CLAUDE.md`, `home/claude/agents/` ->
-`~/.claude/agents`, and `home/codex/AGENTS.md` -> `~/.codex/AGENTS.md`.
+## How it works
 
-`providers/` is the current generated real-file delivery layer, not an authored
-source. Phase 6 was killed because direct links would erase the render/apply
-promotion boundary and the proposed seven-consumer topology was not real.
-Registry distribution, if revisited, is a separate export-only experiment.
+Each consumer home root is a symlink into this repo (`~/.claude/skills ->
+providers/claude`, `~/.codex/skills -> providers/codex`, and so on), and each
+`providers/<name>` entry is a symlink to `skills/<name>` or `native/...`.
+Content therefore exists exactly once; there is no render, copy, parity check,
+or drift. Roots that co-load (`~/.agents/skills` alongside a specific root)
+stay byte-identical by construction — the duplicates are the same inode.
 
-## Work with the pack
+`manifest.json` is the whole composition model: named exclusion groups
+(`claude_only`, `dormant`), per-provider native grafts, and `preserve` entries
+for live state owned by the consumer itself (codex `.system`, which codex's
+skill-installer mutates in place — never regenerate or version it here).
 
-Edit locally owned skill content in `shared/`, intentional upstream patches in
-`mirrors/`, composition data in `catalog/pack.json`, and provider-owned inputs
-in `native/`. Never edit a generated provider copy as semantic source.
+An earlier design generated real-file provider copies via a catalog and
+render/apply pipeline, and explicitly rejected symlinks to keep a promotion
+boundary. That decision was reversed 2026-07-28: every rendered copy was
+byte-identical to source, so the boundary guarded nothing. The old pack,
+catalog, mirrors, archives, and reports live on the `attic` branch.
 
-Use one command surface:
+## Workflows
 
-```sh
-bin/pack check
-bin/pack render --all --full
-bin/pack apply --all --full
-bin/pack install
-bin/pack install --apply
-```
+- **Edit a skill**: edit `skills/<name>/` directly; consumers see it live.
+  Follow `skills/skill-authoring/` for authoring rules and run
+  `bin/validate-skill.sh skills/<name> <archetype>`.
+- **Add a skill**: create `skills/<name>/SKILL.md`, run `bin/link`.
+- **Retire a skill**: move it to the `dormant` group in `manifest.json` (or
+  delete the directory after committing), run `bin/link`.
+- **Change exposure**: edit `manifest.json`, run `bin/link`.
 
-`render` is a pure preview retained in a temporary directory. `apply` builds a
-complete candidate and atomically exchanges the whole provider tree. `install`
-previews by default; its apply mode reconciles home-root links but never edits a
-home configuration file.
+## Consumer roots
 
-## Catalog install mappings
-
-| Installed view | Install root | Generated source | Executable consumers |
-| --- | --- | --- | --- |
-| Shared Agents root | `$HOME/.agents/skills` | `providers/agents` | Codex, Gemini CLI |
-| Claude Code | `$HOME/.claude/skills` | `providers/claude` | Claude Code |
-| Codex-specific | `${CODEX_HOME:-$HOME/.codex}/skills` (fallback `$HOME/.codex/skills`) | `providers/codex` | Codex |
-| Droid | `$HOME/.factory/skills` | `providers/factory` | Droid |
-| Gemini-specific | `$HOME/.gemini/skills` | `providers/gemini` | Gemini CLI |
-| Google Antigravity IDE | `$HOME/.gemini/config/skills` | `providers/gemini-antigravity` | Antigravity IDE |
-
-The catalog models five executable consumers separately from seven generated
-provider views. Codex co-loads the Agents and Codex roots with 20 required
-byte-identical overlaps. Gemini loads the Gemini root and then the higher-
-precedence Agents root with the same 20 overlaps; that also exposes both Agent
-Vault packages, pending an owner decision. `providers/droid` remains a legacy
-generated compatibility view, not a supported executable-consumer mapping.
-
-## Governance
-
-The catalog currently retains 26 canonical packages, 115 owner-bound aliases,
-six external records, and five provider-native exceptions. Canonical skill
-design is governed by the four references below
-`shared/general/skill-authoring/references/`. Current composition evidence is in
-`reports/catalog/CATALOG-CONFORMS-2026-07-13.md`; older reports are historical.
-
-See `PACK.md` for exact provider counts, `AGENTS.md` for maintenance rules, and
-`packs/joshka0/SOURCE_NOTES.md` for catalog-derived source decisions.
+| Root | Farm | Consumers |
+| --- | --- | --- |
+| `$HOME/.claude/skills` | `providers/claude` | Claude Code |
+| `${CODEX_HOME:-$HOME/.codex}/skills` | `providers/codex` | Codex |
+| `$HOME/.agents/skills` | `providers/agents` | Codex, Gemini CLI (co-load) |
+| `$HOME/.gemini/skills` | `providers/gemini` | Gemini CLI |
+| `$HOME/.gemini/antigravity/skills` | `providers/gemini-antigravity` | Antigravity IDE |
+| `$HOME/.factory/skills` | `providers/factory` | Droid |
+| `$HOME/.droid/skills` | `providers/droid` | Droid (legacy root) |

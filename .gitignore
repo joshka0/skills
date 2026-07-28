@@ -11,3 +11,4 @@
 
 # Keep imported mirrors self-contained, but do not commit nested Git metadata.
 mirrors/**/.git/
+providers/

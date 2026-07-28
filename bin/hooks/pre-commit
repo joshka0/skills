@@ -9,10 +9,9 @@ fi
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$repo_root"
 
-# Pack gate: source, catalog, native, or governing-doc changes validate the full pack.
-if git diff --cached --name-only | grep -Eq '^(shared/|catalog/|native/|README\.md$|PACK\.md$|AGENTS\.md$|packs/joshka0/(README|SOURCE_NOTES)\.md$)'; then
-  echo "pack-governed path changed; running bin/pack check" >&2
-  bin/pack check
+# Keep provider symlink farms in step with skill/manifest changes.
+if git diff --cached --name-only | grep -Eq '^(skills/|native/|manifest\.json$)'; then
+  node bin/link >/dev/null
 fi
 
 exec kingfisher scan \

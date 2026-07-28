@@ -1,7 +1,7 @@
 #!/bin/sh
 # Usage: validate-skill.sh <skill_dir> <archetype>
 # archetype: leaf | private-leaf | suite | router | interaction
-# Mechanical gate from shared/general/skill-authoring/references/.
+# Mechanical gate from skills/skill-authoring/references/.
 set -eu
 
 skill_dir="${1:?skill dir}"; archetype="${2:?leaf|private-leaf|suite|router|interaction}"
@@ -42,11 +42,11 @@ total=$(find "$skill_dir" -type f \( -name '*.md' -o -name '*.txt' -o -name '*.t
 if rg -q '/Users/[^ <]+|/home/[^ <]+' "$skill_dir"; then fail "literal home path"; fi
 if rg -qi 'remember:?[[:space:]]+you are|mandatory[[:space:]]+preparation|you are an expert|IMPORTANT:|CRITICAL:' "$skill_dir"; then fail "banned prose construct"; fi
 
-# Unique canonical name within shared/.
+# Unique canonical name within skills/.
 name="$(sed -n 's/^name:[[:space:]]*//p' "$skill_file" | head -1)"
-[ "$(rg -l "^name: ${name}$" shared -g 'SKILL.md' | wc -l | tr -d ' ')" -eq 1 ] || fail "duplicate name in shared/"
+[ "$(rg -l "^name: ${name}$" skills -g 'SKILL.md' | wc -l | tr -d ' ')" -eq 1 ] || fail "duplicate name in skills/"
 
-# Repo portability.
-[ -z "$(find . -type l -print -quit)" ] || fail "repo-internal symlink present"
+# Package portability: no symlinks inside a skill package (providers/ farms are exempt by scope).
+[ -z "$(find "$skill_dir" -type l -print -quit)" ] || fail "symlink inside skill package"
 
 echo "PASS: $skill_dir ($archetype)"

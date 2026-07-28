@@ -1,0 +1,62 @@
+#!/usr/bin/env node
+// Rebuild providers/<name> as symlink farms over skills/ and native/, per manifest.json.
+// Never deletes real files or directories: only symlinks are managed; entries named
+// in a provider's "preserve" list (live state owned by the consumer, e.g. codex
+// .system) are left untouched; anything else real is reported and kept.
+import fs from "node:fs"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
+
+const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
+const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8"))
+const skillsRoot = path.join(root, "skills")
+const allSkills = fs
+  .readdirSync(skillsRoot, { withFileTypes: true })
+  .filter((e) => e.isDirectory())
+  .map((e) => e.name)
+  .sort()
+
+const groups = { claude_only: manifest.claude_only, dormant: manifest.dormant }
+let problems = 0
+
+for (const [provider, spec] of Object.entries(manifest.providers)) {
+  const dest = path.join(root, "providers", provider)
+  fs.mkdirSync(dest, { recursive: true })
+
+  const excluded = new Set((spec.exclude ?? []).flatMap((g) => groups[g] ?? [g]))
+  const preserve = new Set(spec.preserve ?? [])
+  const wanted = new Map(
+    allSkills.filter((s) => !excluded.has(s)).map((s) => [s, path.join("..", "..", "skills", s)])
+  )
+  for (const nat of spec.native ?? []) {
+    if (!fs.existsSync(path.join(root, nat))) {
+      console.error(`ERROR ${provider}: native source missing: ${nat}`)
+      problems++
+      continue
+    }
+    wanted.set(path.basename(nat), path.join("..", "..", nat))
+  }
+
+  let kept = 0
+  for (const entry of fs.readdirSync(dest)) {
+    const full = path.join(dest, entry)
+    if (fs.lstatSync(full).isSymbolicLink()) {
+      const target = wanted.get(entry)
+      if (target && fs.readlinkSync(full) === target) {
+        wanted.delete(entry)
+        kept++
+      } else {
+        fs.unlinkSync(full)
+      }
+    } else if (preserve.has(entry)) {
+      kept++
+    } else {
+      console.error(`WARN ${provider}: unmanaged real entry left in place: ${entry}`)
+      problems++
+    }
+  }
+  for (const [entry, target] of wanted) fs.symlinkSync(target, path.join(dest, entry))
+  console.log(`${provider}: ${kept} kept, ${wanted.size} linked, ${excluded.size} excluded`)
+}
+
+process.exitCode = problems ? 1 : 0
