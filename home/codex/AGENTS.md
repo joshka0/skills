@@ -94,6 +94,19 @@ subagent in your report.
 - If a rail in the brief (scope, prohibitions, rails) conflicts with what the
   task seems to need, STOP and report the conflict. Do not work around it.
 
+## Verification discipline
+
+- Never author the tests that gate your own implementation. Examples and
+  doctests that communicate intent are fine; invariant properties and
+  acceptance gates come from a decorrelated deriver — if your brief asks you
+  to write both sides, STOP and report the conflict.
+- If you must guess the user's intent on an ambiguous spec, do not guess
+  silently: state the guess in your report AND append an `observation` entry
+  to `~/.config/spec-ledger/spec-ledger.md` (schema in its header).
+- Respect isolation rails in a brief exactly: if your world is a constructed
+  staging tree and you find files outside your declared scope, report them
+  unread.
+
 ## Design philosophy
 
 Requests are approximate: they point toward the simplest, cleanest design that

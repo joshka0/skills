@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# pre-push — advisory doc-drift check via claude -p
+# Install: copy to .git/hooks/pre-push (chmod +x), or point core.hooksPath
+# at a versioned hooks dir. NEVER blocks: always exits 0.
+
+set -u
+
+# ---- config (override via env or a repo-local .driftrc sourced below) ----
+# DRIFT_MODEL empty = the CLI's default model. Never set a Haiku-tier model:
+# drift judgment is a reasoning task (house rule: smallest tier is Sonnet).
+DRIFT_MODEL="${DRIFT_MODEL:-}"
+DRIFT_TIMEOUT="${DRIFT_TIMEOUT:-90}"                       # seconds
+DRIFT_SOURCE_RE="${DRIFT_SOURCE_RE:-\.(ts|tsx|ex|exs|py|rs|go)$}"
+DRIFT_DOC_RE="${DRIFT_DOC_RE:-\.(md)$}"
+[ -f ".driftrc" ] && . ./.driftrc
+
+command -v claude >/dev/null 2>&1 || exit 0   # no CLI, no opinion
+
+# ---- what changed in this push ----
+# stdin gives: <local ref> <local sha> <remote ref> <remote sha> per line.
+# Accumulate changed files across ALL pushed refs, not just the last one.
+CHANGED=""
+while read -r _lref lsha _rref rsha; do
+  if [ "$rsha" = "0000000000000000000000000000000000000000" ]; then
+    RANGE="${lsha}~10..${lsha}"         # new branch: cap at last 10 commits
+  else
+    RANGE="${rsha}..${lsha}"
+  fi
+  CHANGED="$CHANGED
+$(git diff --name-only "$RANGE" 2>/dev/null || true)"
+done
+CHANGED="$(printf '%s\n' "$CHANGED" | sort -u | grep -v '^$' || true)"
+[ -z "$CHANGED" ] && exit 0
+
+SRC_CHANGED="$(printf '%s\n' "$CHANGED" | grep -E "$DRIFT_SOURCE_RE" || true)"
+DOC_CHANGED="$(printf '%s\n' "$CHANGED" | grep -E "$DRIFT_DOC_RE" || true)"
+
+# Trigger condition: source changed but no docs did. If docs changed too,
+# assume the author is already tending them — stay quiet.
+[ -z "$SRC_CHANGED" ] && exit 0
+[ -n "$DOC_CHANGED" ] && exit 0
+
+OUT="$(timeout "$DRIFT_TIMEOUT" claude -p "$(cat <<EOF
+Advisory doc-drift check. Source files changed in this push with no doc
+changes:
+
+$SRC_CHANGED
+
+Read only the living docs plausibly covering these files: README.md,
+docs/adr/*.md, and the doc comments / @moduledoc of the changed modules'
+neighbors. Report ONLY concrete contradictions between a doc claim and the
+current code: renamed or removed concepts, changed signatures, behavior a doc
+still describes the old way. One line per contradiction:
+  <doc file>: <claim> — contradicted by <source file>
+If none, output exactly: CLEAN
+EOF
+)" --allowedTools "Read,Grep,Glob" ${DRIFT_MODEL:+--model "$DRIFT_MODEL"} 2>/dev/null)" || OUT=""
+
+case "$OUT" in
+  ""|CLEAN|*"CLEAN") : ;;   # silent on happy path or failure
+  *)
+    echo ""
+    echo "── doc-drift (advisory) ─────────────────────────────"
+    echo "$OUT"
+    echo "─────────────────────────────────────────────────────"
+    ;;
+esac
+
+exit 0   # never block; this is a margin note, not a gate

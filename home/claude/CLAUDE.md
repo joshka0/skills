@@ -62,3 +62,17 @@ Standing rules that hold even before any skill loads:
 - Never use Haiku subagents; the smallest acceptable tier is Sonnet.
 - Cleanup is part of "done": close the panes, worktrees, watches, and scratch
   files you created (never ones you didn't) before calling a task finished.
+
+## Verification
+
+- No agent authors the tests that gate its own code: implementation and its
+  invariant checks come from decorrelated derivations (fresh context minimum;
+  different model family when stakes are real). For invariant-critical work,
+  load the `spec-gauntlet` skill.
+- Prefer artifacts that can't lie: types > executable properties > colocated
+  doc comments > dated ADRs > standalone markdown. The `doc-triage` skill
+  converts the rest.
+- Whenever you must guess my intent on an ambiguous spec — in any work, not
+  just gauntlets — append an `observation` entry to
+  `~/.config/spec-ledger/spec-ledger.md` (schema in its header). Briefs load
+  the digest, never the raw ledger.

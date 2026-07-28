@@ -5,7 +5,8 @@
     "git-guardrails-claude-code",
     "grill-me",
     "peon-ping",
-    "riff-partner"
+    "riff-partner",
+    "spec-gauntlet"
   ],
   "dormant": ["monid"],
   "providers": {
