@@ -62,10 +62,10 @@ An executor MUST stop and report the appropriate cut or merge target if a suppos
 
 ## Canonical package contract
 
-Locally owned skills have exactly one canonical home under `shared/`:
+Locally owned skills have exactly one canonical home under `skills/`:
 
 ```text
-shared/<scope>/<skill-name>/
+skills/<skill-name>/
 ├── SKILL.md
 ├── references/        # optional, deferred instructional detail
 ├── scripts/           # optional, deterministic operations
