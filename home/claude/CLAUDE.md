@@ -52,9 +52,10 @@ assignment table). The `herdr` skill owns pane transport.
 
 Standing rules that hold even before any skill loads:
 
-- **Foxway prohibition:** never use grok or any xAI model for Foxway work or
-  data — no panes, subagents, or one-shot queries. Restate this in every
-  brief handed to another agent for a Foxway task.
+- **Foxway prohibition:** never use grok (any xAI model) or droid (any
+  Factory-routed model, DeepSeek included) for Foxway work or data — no
+  panes, subagents, or one-shot queries, reviews included. Restate both in
+  every brief handed to another agent for a Foxway task.
 - **Cross-family first:** pick reviewers from a different model family than
   the executor; brief them against ground-truth artifacts, never only your
   own digest.

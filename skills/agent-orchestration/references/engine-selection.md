@@ -6,7 +6,14 @@ Use this mode to pick the executor and reviewer engines — model family, harnes
 
 Different weights do not share blindspots; same-family review inherits the same biases and misses the same errors. For adversarial review, fresh eyes, independent verification, or high-stakes synthesis, pick the reviewer from a different model family than the **executor** — not merely different from the supervisor. Five families are reachable here: Anthropic, OpenAI, xAI, Moonshot (Kimi), and DeepSeek. Any of the other four reviews a given family's work; prefer the strongest available tier, and prefer a family whose training lineage is furthest from the executor's when the choice is otherwise free. Fall back to same-family subagents only when external engines are unavailable or the task is trivial. Framing independence (briefing reviewers against ground truth, not the supervisor's digest) is the `collaborate` mode's contract — read it for any review dispatch.
 
-**Foxway (standing user directive):** never use grok or any xAI model for Foxway work or data — no panes, no subagents, no one-shot queries. Cross-family review of Anthropic-authored Foxway work routes through codex; OpenAI-authored Foxway work gets Anthropic review. Restate this prohibition explicitly in every brief handed to another agent for a Foxway task — downstream agents will otherwise follow the general grok guidance on their own.
+**Foxway (standing user directive) — two engines are prohibited outright:**
+
+- **grok / any xAI model** — no panes, no subagents, no one-shot queries.
+- **droid / DeepSeek** — no panes, no `droid exec`, no review passes, regardless of which Factory model or custom entry is selected.
+
+Neither prohibition has an exception for "just a quick question", a read-only task, or a review rather than an edit. Foxway work therefore has three usable families — Anthropic, OpenAI, and Moonshot (Kimi) — so cross-family review of Anthropic-authored Foxway work routes through codex or Kimi; OpenAI-authored work gets Anthropic or Kimi review. If the two remaining alternatives are both unavailable, fall back to a clear-context native subagent per the substitution rules below; never route around the prohibition.
+
+Restate both prohibitions explicitly in every brief handed to another agent for a Foxway task — downstream agents otherwise follow the general roster guidance on their own, and the general guidance recommends both engines.
 
 ## Engine roster
 
@@ -88,7 +95,9 @@ Four traps, all verified live:
 - Only `droid exec` accepts `-m`; the interactive `droid` has no model flag, so a pane launch picks the model in-session or inherits the settings default. Confirm the active model before treating a pane as the DeepSeek seat.
 - Custom entries are read from settings at launch. An unexpected "unknown model" means the settings file changed, not that the model died.
 
-Routing is not authorship, as with Devin and Cursor: this is DeepSeek weights served through OpenRouter, so classify the work as DeepSeek for cross-family purposes. Not subject to the Foxway prohibition, which is xAI-only.
+Routing is not authorship, as with Devin and Cursor: this is DeepSeek weights served through OpenRouter, so classify the work as DeepSeek for cross-family purposes.
+
+**Never use droid for Foxway work or data** — see the standing prohibition above. It applies to the whole engine, not just the DeepSeek seat: no Factory-routed model and no custom entry is an exception, so a Foxway task never reaches a droid pane at all.
 
 ### Anthropic — Opus orchestrates and executes, Fable plans
 
@@ -123,7 +132,7 @@ Distinguish the failure kinds before substituting: a retryable capacity error (`
 | Wide parallel execution (peers, never a cascade) | codex panes, one level deep, each with its own exact plan |
 | Deep review, design convergence, hard problems | `sol(xhigh)` codex pane |
 | Review or execution, fourth weight family | Kimi K3 Max — `devin --model <slug>` when it validates, else `cursor-agent --model kimi-k3-max` |
-| Review or execution, fifth weight family | `droid exec -m "custom:deepseek-v4-[OpenRouter]-7"` — always deepseek-v4, never Factory's other routed models |
+| Review or execution, fifth weight family | `droid exec -m "custom:deepseek-v4-[OpenRouter]-7"` — always deepseek-v4, never Factory's other routed models; **never for Foxway** |
 | Adversarial review / red-team pass (final) | `claudex` (sol xhigh default, max on request, subagents forbidden), or a `codex … max` pane |
 | Opus-class standalone fresh eyes / second opinion | grok pane (`grok-build`) — never for Foxway |
 | Security/privacy/auth/abuse review | `security-reviewer` (native) |
