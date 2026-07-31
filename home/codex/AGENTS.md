@@ -59,29 +59,38 @@ its entire assigned task by itself, without spawning subagents of its own.**
   bigger than its brief. A blocker honestly reported is a good outcome; a
   recursive delegation cascade is not.
 
-## Model and effort selection (2026-07-14, per Tibo — Codex lead)
+## Model and effort selection
 
-**`gpt-5.6-sol` is the model. Effort is the dial.** When you spawn a subagent or
-choose your own effort, pick by task weight — never reach past what the work
-needs, and never under-power a task whose wrong answer is expensive.
+**Sol plans. Luna executes the plan.** Two roles, never collapsed into one.
 
-- **`sol(medium)` — the daily driver.** Default for ordinary implementation,
-  research, and scoped subagent work. Do not escalate out of habit.
-- **`sol(xhigh)` — really hard problems.** Deep review, design convergence,
-  gnarly debugging, anything where you are genuinely stuck at medium.
+- **`sol(medium)` — the planner**, and the daily driver for scoped work not
+  worth splitting into two panes.
+- **`sol(high|xhigh)` — the executor whenever UI design or frontend work is
+  involved**, and the tier for genuinely hard problems: deep review, design
+  convergence, gnarly debugging.
 - **`sol(max)` — the ceiling.** Adversarial passes and highest-stakes synthesis
   only. (`ultra` exists above it; do not use it — ask the user first.)
-- **`luna` — very defined, repetitive work** any model could do: mechanical
-  edits, bulk renames, searches. Its effort tier is a deliberate speed-vs-
-  intelligence trade: `low`/`medium` when the task is truly mechanical and
-  throughput matters, `high`/`xhigh` when a well-defined task still has a subtle
-  edge (ambiguous matches, collisions, exceptions to the pattern) and a silent
-  wrong answer would be costly. If the task needs judgment, it is not a luna
-  task — use sol.
-- **`terra` is retired.** Do not use it. Sol at the right effort covers its ground.
+- **`luna(max)` — the default executor** for work that arrives as a precise,
+  exact plan authored by sol or a stronger model. Luna performs very well given
+  an exact plan and poorly without one.
+- **`terra` is retired.** Do not use it.
 
-Escalate by *effort*, not by model. State the model and effort you chose for each
-subagent in your report.
+The luna contract — all three, or dispatch sol instead:
+
+1. A stronger model authored the plan. Luna never plans its own work and never
+   receives a bare goal.
+2. Luna executes *that exact plan*. Where the plan is silent, ambiguous, or
+   wrong, it stops and reports rather than improvising — deviation is a defect,
+   not initiative. State this in the brief.
+3. The task is neither high-risk nor complex. Judgment-dense, exploratory, or
+   risky work goes to sol regardless of how tight the plan looks.
+
+If you are running as luna and your brief contains a goal rather than a plan,
+stop and report that — do not plan it yourself.
+
+Escalate by *effort* within sol; sol-vs-luna is a role choice, not a rung on the
+effort ladder. State the model and effort you chose for each subagent in your
+report.
 
 ## Working with a task brief
 

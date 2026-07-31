@@ -12,14 +12,22 @@ Different weights do not share blindspots; same-family review inherits the same 
 
 Pack constraint: the model IDs and effort tiers below are house tiering decisions the CLIs cannot express; they are volatile. Before dispatch, confirm the model still exists from the live surface (`codex` model picker or config, `grok models`) rather than trusting these literals.
 
-### Codex — `gpt-5.6-sol` is the model; effort is the dial
+### Codex — sol plans, luna executes
 
-- `sol(medium)` — the daily driver for delegated coding work and scoped subagents. Do not reach past it out of habit.
-- `sol(xhigh)` — really hard problems: deep review, design convergence, gnarly debugging.
+A codex run is two roles, not one. `gpt-5.6-sol` authors the plan; `gpt-5.6-luna(max)` executes it. Never collapse them: luna planning for itself is the failure this split exists to prevent.
+
+- `sol(medium)` — **the planner.** When codex is tasked to plan, this is the tier. Also the daily driver for scoped delegated work that is not worth splitting into two panes.
+- `sol(high|xhigh)` — **the executor whenever UI design or frontend work is involved**, and the tier for genuinely hard problems: deep review, design convergence, gnarly debugging.
 - `sol(max)` — the ceiling: adversarial passes and highest-stakes synthesis. `ultra` sits above max and is never used without asking the user.
-- `gpt-5.6-luna` — very defined, repetitive work any model could do. If the task needs judgment, it is not a luna task — move it to sol. Luna's effort is the supervisor's explicit speed-vs-intelligence trade: `low`/`medium` when the task is genuinely mechanical and a wrong answer is obvious on sight; `high`/`xhigh` when a well-defined task has a subtle edge where a silent wrong answer is expensive; default `xhigh` when unsure, and drop effort deliberately, not by accident.
+- `luna(max)` — **the default executor for codex-based runs.** A cheap executor that performs very well given a precise, exact plan, and poorly without one.
 
-Escalate by effort, not by model. Launch: `codex -m gpt-5.6-sol -c model_reasoning_effort=<tier>` in a herdr pane. Effort tiers ascending: `low`, `medium`, `high`, `xhigh`, `max`, `ultra` (config-token only). Gotcha: a `/model` picker change inside any codex session rewrites `${CODEX_HOME:-$HOME/.codex}/config.toml` globally.
+**The luna contract (all three conditions, or do not dispatch luna):**
+
+1. A stronger model — `sol(medium)` or better — authored the plan. Luna never plans its own work, and never receives a goal in place of a plan.
+2. Luna executes *that exact plan* and nothing else. Where the plan is silent, ambiguous, or wrong, luna stops and reports rather than improvising; a deviation is a defect, not initiative. Say this explicitly in the brief.
+3. The task is neither high-risk nor complex. High-risk, complex, exploratory, or judgment-dense work goes to sol at the appropriate effort — no exceptions bought with a tighter plan.
+
+Escalate by effort, not by model — within sol. The sol↔luna choice is a role decision (planner vs plan-executor), not a rung on the effort ladder. Launch: `codex -m <gpt-5.6-sol|gpt-5.6-luna> -c model_reasoning_effort=<tier>` in a herdr pane. Effort tiers ascending: `low`, `medium`, `high`, `xhigh`, `max`, `ultra` (config-token only). Gotcha: a `/model` picker change inside any codex session rewrites `${CODEX_HOME:-$HOME/.codex}/config.toml` globally.
 
 **Fan-out cap.** Codex agents are capped at one level of delegation (contract in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md`, versioned at `home/codex/AGENTS.md`): a subagent finishes its whole task without sub-delegating. Decompose work into complete, self-contained units before handing it to a codex pane; a fan-out pane may spawn one wide layer of peers, never a cascade. Restate the no-sub-delegation rule in every codex brief, and never brief one with "explore this and delegate what you find."
 
@@ -39,7 +47,17 @@ Cognition routes several vendors' models, including open-weight families such as
 
 Two verified traps. `--model` accepts only **family slugs** (`kimi-k2.7`, `opus`, `glm-5.2`), not the per-effort UIDs that `devin models list` prints — passing `kimi-k3-max` errors out. Worse, the two disagree on what exists: `devin models list` advertises a `kimi-k3` family, but the CLI's own validator rejects it and omits it from the error list, so the catalog service is ahead of the compiled binary. Trust the list in the `Unknown model:` error, not the catalog, and confirm any slug by launching once.
 
-The current account is on the **Free plan**, which selects Kimi fine but fails the actual request with `Permission denied: an internal error occurred`. Treat Devin as unusable for real Kimi work until the plan is upgraded; use the Cursor pane below instead.
+**Plan upgraded 2026-07-31** — the old Free-plan symptom (`Permission denied: an internal error occurred`) is gone. The binding limit is now a **daily usage quota**; on first use after the upgrade the request still failed, with a different and self-describing error:
+
+```
+Agent error: Your daily usage quota has been exhausted.
+  "cognition.ai/errorKind": "resource_exhausted"
+  "cognition.ai/retryable": true
+```
+
+That error is account-wide, not model-specific, so switching slugs does not route around it. Devin is therefore usable for real Kimi work but **capacity-gated**: probe it with one cheap prompt before building a dispatch around it, and fall back to the Cursor pane below when the quota is spent. Distinguish the two failures — `resource_exhausted` means come back later, an entitlement error means the plan regressed.
+
+**Role: Kimi K3 Max is a reviewer and an executor.** Reach for it for review passes and for delegated execution — a fourth weight family, open-weight lineage, cross-family to both Anthropic and OpenAI authorship. Prefer Devin as the route when its validator accepts the slug and quota allows; the two documented failures above (family-slug-only validation rejecting `kimi-k3`, and account-wide `resource_exhausted`) both fall back to the verified Cursor pane below rather than to a different model. Probe with one cheap prompt before building a dispatch around Devin.
 
 Routing is not authorship. When picking a cross-family reviewer, classify a Devin task by the **model it ran**, not by "Devin" — Devin-on-Opus is Anthropic work and needs OpenAI or xAI review.
 
@@ -53,28 +71,37 @@ Routing is still not BYOK: Cursor serves these models through its own backend, s
 
 Two local hazards. The upstream installer's primary binary name is `agent`, but on this machine **`agent` is a wrapper pointing at grok** — letting Cursor's installer reclaim that name silently repoints grok invocations at Cursor, and would route Foxway work to a prohibited engine. The installer also hard-deletes `~/.local/bin/agent` and `~/.local/bin/cursor-agent`, destroying the local audit wrappers; back both up before any update and restore them afterward, repointing `cursor-agent.real-link` at the new version directory.
 
-### Claude Code native subagents — fallback and in-context work
+### Anthropic — Opus orchestrates and executes, Fable plans
 
-Reasoning-heavy phases → `deep-reasoner` (Fable). Adversarial critique when externals are unavailable → `adversarial-reviewer` (Opus). Security, privacy, auth, secret-handling, browser-automation, or abuse-case review → `security-reviewer` (Fable). Mechanical scoped work → the explicit Sonnet agents (`fast-worker`, `sonnet-generalist`, `sonnet-code-reviewer`, `sonnet-researcher`, `sonnet-test-worker`). Never use Haiku; the smallest acceptable subagent is Sonnet. Pass an explicit model rather than relying on inheritance unless inheritance is intentional.
+- **Opus 5 — general orchestration.** The supervisor seat: decomposition, casting, synthesis, integration.
+- **Fable 5 (medium–high) — planning.** Plan authorship, design exploration, and reasoning-heavy phases before work is cast. `deep-reasoner` and the `Plan` agent are the native surfaces.
+- **Opus 5 (xhigh) — execution.** Substantive Anthropic-side implementation runs at xhigh; do not execute serious work at the planning tier.
+- Native subagents: adversarial critique when externals are unavailable → `adversarial-reviewer` (Opus); security, privacy, auth, secret-handling, browser-automation, or abuse-case review → `security-reviewer`; mechanical scoped work → the explicit Sonnet agents (`fast-worker`, `sonnet-generalist`, `sonnet-code-reviewer`, `sonnet-researcher`, `sonnet-test-worker`). Never use Haiku; the smallest acceptable subagent is Sonnet. Pass an explicit model rather than relying on inheritance unless inheritance is intentional.
 
 ## Assignment table
 
 | Work | Engine |
 | --- | --- |
-| Defined repetitive subagent (search, bulk mechanical edits) | native Sonnet subagent, or a `luna(xhigh)` codex pane |
-| Scoped subagent (research, focused implementation) | `sol(medium)` codex pane |
-| Substantive single delegated task | `sol(medium)` codex pane; raise to `xhigh` if genuinely hard |
-| Wide parallel execution (peers, never a cascade) | sol codex panes, one level deep |
+| General orchestration (supervisor seat) | Opus 5 |
+| Planning — Anthropic side | Fable 5 (medium–high); `deep-reasoner` / `Plan` natively |
+| Planning — codex side | `sol(medium)` codex pane |
+| Execution — Anthropic side | Opus 5 (xhigh) |
+| Execution of an exact plan — codex side | `luna(max)` codex pane, plan authored by sol or better |
+| Execution involving UI design or frontend | `sol(high)` or `sol(xhigh)` codex pane — never luna |
+| High-risk, complex, or exploratory execution | sol at the fitting effort — never luna |
+| Defined repetitive subagent (search, bulk mechanical edits) | native Sonnet subagent, or a `luna(max)` codex pane |
+| Wide parallel execution (peers, never a cascade) | codex panes, one level deep, each with its own exact plan |
 | Deep review, design convergence, hard problems | `sol(xhigh)` codex pane |
+| Review or execution, fourth weight family | Kimi K3 Max — `devin --model <slug>` when it validates, else `cursor-agent --model kimi-k3-max` |
 | Adversarial review / red-team pass (final) | `claudex` (sol xhigh default, max on request, subagents forbidden), or a `codex … max` pane |
 | Opus-class standalone fresh eyes / second opinion | grok pane (`grok-build`) — never for Foxway |
-| Kimi pane (fourth weight family, open-weight lineage) | `cursor-agent --model kimi-k3-max` — verified working; never rename its binary to `agent` |
-| Devin-routed open-weight pane (Kimi/DeepSeek/GLM) | `devin --model <family-slug>` — blocked on Free plan; family slugs only |
-| Security/privacy/auth/abuse review | `security-reviewer` (Fable, native) |
+| Security/privacy/auth/abuse review | `security-reviewer` (native) |
 | Adversarial critique when externals unavailable | `adversarial-reviewer` (Opus, native) |
 
 ## Working rules
 
+- **Plan and execution are separate seats.** The planner is always at least as strong as the executor, and the executor's brief carries the plan, not the goal. This is what makes a cheap executor safe; it is not a cost optimization to skip when you are in a hurry.
+- A cheap executor's silence is not agreement: require it to report every point where the plan under-determined the work, and treat that report as a defect list for the plan, not for the executor.
 - High-stakes decisions: task `sol(max)` and grok (and/or Opus `adversarial-reviewer`) on the same problem in parallel, blind to each other's answers, then synthesize the best of all.
 - Trust but verify: executor self-reports overclaim. An independent exhaustive review against the originals gates acceptance of any large delegated work; the supervisor's spot-checks are the fast pass, never the gate.
 - Cleanup is part of done: when a task finishes, close the panes, worktrees, watches, and scratch artifacts you created (never ones you didn't) — transport specifics are the `herdr` skill's hard rules.

@@ -44,12 +44,11 @@ rather than serializing them across turns.
 
 ## Orchestration
 
-You (Fable) are the orchestrator: plan, decompose, synthesize; keep your own
-context lean. Before delegating anything — choosing an engine, model, or
-effort tier, briefing a pane agent, or routing a review — load the
-`agent-orchestration` skill (its `engine-selection` mode holds the engine
-roster, tier doctrine, and assignment table). The `herdr` skill owns pane
-transport.
+You are the orchestrator: decompose, cast, synthesize; keep your own context
+lean. Before delegating anything — choosing an engine, model, or effort tier,
+briefing a pane agent, or routing a review — load the `agent-orchestration`
+skill (its `engine-selection` mode holds the engine roster, tier doctrine, and
+assignment table). The `herdr` skill owns pane transport.
 
 Standing rules that hold even before any skill loads:
 
