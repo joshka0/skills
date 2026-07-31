@@ -6,14 +6,17 @@ Use this mode to pick the executor and reviewer engines — model family, harnes
 
 Different weights do not share blindspots; same-family review inherits the same biases and misses the same errors. For adversarial review, fresh eyes, independent verification, or high-stakes synthesis, pick the reviewer from a different model family than the **executor** — not merely different from the supervisor. Five families are reachable here: Anthropic, OpenAI, xAI, Moonshot (Kimi), and DeepSeek. Any of the other four reviews a given family's work; prefer the strongest available tier, and prefer a family whose training lineage is furthest from the executor's when the choice is otherwise free. Fall back to same-family subagents only when external engines are unavailable or the task is trivial. Framing independence (briefing reviewers against ground truth, not the supervisor's digest) is the `collaborate` mode's contract — read it for any review dispatch.
 
-**Foxway (standing user directive) — two engines are prohibited outright:**
+**Foxway (standing user directive) — three engines are prohibited outright:**
 
 - **grok / any xAI model** — no panes, no subagents, no one-shot queries.
-- **droid / DeepSeek** — no panes, no `droid exec`, no review passes, regardless of which Factory model or custom entry is selected.
+- **droid / Factory** — no panes, no `droid exec`, no review passes, regardless of which Factory model or custom entry is selected.
+- **devin / Cognition** — no sessions and no one-shot runs, regardless of which model Cognition routes.
 
-Neither prohibition has an exception for "just a quick question", a read-only task, or a review rather than an edit. Foxway work therefore has three usable families — Anthropic, OpenAI, and Moonshot (Kimi) — so cross-family review of Anthropic-authored Foxway work routes through codex or Kimi; OpenAI-authored work gets Anthropic or Kimi review. If the two remaining alternatives are both unavailable, fall back to a clear-context native subagent per the substitution rules below; never route around the prohibition.
+**For Foxway, the route decides, not the family.** These are prohibitions on *engines*, because what is being restricted is which vendor's backend handles Foxway data. Cursor is covered by an existing agreement and stays permitted, so Kimi remains available for Foxway **through `cursor-agent` only** — the same model reached via `devin` is prohibited. Never treat "the family is allowed" as clearance for a route.
 
-Restate both prohibitions explicitly in every brief handed to another agent for a Foxway task — downstream agents otherwise follow the general roster guidance on their own, and the general guidance recommends both engines.
+No prohibition has an exception for "just a quick question", a read-only task, or a review rather than an edit. Foxway work therefore runs on Anthropic, OpenAI, and Cursor-routed Kimi: cross-family review of Anthropic-authored work routes through codex or `cursor-agent` Kimi; OpenAI-authored work gets Anthropic or Cursor-routed Kimi. If those are unavailable, fall back to a clear-context native subagent per the substitution rules below; never route around a prohibition.
+
+Restate all three prohibitions explicitly in every brief handed to another agent for a Foxway task — downstream agents otherwise follow the general roster guidance on their own, and the general guidance recommends all three engines.
 
 ## Engine roster
 
@@ -66,9 +69,13 @@ That error is account-wide, not model-specific, so switching slugs does not rout
 
 **Role: Kimi K3 Max is a reviewer and an executor.** Reach for it for review passes and for delegated execution — a fourth weight family, open-weight lineage, cross-family to both Anthropic and OpenAI authorship. Prefer Devin as the route when its validator accepts the slug and quota allows; the two documented failures above (family-slug-only validation rejecting `kimi-k3`, and account-wide `resource_exhausted`) both fall back to the verified Cursor pane below rather than to a different model. Probe with one cheap prompt before building a dispatch around Devin.
 
+**Never use devin for Foxway work or data** — see the standing prohibition above. It covers the engine, not a model list: Cognition routing is what is excluded, so Kimi-for-Foxway goes through `cursor-agent` instead.
+
 Routing is not authorship. When picking a cross-family reviewer, classify a Devin task by the **model it ran**, not by "Devin" — Devin-on-Opus is Anthropic work and needs OpenAI or xAI review.
 
 ### Cursor Agent CLI — the working Kimi pane
+
+Cursor is covered by an existing agreement and is **the permitted route for Foxway work**, including Foxway-bound Kimi.
 
 `cursor-agent` runs Cursor's catalog, which on the Foxway team account includes Kimi: `kimi-k3-max`, `kimi-k3-low`, and `kimi-k2.7-code`. Verified live — `cursor-agent --model kimi-k3-max` launches, reports "Kimi K3 Max" in its status bar, streams Kimi-style reasoning, and self-identifies as "Kimi, developed by Moonshot AI". This is the engine to reach for when the task calls for Kimi.
 
@@ -131,7 +138,7 @@ Distinguish the failure kinds before substituting: a retryable capacity error (`
 | Defined repetitive subagent (search, bulk mechanical edits) | native Sonnet subagent, or a `luna(max)` codex pane |
 | Wide parallel execution (peers, never a cascade) | codex panes, one level deep, each with its own exact plan |
 | Deep review, design convergence, hard problems | `sol(xhigh)` codex pane |
-| Review or execution, fourth weight family | Kimi K3 Max — `devin --model <slug>` when it validates, else `cursor-agent --model kimi-k3-max` |
+| Review or execution, fourth weight family | Kimi K3 Max — `devin --model <slug>` when it validates, else `cursor-agent --model kimi-k3-max`; **for Foxway, `cursor-agent` only** |
 | Review or execution, fifth weight family | `droid exec -m "custom:deepseek-v4-[OpenRouter]-7"` — always deepseek-v4, never Factory's other routed models; **never for Foxway** |
 | Adversarial review / red-team pass (final) | `claudex` (sol xhigh default, max on request, subagents forbidden), or a `codex … max` pane |
 | Opus-class standalone fresh eyes / second opinion | grok pane (`grok-build`) — never for Foxway |
