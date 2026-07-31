@@ -78,6 +78,17 @@ Two local hazards. The upstream installer's primary binary name is `agent`, but 
 - **Opus 5 (xhigh) — execution.** Substantive Anthropic-side implementation runs at xhigh; do not execute serious work at the planning tier.
 - Native subagents: adversarial critique when externals are unavailable → `adversarial-reviewer` (Opus); security, privacy, auth, secret-handling, browser-automation, or abuse-case review → `security-reviewer`; mechanical scoped work → the explicit Sonnet agents (`fast-worker`, `sonnet-generalist`, `sonnet-code-reviewer`, `sonnet-researcher`, `sonnet-test-worker`). Never use Haiku; the smallest acceptable subagent is Sonnet. Pass an explicit model rather than relying on inheritance unless inheritance is intentional.
 
+## Substitution when an engine is unavailable
+
+Quota exhaustion, an expired login, or a dead proxy is a routine event, not a blocker — but the substitute must preserve the property the original was chosen for, which is usually family decorrelation, not raw capability.
+
+1. **Replace the crew member with an equivalent tier from another family.** A quota-blocked reviewer is replaced by a reviewer of comparable strength from a family that is still cross-family to the *executor* — never by whatever engine happens to be free. A blocked planner is replaced by another family's planner tier, not by dropping to the executor's own model.
+2. **Do not silently downgrade the role.** If no equivalent tier exists, say so and let the weaker substitution be a stated decision; a plan authored at a lower tier than the doctrine requires invalidates the luna contract above.
+3. **Last resort: an unbiased native subagent with clear context.** When no external family is reachable, dispatch a native subagent spawned fresh — no conversation history, briefed against the ground-truth artifacts rather than the supervisor's digest. A same-family reviewer with clean context still catches real defects; a same-family reviewer carrying the author's context catches almost nothing, because it inherits both the blindspots and the framing.
+4. **Record the substitution.** Report which engine actually ran, so downstream cross-family classification stays accurate — a review that fell back to native Anthropic is Anthropic review, whatever the plan said.
+
+Distinguish the failure kinds before substituting: a retryable capacity error (`resource_exhausted`, rate limit) means the engine returns later and the work can also be queued; an entitlement or auth error means the roster entry itself is wrong and should be fixed here rather than routed around every run.
+
 ## Assignment table
 
 | Work | Engine |
