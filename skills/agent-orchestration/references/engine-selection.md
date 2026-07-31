@@ -22,6 +22,16 @@ Restate all three prohibitions explicitly in every brief handed to another agent
 
 Pack constraint: the model IDs and effort tiers below are house tiering decisions the CLIs cannot express; they are volatile. Before dispatch, confirm the model still exists from the live surface (`codex` model picker or config, `grok models`) rather than trusting these literals.
 
+### Hermes — preferred harness when present
+
+**Preflight every run: `command -v hermes`.** When hermes is installed, prefer it as the harness over the codex harness for GPT work, and over `cursor-agent` and `devin` for Kimi. When it is absent, the rest of this roster stands unchanged — the preference is conditional, never a blocker.
+
+An empty `$HOME/.hermes/` or a stale skills root is **not** evidence of an install; only the binary on `PATH` is. (Observed absent on this machine as of 2026-07-31, with a leftover empty `~/.hermes/skills` — expect that to be the common false positive.)
+
+This is a harness preference, not a model doctrine. The model tiering above travels with the models: GPT work through hermes keeps the sol-plans/luna-executes split and its effort tiers, and Kimi through hermes is still Moonshot authorship for cross-family purposes. Discover hermes's own model flags and IDs from `hermes --help` at dispatch time rather than assuming codex or cursor syntax carries over; if the flags cannot be resolved, say so and fall back to the documented harness rather than guessing.
+
+**Foxway: unapproved pending an owner ruling.** The Foxway prohibitions are route decisions, and hermes's routing has not been ruled on — so do not send Foxway work through hermes until the user rules, even for a model that is permitted by another route. Absence from the prohibition list is not permission.
+
 ### Codex — sol plans, luna executes
 
 A codex run is two roles, not one. `gpt-5.6-sol` authors the plan; `gpt-5.6-luna(max)` executes it. Never collapse them: luna planning for itself is the failure this split exists to prevent.
@@ -125,6 +135,8 @@ Quota exhaustion, an expired login, or a dead proxy is a routine event, not a bl
 Distinguish the failure kinds before substituting: a retryable capacity error (`resource_exhausted`, rate limit) means the engine returns later and the work can also be queued; an entitlement or auth error means the roster entry itself is wrong and should be fixed here rather than routed around every run.
 
 ## Assignment table
+
+Rows name the model and tier. Where a row's engine is codex, `cursor-agent`, or `devin`, the hermes preference above overrides the harness when hermes is installed — the model and tier stay as written.
 
 | Work | Engine |
 | --- | --- |
