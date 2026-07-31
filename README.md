@@ -50,8 +50,13 @@ catalog, mirrors, archives, and reports live on the `attic` branch.
 | --- | --- | --- |
 | `$HOME/.claude/skills` | `providers/claude` | Claude Code |
 | `${CODEX_HOME:-$HOME/.codex}/skills` | `providers/codex` | Codex |
-| `$HOME/.agents/skills` | `providers/agents` | Codex, Gemini CLI (co-load) |
+| `$HOME/.agents/skills` | `providers/agents` | Codex, Gemini CLI, Droid (co-load) |
 | `$HOME/.gemini/skills` | `providers/gemini` | Gemini CLI |
 | `$HOME/.gemini/antigravity/skills` | `providers/gemini-antigravity` | Antigravity IDE |
-| `$HOME/.factory/skills` | `providers/factory` | Droid |
-| `$HOME/.droid/skills` | `providers/droid` | Droid (legacy root) |
+
+A consumer that reads several roots must find each skill in exactly one of
+them, or it reports duplicate-name errors. Droid reads `~/.factory/skills`,
+`~/.droid/skills`, **and** the shared `~/.agents/skills`; since the shared
+root cannot be given up (Codex and Gemini load it too), Droid takes its
+skills from there alone and the other two roots stay unlinked. Adding a root
+for a consumer that already co-loads a shared one re-creates this.
