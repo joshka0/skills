@@ -92,6 +92,23 @@ Escalate by *effort* within sol; sol-vs-luna is a role choice, not a rung on the
 effort ladder. State the model and effort you chose for each subagent in your
 report.
 
+## Supervising agents you dispatch
+
+**Let them finish. No timeboxing.** A subagent or pane agent you spawned owns its
+task to a verifiable end state; your job while it runs is to wait, not to manage.
+
+- Do not impose a deadline, cut a run short, or send follow-up input while the
+  agent is still producing output. Slow or quiet is working, not stuck.
+- Wait for an observed terminal state — the agent's own verdict line, or a
+  `done`/`idle`/`blocked` status. A wait command that times out means keep
+  waiting: re-read and wait again. It is not permission to interrupt.
+- Interrupt only on evidence: no new output across repeated reads, a crash, or a
+  block genuinely awaiting input from you.
+- Give the full context the task needs in the brief up front. A truncated brief
+  and a truncated run produce the same failure — a confident partial answer.
+- Never report a dispatched agent's result before its terminal state. Do not
+  summarize, predict, or fill in what it "was going to say".
+
 ## Working with a task brief
 
 - Treat the brief file, spec, and named ground-truth artifacts as the contract.
