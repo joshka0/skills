@@ -4,7 +4,7 @@ Use this mode to pick the executor and reviewer engines — model family, harnes
 
 ## Cross-family first
 
-Different weights do not share blindspots; same-family review inherits the same biases and misses the same errors. For adversarial review, fresh eyes, independent verification, or high-stakes synthesis, pick the reviewer from a different model family than the **executor** — not merely different from the supervisor. OpenAI-executed work gets xAI or Anthropic review; Anthropic work gets OpenAI or xAI review; xAI work gets OpenAI or Anthropic review. Fall back to same-family subagents only when external engines are unavailable or the task is trivial. Framing independence (briefing reviewers against ground truth, not the supervisor's digest) is the `collaborate` mode's contract — read it for any review dispatch.
+Different weights do not share blindspots; same-family review inherits the same biases and misses the same errors. For adversarial review, fresh eyes, independent verification, or high-stakes synthesis, pick the reviewer from a different model family than the **executor** — not merely different from the supervisor. Five families are reachable here: Anthropic, OpenAI, xAI, Moonshot (Kimi), and DeepSeek. Any of the other four reviews a given family's work; prefer the strongest available tier, and prefer a family whose training lineage is furthest from the executor's when the choice is otherwise free. Fall back to same-family subagents only when external engines are unavailable or the task is trivial. Framing independence (briefing reviewers against ground truth, not the supervisor's digest) is the `collaborate` mode's contract — read it for any review dispatch.
 
 **Foxway (standing user directive):** never use grok or any xAI model for Foxway work or data — no panes, no subagents, no one-shot queries. Cross-family review of Anthropic-authored Foxway work routes through codex; OpenAI-authored Foxway work gets Anthropic review. Restate this prohibition explicitly in every brief handed to another agent for a Foxway task — downstream agents will otherwise follow the general grok guidance on their own.
 
@@ -71,6 +71,25 @@ Routing is still not BYOK: Cursor serves these models through its own backend, s
 
 Two local hazards. The upstream installer's primary binary name is `agent`, but on this machine **`agent` is a wrapper pointing at grok** — letting Cursor's installer reclaim that name silently repoints grok invocations at Cursor, and would route Foxway work to a prohibited engine. The installer also hard-deletes `~/.local/bin/agent` and `~/.local/bin/cursor-agent`, destroying the local audit wrappers; back both up before any update and restore them afterward, repointing `cursor-agent.real-link` at the new version directory.
 
+### Droid (Factory) — the DeepSeek pane
+
+`droid` is this pack's DeepSeek seat and **always runs `deepseek-v4-flash-0731`** (display name `deepseek-v4`). Factory's catalog also routes Anthropic, OpenAI, Gemini, Kimi, GLM, and MiniMax models; do not use droid for those — every one of them is reachable through a direct engine above, and routing them through Factory only obscures which family actually authored the work. Droid earns its slot as a fifth weight family, not as another way to reach the first four.
+
+The model is a **custom entry**, not a Factory catalog model: `custom:deepseek-v4-[OpenRouter]-7` (direct OpenRouter) and `custom:deepseek-v4-Dev-[OpenRouter]-7` (via the dev-machine gateway) both map to `deepseek/deepseek-v4-flash-0731`. Definitions live in `$HOME/.factory/settings.json`, which holds live provider keys — machine-local, never copied into the repo, a brief, or a report.
+
+```sh
+droid exec -m "custom:deepseek-v4-[OpenRouter]-7" --auto low "<task>"   # quote: brackets glob
+```
+
+Four traps, all verified live:
+
+- `-m` takes a **model ID**, not the model slug. `deepseek-v4-flash-0731` is rejected; the rejection prints the valid built-in and custom IDs — trust that list over any catalog or display name.
+- Factory's built-in catalog contains `deepseek-v4-pro`, a **different model** from flash-0731. The display name `deepseek-v4` is ambiguous between them; the ID is not.
+- Only `droid exec` accepts `-m`; the interactive `droid` has no model flag, so a pane launch picks the model in-session or inherits the settings default. Confirm the active model before treating a pane as the DeepSeek seat.
+- Custom entries are read from settings at launch. An unexpected "unknown model" means the settings file changed, not that the model died.
+
+Routing is not authorship, as with Devin and Cursor: this is DeepSeek weights served through OpenRouter, so classify the work as DeepSeek for cross-family purposes. Not subject to the Foxway prohibition, which is xAI-only.
+
 ### Anthropic — Opus orchestrates and executes, Fable plans
 
 - **Opus 5 — general orchestration.** The supervisor seat: decomposition, casting, synthesis, integration.
@@ -104,6 +123,7 @@ Distinguish the failure kinds before substituting: a retryable capacity error (`
 | Wide parallel execution (peers, never a cascade) | codex panes, one level deep, each with its own exact plan |
 | Deep review, design convergence, hard problems | `sol(xhigh)` codex pane |
 | Review or execution, fourth weight family | Kimi K3 Max — `devin --model <slug>` when it validates, else `cursor-agent --model kimi-k3-max` |
+| Review or execution, fifth weight family | `droid exec -m "custom:deepseek-v4-[OpenRouter]-7"` — always deepseek-v4, never Factory's other routed models |
 | Adversarial review / red-team pass (final) | `claudex` (sol xhigh default, max on request, subagents forbidden), or a `codex … max` pane |
 | Opus-class standalone fresh eyes / second opinion | grok pane (`grok-build`) — never for Foxway |
 | Security/privacy/auth/abuse review | `security-reviewer` (native) |
