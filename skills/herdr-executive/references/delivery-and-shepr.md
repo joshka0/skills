@@ -1,0 +1,87 @@
+# Delivery and Shepr diagnosis
+
+Use this reference for end-to-end failures, mobile-client changes, live service
+replacement, or an explicitly requested TestFlight release.
+
+## Trace one turn
+
+Follow one correlation ID through these independent stages:
+
+```text
+phone WAV -> transcript -> pending draft -> committed draft
+          -> outbound to named Executive -> Executive result
+          -> queued speech -> phone playback -> complete/fail/skip acknowledgement
+```
+
+Manager attention follows a different entry path:
+
+```text
+watched named manager -> manager event -> Executive brief
+                      -> speech update or tracked clarification
+                      -> reviewed manager answer
+```
+
+Never collapse these into a single “message sent” state.
+
+## Failure localization
+
+| Evidence | Inspect next |
+| --- | --- |
+| Transcript exists and draft is pending | Shepr auto-commit timer, held/busy state, commit request |
+| Draft committed and outbound is queued with zero attempts | Dispatcher selection, unavailable head item, named Executive availability |
+| Outbound is delivering repeatedly | Herdr prompt submission and fallback Enter verification |
+| Outbound completed but no response exists | Executive pane output and whether it enqueued speech or a clarification |
+| Speech is queued | Shepr handsfree state, user recording, turn-phase playback gate, audio fetch |
+| Speech remains delivering or repeats after reconnect | Phone acknowledgement and playback interruption handling |
+| Needs Attention grows after resolution | Queued Executive briefs correlated to already-resolved events |
+
+For pane evidence, apply the `herdr` skill. Resolve the configured Executive by
+unique agent name, not pane label or agent kind. Replacing Claude with Codex in
+the same pane can preserve the label while dropping the `executive` route; run
+`herdr agent get executive` and restore the name explicitly when authorized.
+A completed outbound proves the prompt was submitted, not that the Executive
+produced or the phone played a response.
+
+## Safe implementation verification
+
+From the Executive repository, validate Rust changes with the current project
+toolchain:
+
+```sh
+cargo fmt --check
+cargo check
+cargo test
+cargo clippy --all-targets --all-features -- -D warnings
+cargo build --release
+```
+
+Report the actual test count. For Shepr changes, run the unsigned simulator
+build described in `ios/Shepr/README.md`; do not treat it as physical-device
+evidence. Verify route handling, Bluetooth, background audio, microphone, and
+automatic playback on a real phone when those behaviors changed.
+
+Before replacing a live binary, capture compact queue counts. Restart through
+the discovered service owner, wait for the loopback health endpoint exposed by
+the current configuration, then compare counts and inspect the exact turn under
+test. Never create a synthetic live attention item when it could notify the
+user or another agent without approval.
+
+## Shepr and TestFlight
+
+Treat the checked-in Swift project and `ios/Shepr/README.md` as current truth.
+The phone connects to the authenticated HTTPS origin that fronts the loopback
+gateway; never expose the raw control socket or put the bearer token in a URL.
+
+For a signed release, use only the repository's secret-injection wrapper and
+upload script after the user explicitly asks to publish:
+
+```sh
+cd ios/Shepr
+./scripts/with-apple-secrets.sh ./scripts/signing-status.sh
+./scripts/with-apple-secrets.sh ./scripts/upload-testflight.sh
+```
+
+Do not request, inspect, or print credential values. Stop at a signing or App
+Store Connect gate and name the exact user-owned action required. A release is
+complete only after the build is processed and attached to the intended
+TestFlight group; archive or upload success alone is insufficient.

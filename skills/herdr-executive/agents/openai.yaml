@@ -1,0 +1,4 @@
+interface:
+  display_name: "Herdr Executive"
+  short_description: "Operate the Executive EA and Shepr queues"
+  default_prompt: "Use $herdr-executive to inspect the live Executive queues and safely resolve the reported delivery issue."
