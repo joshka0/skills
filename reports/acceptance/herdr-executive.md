@@ -7,6 +7,7 @@
 - Selected contract surfaces: existence and ownership, package and routing,
   evidence and safety, validation and acceptance
 - Pre-create git ref: `cf3672dd451c7026db4978a4376e6620c9982689`
+- Pre-response-contract git ref: `0b0459a0a3f1d106ef023a5a3c89a16aabbdfd42`
 - Package verdict: **PACKAGE-CONFORMS**
 - Catalog verdict: **DEFERRED** — `bin/link` contains direct symlink deletion and
   cannot be executed under the active durable destructive-action policy.
@@ -38,8 +39,8 @@ phone acknowledgement, and the uniquely named Executive route.
 | A08 | PASS | It begins with a concrete operation and ends with concrete `Use when` signals. |
 | A09 | PASS | Collision matrix establishes one first owner for every trigger. |
 | A10 | PASS | No greedy claim or implicit persona trigger appears. |
-| A11 | PASS | `SKILL.md` is 94 lines/4,786 bytes; package is 278 lines/12,135 bytes. |
-| A12 | PASS | Active body contains boundary, preflight, routing, workflow, hard rules, stops, and output only. |
+| A11 | PASS | `SKILL.md` is 104 lines/5,442 bytes; package is 284 lines/12,555 bytes. |
+| A12 | PASS | Active body contains boundary, preflight, routing, workflow, hard rules, stops, and the Executive response/output contract only. |
 | A13 | PASS | Both references are named by explicit selection conditions and resolve locally. |
 | A14 | PASS | References are 87 and 93 lines; total package is below all private-leaf limits. |
 | A15 | DEFERRED | Package has no duplicated or orphaned prose; provider/catalog parity awaits composition. |
@@ -56,7 +57,7 @@ phone acknowledgement, and the uniquely named Executive route.
 | A26 | PASS | Executable, service owner, gateway, and agent route are discovered live and fail clearly. |
 | A27 | N/A | Package contains no scripts. |
 | A28 | PASS | `agents/openai.yaml` is generated metadata matching the skill; no assets exist. |
-| A29 | PASS | Rules protect journal integrity, reviewed routing, queue meaning, unique naming, and secret boundaries. |
+| A29 | PASS | Rules protect journal integrity, reviewed routing, queue meaning, mandatory Executive speech/audio, unique naming, and secret boundaries. |
 | A30 | DEFERRED | Canonical catalog and provider exposure await composition. |
 | A31 | DEFERRED | Local links pass; `bin/link` and installed-view checks are blocked by the deletion policy. |
 | A32 | PASS | Shape matches the retained `herdr` private-tool leaf: compact brain plus selective operational references. |
@@ -69,6 +70,7 @@ phone acknowledgement, and the uniquely named Executive route.
 | Delta | Disposition | Owner/path |
 | --- | --- | --- |
 | Durable draft, attention, clarification, outbound, and speech distinctions | Kept | `SKILL.md`, `references/operations.md` |
+| Every user-facing Executive response must enter the Executive speech/audio queue; text is supplemental only | Kept | `SKILL.md` |
 | End-to-end correlation diagnosis and phone acknowledgement boundary | Kept | `references/delivery-and-shepr.md` |
 | Claude-to-Codex pane swap can preserve label while losing agent route | Kept | `SKILL.md`, `references/delivery-and-shepr.md` |
 | Journal immutability and secret-safe gateway/release handling | Kept | `SKILL.md`, both references |

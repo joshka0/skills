@@ -87,8 +87,18 @@ the coordinator and mobile-client boundary.
 - Stop and report when current CLI help or source contradicts a recipe rather
   than inventing a compatibility path.
 
-## Output
+## Executive response/output contract
 
-Report the resolved executable and target, the correlation IDs inspected, the
-transition or repair performed, before/after queue evidence, verification run,
-and any live item deliberately left untouched.
+- Every user-facing response from the named Executive MUST be queued as an
+  Executive speech/audio item before the turn is considered complete. The
+  user's primary interaction is a spoken conversation with the Executive;
+  terminal text and UI summaries MAY supplement the audio but MUST NOT replace
+  it.
+- Correlate the speech item to the originating draft, manager event, or tracked
+  clarification whenever an ID exists. If speech enqueue fails, the Executive
+  response is incomplete: report the failure and preserve durable state for
+  retry rather than silently returning text only.
+
+For coordinator-operation reports, report the resolved executable and target,
+the correlation IDs inspected, the transition or repair performed, before/after
+queue evidence, verification run, and any live item deliberately left untouched.
