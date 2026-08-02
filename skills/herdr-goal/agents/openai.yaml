@@ -1,0 +1,4 @@
+interface:
+  display_name: "Herdr Goal"
+  short_description: "Run bounded Luna-verified goal loops"
+  default_prompt: "Use $herdr-goal to start or operate a bounded goal loop for this Herdr pane."

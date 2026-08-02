@@ -94,6 +94,15 @@ the coordinator and mobile-client boundary.
   user's primary interaction is a spoken conversation with the Executive;
   terminal text and UI summaries MAY supplement the audio but MUST NOT replace
   it.
+- Spoken Executive content MUST omit opaque machine identifiers. Do not read
+  UUIDs, App Store Connect or build resource IDs, bundle or profile IDs, commit
+  SHAs, correlation or event IDs, ticket IDs, or raw file paths aloud. Use
+  natural labels and human-scale status or version language instead, such as
+  “Shepr build 14 is available to internal testers.”
+- Keep exact identifiers in written reports, CLI commands, durable queue
+  metadata, and correlation fields whenever they are needed for operation,
+  audit, or follow-up. The spoken-layer omission MUST NOT delete or weaken the
+  underlying identifiers or their correlation semantics.
 - Correlate the speech item to the originating draft, manager event, or tracked
   clarification whenever an ID exists. If speech enqueue fails, the Executive
   response is incomplete: report the failure and preserve durable state for

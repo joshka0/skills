@@ -1,0 +1,4 @@
+interface:
+  display_name: "Herdr Watcher"
+  short_description: "Arm durable Herdr continuations and joins"
+  default_prompt: "Use $herdr-watcher to arm a durable continuation for this pane and verify its callback."

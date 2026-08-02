@@ -34,6 +34,29 @@ A blocker honestly reported is a good outcome. A "working" deliverable built
 on workarounds is the worst outcome and will be rejected regardless of sunk
 cost. When in doubt whether I meant something literally, ask — don't guess.
 
+## Engineering principles
+
+- Do not preserve backward compatibility. Remove obsolete paths instead of
+  adding compatibility layers, fallbacks, or migrations.
+- Choose the simplest implementation that fully meets the current
+  requirements. Avoid speculative abstractions, configuration, and
+  indirection.
+- Grow the system in layers. Start from the smallest version that works end
+  to end, and add each new capability on top of a product that already works.
+  Never trade a working product for unfinished complexity.
+- Keep components modular and concerns clearly separated.
+- Prefer established, well-maintained libraries when they reduce overall
+  complexity or improve reliability. Do not reimplement common functionality
+  without a clear reason.
+- Lean on the dependencies already in the project before writing your own
+  implementation or adding packages. Do not assume a library lacks a
+  capability without checking its documentation and types.
+- Make architectural decisions for the long term. Do not accept a stopgap
+  that only works for now and is meant to be replaced later.
+
+Simplest is not the same as temporary: rule out speculative complexity and
+known-throwaway work alike.
+
 ### Waiting on my input
 
 During ongoing work, when you're blocked on a decision only I can make, use

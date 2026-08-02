@@ -1,0 +1,67 @@
+{
+  "schema": "herdr.goal.verification-packet/v1",
+  "goal_id": "release-v1",
+  "epoch": 1,
+  "objective": "Verify that release v1 satisfies its measurable acceptance criteria.",
+  "criteria": [
+    {
+      "id": "tests-pass",
+      "text": "The independently authored acceptance suite passes."
+    }
+  ],
+  "authoritative_read_scope": [
+    "Cargo.toml",
+    "tests/"
+  ],
+  "allowed_read_scope": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "src/",
+    "tests/"
+  ],
+  "steps": [
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--tests"
+      ],
+      "cwd": "/absolute/path/to/repository",
+      "expected": {
+        "exit_code": 0,
+        "stdout_contains": "test result: ok"
+      },
+      "evidence": [
+        "exit_code",
+        "stdout_tail"
+      ]
+    }
+  ],
+  "allowed_verification_side_effects": [
+    "target/"
+  ],
+  "prohibitions": {
+    "source_edits": true,
+    "git_mutation": true,
+    "delegation": true,
+    "plan_changes": true
+  },
+  "ambiguity_stops": [
+    "A required authoritative artifact is absent or differs from the packet.",
+    "A verification step requires an argv, cwd, expected result, evidence type, or side effect not listed in this packet."
+  ],
+  "report_contract": {
+    "schema": "herdr.goal.verification-report/v1",
+    "statuses": [
+      "pass",
+      "changes_requested",
+      "blocked",
+      "failed"
+    ],
+    "require_exact_goal_id": true,
+    "require_exact_epoch": true,
+    "require_evidence_for_every_criterion": true,
+    "allow_unstructured_fields": false
+  }
+}

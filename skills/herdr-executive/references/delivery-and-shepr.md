@@ -23,6 +23,19 @@ watched named manager -> manager event -> Executive brief
 
 Never collapse these into a single “message sent” state.
 
+## Spoken delivery contract
+
+Before enqueueing Executive speech, rewrite operational evidence for listening:
+
+- Name the product, manager, project, or action naturally and use human-scale
+  version or status language where it helps the user.
+- Do not speak UUIDs, App Store Connect or build resource IDs, bundle or profile
+  IDs, commit SHAs, correlation or event IDs, ticket IDs, or raw file paths.
+- Retain every exact identifier needed for diagnosis or traceability in the
+  written report, CLI command, queue metadata, and correlation fields. Speech
+  wording is a presentation layer; it does not alter durable state or weaken
+  the requirement to enqueue every user-facing Executive response as audio.
+
 ## Failure localization
 
 | Evidence | Inspect next |
