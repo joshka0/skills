@@ -4,7 +4,7 @@ Use this mode to pick the executor and reviewer engines — model family, harnes
 
 ## Cross-family first
 
-Different weights do not share blindspots; same-family review inherits the same biases and misses the same errors. For adversarial review, fresh eyes, independent verification, or high-stakes synthesis, pick the reviewer from a different model family than the **executor** — not merely different from the supervisor. Five families are reachable here: Anthropic, OpenAI, xAI, Moonshot (Kimi), and DeepSeek. Any of the other four reviews a given family's work; prefer the strongest available tier, and prefer a family whose training lineage is furthest from the executor's when the choice is otherwise free. Fall back to same-family subagents only when external engines are unavailable or the task is trivial. Framing independence (briefing reviewers against ground truth, not the supervisor's digest) is the `collaborate` mode's contract — read it for any review dispatch.
+Different weights do not share blindspots; same-family review inherits the same biases and misses the same errors. For adversarial review, fresh eyes, independent verification, or high-stakes synthesis, pick the reviewer from a different model family than the **executor** — not merely different from the supervisor. Six families are reachable here: Anthropic, OpenAI, xAI, Moonshot (Kimi), DeepSeek, and Qwen. Any of the other five reviews a given family's work; prefer the strongest available tier, and prefer a family whose training lineage is furthest from the executor's when the choice is otherwise free. Fall back to same-family subagents only when external engines are unavailable or the task is trivial. Framing independence (briefing reviewers against ground truth, not the supervisor's digest) is the `collaborate` mode's contract — read it for any review dispatch.
 
 **Foxway (standing user directive) — three engines are prohibited outright:**
 
@@ -95,20 +95,28 @@ Routing is still not BYOK: Cursor serves these models through its own backend, s
 
 Two local hazards. The upstream installer's primary binary name is `agent`, but on this machine **`agent` is a wrapper pointing at grok** — letting Cursor's installer reclaim that name silently repoints grok invocations at Cursor, and would route Foxway work to a prohibited engine. The installer also hard-deletes `~/.local/bin/agent` and `~/.local/bin/cursor-agent`, destroying the local audit wrappers; back both up before any update and restore them afterward, repointing `cursor-agent.real-link` at the new version directory.
 
-### Droid (Factory) — the DeepSeek pane
+### Droid (Factory) — the DeepSeek and Qwen pane
 
-`droid` is this pack's DeepSeek seat and **always runs `deepseek-v4-flash-0731`** (display name `deepseek-v4`). Factory's catalog also routes Anthropic, OpenAI, Gemini, Kimi, GLM, and MiniMax models; do not use droid for those — every one of them is reachable through a direct engine above, and routing them through Factory only obscures which family actually authored the work. Droid earns its slot as a fifth weight family, not as another way to reach the first four.
+`droid` carries two seats, **DeepSeek (fifth family) and Qwen (sixth)**, and runs nothing else. Factory's catalog also routes Anthropic, OpenAI, Gemini, Kimi, GLM, and MiniMax models; do not use droid for those — every one is reachable through a direct engine above, and routing them through Factory only obscures which family actually authored the work. Droid earns its slot by reaching families nothing else here reaches, not as another door to the first four.
 
-The model is a **custom entry**, not a Factory catalog model: `custom:deepseek-v4-[OpenRouter]-7` (direct OpenRouter) and `custom:deepseek-v4-Dev-[OpenRouter]-7` (via the dev-machine gateway) both map to `deepseek/deepseek-v4-flash-0731`. Definitions live in `$HOME/.factory/settings.json`, which holds live provider keys — machine-local, never copied into the repo, a brief, or a report.
+Both seats are **custom entries**, not Factory catalog models. Definitions live in `$HOME/.factory/settings.json`, which holds live provider keys — machine-local, never copied into the repo, a brief, or a report.
+
+| Seat | ID | Model |
+| --- | --- | --- |
+| DeepSeek (default) | `custom:deepseekv4-latest-[OpenRouter]-67` | `~deepseek/deepseek-v4-flash-latest` |
+| DeepSeek, dev gateway | `custom:deepseek-v4-Dev-[OpenRouter]-7` | pinned `deepseek-v4-flash-0731` |
+| Qwen | `custom:qwen3.8-max-[OpenRouter]-66` | `qwen/qwen3.8-max` |
 
 ```sh
-droid exec -m "custom:deepseek-v4-[OpenRouter]-7" --auto low "<task>"   # quote: brackets glob
+droid exec -m "custom:deepseekv4-latest-[OpenRouter]-67" --auto low "<task>"   # quote: brackets glob
 ```
+
+The DeepSeek seat rides the **floating `-latest` tag** (also droid's session default and its mission/validation worker model), so the weights can change without notice. When droid's behavior shifts for no reason you can trace, re-verify the model before debugging the task — a silent upgrade is the first thing to rule out. A dated pin is still reachable through the dev-gateway entry when a run must be reproducible.
 
 Four traps, all verified live:
 
-- `-m` takes a **model ID**, not the model slug. `deepseek-v4-flash-0731` is rejected; the rejection prints the valid built-in and custom IDs — trust that list over any catalog or display name.
-- Factory's built-in catalog contains `deepseek-v4-pro`, a **different model** from flash-0731. The display name `deepseek-v4` is ambiguous between them; the ID is not.
+- `-m` takes a **model ID**, not the model slug. `deepseek-v4-flash-latest` is rejected; the rejection prints the valid built-in and custom IDs — trust that list over any catalog or display name.
+- Factory's built-in catalog contains `deepseek-v4-pro`, a **different model** from the flash line. The display name `deepseek-v4` is ambiguous between them; the ID is not.
 - Only `droid exec` accepts `-m`; the interactive `droid` has no model flag, so a pane launch picks the model in-session or inherits the settings default. Confirm the active model before treating a pane as the DeepSeek seat.
 - Custom entries are read from settings at launch. An unexpected "unknown model" means the settings file changed, not that the model died.
 
@@ -151,7 +159,8 @@ Rows name the model and tier. Where a row's engine is codex, `cursor-agent`, or 
 | Wide parallel execution (peers, never a cascade) | codex panes, one level deep, each with its own exact plan |
 | Deep review, design convergence, hard problems | `sol(xhigh)` codex pane |
 | Review or execution, fourth weight family | Kimi K3 Max — `devin --model <slug>` when it validates, else `cursor-agent --model kimi-k3-max`; **for Foxway, `cursor-agent` only** |
-| Review or execution, fifth weight family | `droid exec -m "custom:deepseek-v4-[OpenRouter]-7"` — always deepseek-v4, never Factory's other routed models; **never for Foxway** |
+| Review or execution, fifth weight family (DeepSeek) | `droid exec -m "custom:deepseekv4-latest-[OpenRouter]-67"`; **never for Foxway** |
+| Review or execution, sixth weight family (Qwen) | `droid exec -m "custom:qwen3.8-max-[OpenRouter]-66"`; **never for Foxway** |
 | Adversarial review / red-team pass (final) | `claudex` (sol xhigh default, max on request, subagents forbidden), or a `codex … max` pane |
 | Opus-class standalone fresh eyes / second opinion | grok pane (`grok-build`) — never for Foxway |
 | Security/privacy/auth/abuse review | `security-reviewer` (native) |

@@ -36,6 +36,22 @@ Before enqueueing Executive speech, rewrite operational evidence for listening:
   wording is a presentation layer; it does not alter durable state or weaken
   the requirement to enqueue every user-facing Executive response as audio.
 
+## Interaction-mode cadence
+
+Shepr and the web client renew a short gateway lease while hands-free capture
+is active. Each outbound delivery to the named Executive includes the current
+aggregate mode. The lease expires to `manual` after a client crash, suspension,
+or lost connection instead of leaving the Executive permanently chatty.
+
+- In `hands_free`, use brief conversational speech at meaningful stages or
+  waits, plus blockers, tracked questions, material changes, and turn completion.
+- In `manual`, suppress routine progress speech. Speak only for blockers,
+  tracked questions, material changes, and turn completion.
+- Before optional progress speech during a long-running turn, re-read `status`;
+  the mode delivered at turn start is a snapshot and may have changed.
+- Do not enqueue a synthetic mode-change turn or interrupt active work merely to
+  announce a toggle. The next delivery and the live status are the control seam.
+
 ## Failure localization
 
 | Evidence | Inspect next |

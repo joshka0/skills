@@ -94,6 +94,15 @@ the coordinator and mobile-client boundary.
   user's primary interaction is a spoken conversation with the Executive;
   terminal text and UI summaries MAY supplement the audio but MUST NOT replace
   it.
+- Treat the gateway-provided interaction mode as the speech-cadence contract.
+  While `hands_free` is active, queue short, natural checkpoints at meaningful
+  stage changes or useful waits during longer work without narrating routine
+  churn. While `manual` is active, queue no routine progress speech: speak for
+  the completed turn, blockers, tracked clarification questions, and material
+  changes only.
+- Re-read `status` before optional progress speech because the hands-free lease
+  can change or expire mid-turn. A mode change affects cadence only; it MUST NOT
+  weaken the requirement to queue the completed user-facing response as audio.
 - Spoken Executive content MUST omit opaque machine identifiers. Do not read
   UUIDs, App Store Connect or build resource IDs, bundle or profile IDs, commit
   SHAs, correlation or event IDs, ticket IDs, or raw file paths aloud. Use
