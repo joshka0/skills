@@ -17,8 +17,10 @@ Usage:
     --expect-update <n> \
     --expect-replace <n> \
     --expect-delete <n> \
+    --expect-forget <n> \
     [--parallelism <n>] \
     [--allow-destructive] \
+    [--allow-state-forget] \
     [-- <plan arguments>]
 
   iac-apply-gate apply --plan <path>
@@ -79,6 +81,7 @@ plan_actions() {
             elif $actions == ["update"] then "update"
             elif $actions == ["delete"] then "delete"
             elif ($actions == ["delete", "create"] or $actions == ["create", "delete"]) then "replace"
+            elif $actions == ["forget"] then "forget"
             elif $actions == ["no-op"] then "no-op"
             elif $actions == ["read"] then "read"
             else "unknown"
@@ -94,6 +97,7 @@ action_counts() {
       ($actions | map(select(.kind == "update")) | length),
       ($actions | map(select(.kind == "replace")) | length),
       ($actions | map(select(.kind == "delete")) | length),
+      ($actions | map(select(.kind == "forget")) | length),
       ($actions | map(select(.kind == "no-op")) | length),
       ($actions | map(select(.kind == "read")) | length),
       ($actions | map(select(.kind == "unknown")) | length)
@@ -109,7 +113,7 @@ print_actions() {
 }
 
 print_counts() {
-  printf 'COUNTS\tcreate=%s\tupdate=%s\treplace=%s\tdelete=%s\tno-op=%s\tread=%s\tunknown=%s\n' "$@"
+  printf 'COUNTS\tcreate=%s\tupdate=%s\treplace=%s\tdelete=%s\tforget=%s\tno-op=%s\tread=%s\tunknown=%s\n' "$@"
 }
 
 reject_owned_plan_flags() {
@@ -125,8 +129,8 @@ reject_owned_plan_flags() {
 
 run_plan() {
   local tool='' environment='' workspace='' requested_plan=''
-  local expect_create='' expect_update='' expect_replace='' expect_delete=''
-  local parallelism=10 allow_destructive=false
+  local expect_create='' expect_update='' expect_replace='' expect_delete='' expect_forget=''
+  local parallelism=10 allow_destructive=false allow_state_forget=false
   local -a extra_args=()
 
   while (($#)); do
@@ -139,8 +143,10 @@ run_plan() {
       --expect-update) expect_update=${2-}; shift 2 ;;
       --expect-replace) expect_replace=${2-}; shift 2 ;;
       --expect-delete) expect_delete=${2-}; shift 2 ;;
+      --expect-forget) expect_forget=${2-}; shift 2 ;;
       --parallelism) parallelism=${2-}; shift 2 ;;
       --allow-destructive) allow_destructive=true; shift ;;
+      --allow-state-forget) allow_state_forget=true; shift ;;
       --) shift; extra_args=("$@"); break ;;
       -h|--help) usage; exit 0 ;;
       *) fail "unknown plan argument: $1" ;;
@@ -155,6 +161,7 @@ run_plan() {
   require_count --expect-update "$expect_update"
   require_count --expect-replace "$expect_replace"
   require_count --expect-delete "$expect_delete"
+  require_count --expect-forget "$expect_forget"
   require_count --parallelism "$parallelism"
   test "$parallelism" -gt 0 || fail "--parallelism must be greater than zero"
   require_command "$tool"
@@ -162,7 +169,7 @@ run_plan() {
   reject_owned_plan_flags "${extra_args[@]}"
 
   local plan receipt plan_log apply_log actual_workspace plan_exit actions counts
-  local create update replace delete no_op read unknown plan_hash timestamp tool_version
+  local create update replace delete forget no_op read unknown plan_hash timestamp tool_version
   plan=$(absolute_plan_path "$requested_plan")
   receipt="${plan}.gate.json"
   plan_log="${plan}.plan.log"
@@ -188,17 +195,21 @@ run_plan() {
 
   actions=$(plan_actions "$tool" "$plan")
   counts=$(action_counts "$actions")
-  IFS=$'\t' read -r create update replace delete no_op read unknown <<<"$counts"
+  IFS=$'\t' read -r create update replace delete forget no_op read unknown <<<"$counts"
   print_actions "$actions"
-  print_counts "$create" "$update" "$replace" "$delete" "$no_op" "$read" "$unknown"
+  print_counts "$create" "$update" "$replace" "$delete" "$forget" "$no_op" "$read" "$unknown"
 
   test "$unknown" -eq 0 || fail "plan contains unsupported action sequences"
   if test "$create" -ne "$expect_create" || test "$update" -ne "$expect_update" || \
-     test "$replace" -ne "$expect_replace" || test "$delete" -ne "$expect_delete"; then
+     test "$replace" -ne "$expect_replace" || test "$delete" -ne "$expect_delete" || \
+     test "$forget" -ne "$expect_forget"; then
     fail "action counts do not match the expected contract; apply receipt was not written"
   fi
   if { test "$replace" -gt 0 || test "$delete" -gt 0; } && test "$allow_destructive" != true; then
     fail "replace/delete actions require --allow-destructive; apply receipt was not written"
+  fi
+  if test "$forget" -gt 0 && test "$allow_state_forget" != true; then
+    fail "state-forget actions require --allow-state-forget; apply receipt was not written"
   fi
 
   plan_hash=$(sha256_file "$plan")
@@ -216,10 +227,12 @@ run_plan() {
     --arg plan_sha256 "$plan_hash" \
     --argjson parallelism "$parallelism" \
     --argjson allow_destructive "$allow_destructive" \
+    --argjson allow_state_forget "$allow_state_forget" \
     --argjson create "$create" \
     --argjson update "$update" \
     --argjson replace "$replace" \
     --argjson delete "$delete" \
+    --argjson forget "$forget" \
     --argjson no_op "$no_op" \
     --argjson read "$read" \
     '{
@@ -235,7 +248,8 @@ run_plan() {
       plan_sha256: $plan_sha256,
       parallelism: $parallelism,
       allow_destructive: $allow_destructive,
-      actions: {create: $create, update: $update, replace: $replace, delete: $delete, no_op: $no_op, read: $read}
+      allow_state_forget: $allow_state_forget,
+      actions: {create: $create, update: $update, replace: $replace, delete: $delete, forget: $forget, no_op: $no_op, read: $read}
     }' >"$receipt"
   chmod 600 "$receipt"
   jq -c '{schema, event: "plan-gate", status, created_at, tool, environment, workspace, plan_sha256, actions}' "$receipt"
@@ -255,8 +269,8 @@ run_apply() {
   require_command jq
 
   local plan receipt apply_log tool tool_version current_tool_version environment workspace expected_directory expected_hash
-  local parallelism allow_destructive actual_workspace actual_hash actions counts
-  local create update replace delete no_op read unknown
+  local parallelism allow_destructive allow_state_forget actual_workspace actual_hash actions counts
+  local create update replace delete forget no_op read unknown
   plan=$(absolute_plan_path "$requested_plan")
   receipt="${plan}.gate.json"
   apply_log="${plan}.apply.log"
@@ -273,6 +287,7 @@ run_apply() {
   expected_hash=$(jq -r '.plan_sha256' "$receipt")
   parallelism=$(jq -r '.parallelism' "$receipt")
   allow_destructive=$(jq -r '.allow_destructive' "$receipt")
+  allow_state_forget=$(jq -r '.allow_state_forget' "$receipt")
   require_command "$tool"
   current_tool_version=$($tool version | sed -n '1p')
   test "$current_tool_version" = "$tool_version" || fail "tool version changed since plan: expected $tool_version, got $current_tool_version"
@@ -284,20 +299,23 @@ run_apply() {
 
   actions=$(plan_actions "$tool" "$plan")
   counts=$(action_counts "$actions")
-  IFS=$'\t' read -r create update replace delete no_op read unknown <<<"$counts"
+  IFS=$'\t' read -r create update replace delete forget no_op read unknown <<<"$counts"
   print_actions "$actions"
-  print_counts "$create" "$update" "$replace" "$delete" "$no_op" "$read" "$unknown"
+  print_counts "$create" "$update" "$replace" "$delete" "$forget" "$no_op" "$read" "$unknown"
   test "$unknown" -eq 0 || fail "saved plan contains unsupported action sequences"
-  for kind in create update replace delete no_op read; do
+  for kind in create update replace delete forget no_op read; do
     actual=$(jq -r --arg kind "$kind" '.actions[$kind]' "$receipt")
     case "$kind" in
       create) current=$create ;; update) current=$update ;; replace) current=$replace ;;
-      delete) current=$delete ;; no_op) current=$no_op ;; read) current=$read ;;
+      delete) current=$delete ;; forget) current=$forget ;; no_op) current=$no_op ;; read) current=$read ;;
     esac
     test "$actual" -eq "$current" || fail "saved plan action count changed for $kind"
   done
   if { test "$replace" -gt 0 || test "$delete" -gt 0; } && test "$allow_destructive" != true; then
     fail "receipt does not allow replace/delete actions"
+  fi
+  if test "$forget" -gt 0 && test "$allow_state_forget" != true; then
+    fail "receipt does not allow state-forget actions"
   fi
 
   jq -c '{schema, event: "apply-preflight", status: "accepted", tool, environment, workspace, plan_sha256, actions}' "$receipt"
