@@ -83,6 +83,7 @@ trigger boundary.
 | Protected plan and apply logs | Kept | Runtime artifacts with mode `0600` |
 | Fresh zero-change verification after apply | Kept | `references/iac-operations.md` |
 | Recoverable artifact disposal | Kept | `scripts/iac-apply-gate dispose` using macOS Trash |
+| Stable command for all local agents | Kept | `terraform-guard` in `~/.local/bin` points to the canonical script |
 | New standalone skill and trigger | Merged | Existing `infra-bundles` to `iac-operations` owner |
 | State surgery and targeted delivery | Excluded | Existing `iac-operations` hard rules |
 | Environment credential selection | Excluded | Repository instructions remain authoritative |
