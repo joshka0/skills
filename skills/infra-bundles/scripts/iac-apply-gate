@@ -1,0 +1,353 @@
+#!/usr/bin/env bash
+# Gate Terraform/OpenTofu apply against an exact saved-plan action contract.
+set -euo pipefail
+
+PROGRAM=${0##*/}
+SCHEMA="iac-apply-gate/v1"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  iac-apply-gate plan \
+    --tool <tofu|terraform> \
+    --environment <name> \
+    --workspace <name> \
+    --plan <path> \
+    --expect-create <n> \
+    --expect-update <n> \
+    --expect-replace <n> \
+    --expect-delete <n> \
+    [--parallelism <n>] \
+    [--allow-destructive] \
+    [-- <plan arguments>]
+
+  iac-apply-gate apply --plan <path>
+  iac-apply-gate dispose --plan <path>
+
+The plan step writes <plan>.gate.json and <plan>.plan.log. The apply step
+rechecks the plan hash, action counts, working directory, and workspace, then
+applies that exact saved plan. Apply output is stored in <plan>.apply.log.
+The dispose step moves all related artifacts to the macOS Trash.
+EOF
+}
+
+fail() {
+  printf '%s: %s\n' "$PROGRAM" "$*" >&2
+  exit 1
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || fail "required command not found: $1"
+}
+
+require_count() {
+  case "$2" in
+    ''|*[!0-9]*) fail "$1 must be a non-negative integer" ;;
+  esac
+}
+
+absolute_plan_path() {
+  local requested=$1 directory base
+  directory=$(dirname "$requested")
+  base=$(basename "$requested")
+  test -d "$directory" || fail "plan directory does not exist: $directory"
+  directory=$(cd "$directory" && pwd -P)
+  printf '%s/%s\n' "$directory" "$base"
+}
+
+sha256_file() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  else
+    fail "sha256sum or shasum is required"
+  fi
+}
+
+plan_actions() {
+  local tool=$1 plan=$2
+  "$tool" show -json "$plan" | jq -c '
+    [
+      .resource_changes[]?
+      | .change.actions as $actions
+      | {
+          address,
+          actions: $actions,
+          kind:
+            if $actions == ["create"] then "create"
+            elif $actions == ["update"] then "update"
+            elif $actions == ["delete"] then "delete"
+            elif ($actions == ["delete", "create"] or $actions == ["create", "delete"]) then "replace"
+            elif $actions == ["no-op"] then "no-op"
+            elif $actions == ["read"] then "read"
+            else "unknown"
+            end
+        }
+    ]'
+}
+
+action_counts() {
+  jq -r '
+    [
+      ($actions | map(select(.kind == "create")) | length),
+      ($actions | map(select(.kind == "update")) | length),
+      ($actions | map(select(.kind == "replace")) | length),
+      ($actions | map(select(.kind == "delete")) | length),
+      ($actions | map(select(.kind == "no-op")) | length),
+      ($actions | map(select(.kind == "read")) | length),
+      ($actions | map(select(.kind == "unknown")) | length)
+    ]
+    | @tsv
+  ' --argjson actions "$1" <<<'{}'
+}
+
+print_actions() {
+  local actions=$1
+  printf 'ACTION\tRESOURCE\n'
+  jq -r '.[] | select(.kind != "no-op" and .kind != "read") | [.kind, .address] | @tsv' <<<"$actions"
+}
+
+print_counts() {
+  printf 'COUNTS\tcreate=%s\tupdate=%s\treplace=%s\tdelete=%s\tno-op=%s\tread=%s\tunknown=%s\n' "$@"
+}
+
+reject_owned_plan_flags() {
+  local argument
+  for argument in "$@"; do
+    case "$argument" in
+      -out|-out=*|-detailed-exitcode|-input|-input=*|-parallelism|-parallelism=*)
+        fail "the wrapper owns plan flag: $argument"
+        ;;
+    esac
+  done
+}
+
+run_plan() {
+  local tool='' environment='' workspace='' requested_plan=''
+  local expect_create='' expect_update='' expect_replace='' expect_delete=''
+  local parallelism=10 allow_destructive=false
+  local -a extra_args=()
+
+  while (($#)); do
+    case "$1" in
+      --tool) tool=${2-}; shift 2 ;;
+      --environment) environment=${2-}; shift 2 ;;
+      --workspace) workspace=${2-}; shift 2 ;;
+      --plan) requested_plan=${2-}; shift 2 ;;
+      --expect-create) expect_create=${2-}; shift 2 ;;
+      --expect-update) expect_update=${2-}; shift 2 ;;
+      --expect-replace) expect_replace=${2-}; shift 2 ;;
+      --expect-delete) expect_delete=${2-}; shift 2 ;;
+      --parallelism) parallelism=${2-}; shift 2 ;;
+      --allow-destructive) allow_destructive=true; shift ;;
+      --) shift; extra_args=("$@"); break ;;
+      -h|--help) usage; exit 0 ;;
+      *) fail "unknown plan argument: $1" ;;
+    esac
+  done
+
+  case "$tool" in tofu|terraform) ;; *) fail "--tool must be tofu or terraform" ;; esac
+  test -n "$environment" || fail "--environment is required"
+  test -n "$workspace" || fail "--workspace is required"
+  test -n "$requested_plan" || fail "--plan is required"
+  require_count --expect-create "$expect_create"
+  require_count --expect-update "$expect_update"
+  require_count --expect-replace "$expect_replace"
+  require_count --expect-delete "$expect_delete"
+  require_count --parallelism "$parallelism"
+  test "$parallelism" -gt 0 || fail "--parallelism must be greater than zero"
+  require_command "$tool"
+  require_command jq
+  reject_owned_plan_flags "${extra_args[@]}"
+
+  local plan receipt plan_log apply_log actual_workspace plan_exit actions counts
+  local create update replace delete no_op read unknown plan_hash timestamp tool_version
+  plan=$(absolute_plan_path "$requested_plan")
+  receipt="${plan}.gate.json"
+  plan_log="${plan}.plan.log"
+  apply_log="${plan}.apply.log"
+  for path in "$plan" "$receipt" "$plan_log" "$apply_log"; do
+    test ! -e "$path" || fail "refusing to overwrite existing artifact: $path"
+  done
+
+  actual_workspace=$($tool workspace show)
+  test "$actual_workspace" = "$workspace" || fail "workspace mismatch: expected $workspace, got $actual_workspace"
+
+  umask 077
+  set +e
+  "$tool" plan -input=false -detailed-exitcode -parallelism="$parallelism" -out="$plan" "${extra_args[@]}" >"$plan_log" 2>&1
+  plan_exit=$?
+  set -e
+  chmod 600 "$plan_log"
+  if test "$plan_exit" -ne 0 && test "$plan_exit" -ne 2; then
+    fail "plan failed with exit $plan_exit; inspect protected log: $plan_log"
+  fi
+  test -f "$plan" || fail "tool returned no saved plan"
+  chmod 600 "$plan"
+
+  actions=$(plan_actions "$tool" "$plan")
+  counts=$(action_counts "$actions")
+  IFS=$'\t' read -r create update replace delete no_op read unknown <<<"$counts"
+  print_actions "$actions"
+  print_counts "$create" "$update" "$replace" "$delete" "$no_op" "$read" "$unknown"
+
+  test "$unknown" -eq 0 || fail "plan contains unsupported action sequences"
+  if test "$create" -ne "$expect_create" || test "$update" -ne "$expect_update" || \
+     test "$replace" -ne "$expect_replace" || test "$delete" -ne "$expect_delete"; then
+    fail "action counts do not match the expected contract; apply receipt was not written"
+  fi
+  if { test "$replace" -gt 0 || test "$delete" -gt 0; } && test "$allow_destructive" != true; then
+    fail "replace/delete actions require --allow-destructive; apply receipt was not written"
+  fi
+
+  plan_hash=$(sha256_file "$plan")
+  timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  tool_version=$($tool version | sed -n '1p')
+  jq -n \
+    --arg schema "$SCHEMA" \
+    --arg created_at "$timestamp" \
+    --arg tool "$tool" \
+    --arg tool_version "$tool_version" \
+    --arg environment "$environment" \
+    --arg workspace "$workspace" \
+    --arg working_directory "$PWD" \
+    --arg plan "$plan" \
+    --arg plan_sha256 "$plan_hash" \
+    --argjson parallelism "$parallelism" \
+    --argjson allow_destructive "$allow_destructive" \
+    --argjson create "$create" \
+    --argjson update "$update" \
+    --argjson replace "$replace" \
+    --argjson delete "$delete" \
+    --argjson no_op "$no_op" \
+    --argjson read "$read" \
+    '{
+      schema: $schema,
+      status: "accepted",
+      created_at: $created_at,
+      tool: $tool,
+      tool_version: $tool_version,
+      environment: $environment,
+      workspace: $workspace,
+      working_directory: $working_directory,
+      plan: $plan,
+      plan_sha256: $plan_sha256,
+      parallelism: $parallelism,
+      allow_destructive: $allow_destructive,
+      actions: {create: $create, update: $update, replace: $replace, delete: $delete, no_op: $no_op, read: $read}
+    }' >"$receipt"
+  chmod 600 "$receipt"
+  jq -c '{schema, event: "plan-gate", status, created_at, tool, environment, workspace, plan_sha256, actions}' "$receipt"
+  printf 'RECEIPT\t%s\n' "$receipt"
+}
+
+run_apply() {
+  local requested_plan=''
+  while (($#)); do
+    case "$1" in
+      --plan) requested_plan=${2-}; shift 2 ;;
+      -h|--help) usage; exit 0 ;;
+      *) fail "unknown apply argument: $1" ;;
+    esac
+  done
+  test -n "$requested_plan" || fail "--plan is required"
+  require_command jq
+
+  local plan receipt apply_log tool tool_version current_tool_version environment workspace expected_directory expected_hash
+  local parallelism allow_destructive actual_workspace actual_hash actions counts
+  local create update replace delete no_op read unknown
+  plan=$(absolute_plan_path "$requested_plan")
+  receipt="${plan}.gate.json"
+  apply_log="${plan}.apply.log"
+  test -f "$plan" || fail "saved plan not found: $plan"
+  test -f "$receipt" || fail "gate receipt not found: $receipt"
+  test ! -e "$apply_log" || fail "refusing to overwrite existing artifact: $apply_log"
+  jq -e --arg schema "$SCHEMA" '.schema == $schema and .status == "accepted"' "$receipt" >/dev/null || fail "invalid gate receipt"
+
+  tool=$(jq -r '.tool' "$receipt")
+  tool_version=$(jq -r '.tool_version' "$receipt")
+  environment=$(jq -r '.environment' "$receipt")
+  workspace=$(jq -r '.workspace' "$receipt")
+  expected_directory=$(jq -r '.working_directory' "$receipt")
+  expected_hash=$(jq -r '.plan_sha256' "$receipt")
+  parallelism=$(jq -r '.parallelism' "$receipt")
+  allow_destructive=$(jq -r '.allow_destructive' "$receipt")
+  require_command "$tool"
+  current_tool_version=$($tool version | sed -n '1p')
+  test "$current_tool_version" = "$tool_version" || fail "tool version changed since plan: expected $tool_version, got $current_tool_version"
+  test "$PWD" = "$expected_directory" || fail "working directory changed since plan: expected $expected_directory"
+  actual_workspace=$($tool workspace show)
+  test "$actual_workspace" = "$workspace" || fail "workspace changed since plan: expected $workspace, got $actual_workspace"
+  actual_hash=$(sha256_file "$plan")
+  test "$actual_hash" = "$expected_hash" || fail "saved plan hash does not match the accepted receipt"
+
+  actions=$(plan_actions "$tool" "$plan")
+  counts=$(action_counts "$actions")
+  IFS=$'\t' read -r create update replace delete no_op read unknown <<<"$counts"
+  print_actions "$actions"
+  print_counts "$create" "$update" "$replace" "$delete" "$no_op" "$read" "$unknown"
+  test "$unknown" -eq 0 || fail "saved plan contains unsupported action sequences"
+  for kind in create update replace delete no_op read; do
+    actual=$(jq -r --arg kind "$kind" '.actions[$kind]' "$receipt")
+    case "$kind" in
+      create) current=$create ;; update) current=$update ;; replace) current=$replace ;;
+      delete) current=$delete ;; no_op) current=$no_op ;; read) current=$read ;;
+    esac
+    test "$actual" -eq "$current" || fail "saved plan action count changed for $kind"
+  done
+  if { test "$replace" -gt 0 || test "$delete" -gt 0; } && test "$allow_destructive" != true; then
+    fail "receipt does not allow replace/delete actions"
+  fi
+
+  jq -c '{schema, event: "apply-preflight", status: "accepted", tool, environment, workspace, plan_sha256, actions}' "$receipt"
+  umask 077
+  set +e
+  "$tool" apply -input=false -auto-approve -parallelism="$parallelism" "$plan" >"$apply_log" 2>&1
+  apply_exit=$?
+  set -e
+  chmod 600 "$apply_log"
+  if test "$apply_exit" -ne 0; then
+    jq -nc --arg schema "$SCHEMA" --arg tool "$tool" --arg environment "$environment" --arg workspace "$workspace" --arg plan_sha256 "$expected_hash" --argjson exit_code "$apply_exit" \
+      '{schema: $schema, event: "apply", status: "failed", tool: $tool, environment: $environment, workspace: $workspace, plan_sha256: $plan_sha256, exit_code: $exit_code}'
+    fail "apply failed with exit $apply_exit; inspect protected log: $apply_log"
+  fi
+  jq -nc --arg schema "$SCHEMA" --arg tool "$tool" --arg environment "$environment" --arg workspace "$workspace" --arg plan_sha256 "$expected_hash" \
+    '{schema: $schema, event: "apply", status: "applied", tool: $tool, environment: $environment, workspace: $workspace, plan_sha256: $plan_sha256}'
+  printf 'APPLY_LOG\t%s\n' "$apply_log"
+}
+
+run_dispose() {
+  local requested_plan=''
+  while (($#)); do
+    case "$1" in
+      --plan) requested_plan=${2-}; shift 2 ;;
+      -h|--help) usage; exit 0 ;;
+      *) fail "unknown dispose argument: $1" ;;
+    esac
+  done
+  test -n "$requested_plan" || fail "--plan is required"
+  test -x /usr/bin/trash || fail "dispose requires macOS /usr/bin/trash"
+  local plan candidate
+  local -a artifacts=()
+  plan=$(absolute_plan_path "$requested_plan")
+  for candidate in "$plan" "${plan}.gate.json" "${plan}.plan.log" "${plan}.apply.log"; do
+    test ! -e "$candidate" || artifacts+=("$candidate")
+  done
+  test "${#artifacts[@]}" -gt 0 || fail "no plan artifacts found"
+  /usr/bin/trash "${artifacts[@]}"
+  printf 'TRASHED\t%s artifact(s)\n' "${#artifacts[@]}"
+}
+
+main() {
+  local command=${1-}
+  case "$command" in
+    plan) shift; run_plan "$@" ;;
+    apply) shift; run_apply "$@" ;;
+    dispose) shift; run_dispose "$@" ;;
+    -h|--help|help|'') usage ;;
+    *) fail "unknown command: $command" ;;
+  esac
+}
+
+main "$@"
