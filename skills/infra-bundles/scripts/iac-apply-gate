@@ -8,7 +8,7 @@ SCHEMA="iac-apply-gate/v1"
 usage() {
   cat <<'EOF'
 Usage:
-  iac-apply-gate plan \
+  terraform-guard plan \
     --tool <tofu|terraform> \
     --environment <name> \
     --workspace <name> \
@@ -23,8 +23,8 @@ Usage:
     [--allow-state-forget] \
     [-- <plan arguments>]
 
-  iac-apply-gate apply --plan <path>
-  iac-apply-gate dispose --plan <path>
+  terraform-guard apply --plan <path>
+  terraform-guard dispose --plan <path>
 
 The plan step writes <plan>.gate.json and <plan>.plan.log. The apply step
 rechecks the plan hash, action counts, working directory, and workspace, then
