@@ -13,7 +13,8 @@
 
 The non-default delta is a fail-closed AI apply contract. It binds exact action
 counts, environment, workspace, tool, working directory, and plan hash before
-Terraform or OpenTofu can apply a saved plan.
+Terraform or OpenTofu can apply a saved plan. State forgets have their own
+expected count and explicit permission.
 
 The existence decision is **MERGE into `infra-bundles`**. A separate apply-gate
 skill would collide with the existing `iac-operations` route and add no useful
@@ -33,7 +34,7 @@ trigger boundary.
 
 | Item | Result | Evidence |
 | --- | --- | --- |
-| A01 | PASS | Exact action expectations, a hash-bound receipt, and same-plan apply exceed generic strong-agent behavior. |
+| A01 | PASS | Exact provider and state-action expectations, a hash-bound receipt, and same-plan apply exceed generic strong-agent behavior. |
 | A02 | PASS | Terraform and OpenTofu applies recur across infrastructure repositories and environments. |
 | A03 | PASS | The collision matrix assigns the delta to the existing `iac-operations` owner instead of creating a sibling. |
 | A04 | PASS | The retained package remains exactly one router. |
@@ -46,7 +47,7 @@ trigger boundary.
 | A11 | PASS | `SKILL.md` is 49 lines and 3,371 bytes, below router limits. |
 | A12 | PASS | The active router remains limited to route, precedence, workflow, rules, stops, and output. |
 | A13 | PASS | The existing `iac-operations` route selects the reference that names the wrapper. |
-| A14 | PASS | All references remain below 250 lines; the package is 449 text lines. |
+| A14 | PASS | All references remain below 250 lines; the package is 467 text lines. |
 | A15 | DEFERRED | Package prose is non-duplicative: the invariant exists once in `iac-operations`, and executable detail exists only in the script. Catalog and provider parity await composition. |
 | A16 | N/A | Not a mode suite. |
 | A17 | N/A | Not a mode suite. |
@@ -61,7 +62,7 @@ trigger boundary.
 | A26 | PASS | Missing tools, plan directories, workspaces, receipts, and hashes fail clearly. |
 | A27 | PASS | `scripts/iac-apply-gate` is referenced, deterministic, fail-closed, executable, and smoke-tested with OpenTofu and Terraform. |
 | A28 | N/A | No asset or provider metadata was added. |
-| A29 | PASS | Exact counts, unknown-action rejection, destructive-action opt-in, no-overwrite behavior, same-directory check, same-workspace check, and plan hashing protect concrete failures. |
+| A29 | PASS | Exact counts, unknown-action rejection, separate destructive and state-forget opt-ins, no-overwrite behavior, same-directory check, same-workspace check, and plan hashing protect concrete failures. |
 | A30 | DEFERRED | Canonical catalog and provider exposure were unchanged and were not recomposed. |
 | A31 | DEFERRED | Local references and the no-symlink check pass; installed-view composition was not required for this package-only change. |
 | A32 | PASS | The package keeps the compact `infra-bundles` router shape and follows the pilot pattern of active routing plus deferred operational detail. |
@@ -77,6 +78,7 @@ trigger boundary.
 | Explicit environment and workspace checks | Kept | `scripts/iac-apply-gate` |
 | Saved-plan hash receipt and same-plan apply | Kept | `scripts/iac-apply-gate` |
 | Destructive replace/delete opt-in | Kept | `scripts/iac-apply-gate` |
+| State-forget count and separate opt-in | Kept | `scripts/iac-apply-gate` |
 | Compact safe audit records | Kept | `scripts/iac-apply-gate` standard output |
 | Protected plan and apply logs | Kept | Runtime artifacts with mode `0600` |
 | Fresh zero-change verification after apply | Kept | `references/iac-operations.md` |
@@ -108,6 +110,9 @@ OpenTofu 1.12.1 smoke evidence:
   fresh zero-change verification plan.
 - A one-create plan listed `terraform_data.smoke` and matched the expected
   count.
+- A no-destroy `removed` block reported one state forget. The wrapper rejected
+  it without `--allow-state-forget`, accepted it with the flag, applied the
+  hash-bound plan, and then produced a zero-change verification plan.
 - Every generated plan artifact moved to Trash.
 
 Terraform 1.12.2 smoke evidence:
