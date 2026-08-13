@@ -1,6 +1,6 @@
 ---
 name: local-dev
-description: "Operate local route/worktree topology and secret-safe credential handoffs. Use when configuring Portless, a development proxy, an isolated worktree route, or named-secret injection."
+description: "Operate local route/worktree topology and secret-safe credential handoffs. Use when configuring Portless, a development proxy, an isolated worktree route, tailnet-reachable endpoints, or named-secret injection."
 ---
 
 # Local Development
@@ -13,7 +13,7 @@ Read only the selected reference.
 
 | Mode | Select when | Read |
 | --- | --- | --- |
-| `topology` | starting or resolving a Portless route, worktree-scoped route, development proxy, or reachability path | `references/topology.md` |
+| `topology` | starting or resolving a Portless route, worktree-scoped route, development proxy, tailnet-reachable endpoint, or reachability path | `references/topology.md` |
 | `secrets` | handing required credential names to an existing local injector without revealing values | `references/secrets.md` |
 
 Select exactly one mode. Combine them only when a topology operation also needs an authorized named credential.
