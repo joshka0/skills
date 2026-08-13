@@ -5,29 +5,35 @@
 Verify this state before use.
 
 - Infisical runs on the private `vps` host. It is the only secret source of truth.
-- Cloudflare R2 stores encrypted Restic backups of Infisical.
-- The Mac Agent Vault broker currently runs on loopback. Its `shared` and `skills` vaults read the Infisical development environment.
+- One Agent Vault broker runs as a dedicated system service on `vps`. It binds only to the Tailnet address.
+- The central `shared` and `skills` vaults read the Infisical development environment. Verify their latest sync status before use.
+- The Mac central launcher and the client-only installation on `ssh dev` both pass one allowed GitHub request and one unmatched-host deny test.
+- The original Mac loopback broker and files stay preserved. Its current Infisical sync is expired, and its logs report a malformed database. It is not a verified rollback. Do not remove or repair it until the central path remains stable and the user selects a recovery action.
+- Cloudflare R2 stores encrypted Restic backups of Infisical and Agent Vault. Each Agent Vault backup includes an isolated restore and SQLite integrity check.
 - The old local Infisical instance stays intact until the VPS deployment and its clients remain stable.
-- The `dev` host is an intended Agent Vault client. It must not receive a copied broker database, broker master material, or an Infisical machine credential.
+- Client hosts must not receive a copied broker database, broker master material, or an Infisical machine credential.
+- The Mac and `dev` currently share the scoped `local-codex` Agent Vault identity as migration state. Create one identity per host or Herdr trust group before audit attribution matters.
 - The secret publisher can describe, create, and edit secrets in approved development paths. It cannot read values or delete secrets.
 
-## Target topology
+## Live topology
 
-Use one private Agent Vault broker for Herdr workers on the Mac and `ssh dev`.
+Use the central broker for Herdr workers on the Mac and `ssh dev`.
 
 ```text
-Infisical on vps ── encrypted Restic backup ──> private R2 bucket
+Infisical on vps ───┐
+                  ├── encrypted Restic backups ──> private R2 bucket
+Agent Vault on vps ─┘
         │
-        └── read by one private Agent Vault broker
-                         │
-                   Tailscale only
-                    ┌────┴────┐
-                 Mac Herdr  dev Herdr
+  Tailscale only
+   ┌────┴────┐
+Mac clients  dev clients
 ```
 
-Prefer a broker on an isolated VPS service or microVM. A broker on the Infisical VPS is acceptable for this small private setup. It isolates secret material from agent hosts, but it does not isolate the broker from the secret server. Use a separate microVM later only if that stronger host boundary is worth the extra operations.
+The shared VPS isolates broker material from agent-controlled hosts. It does not isolate Agent Vault from Infisical. Use a separate microVM later only when that stronger host boundary is worth the extra operations.
 
-Keep the Mac loopback broker as rollback state until the central broker passes tests from both clients. Do not install a full broker on `dev` while its agents can use Docker or inspect host processes. Install only the client tooling, client configuration, and CA trust there.
+Keep management and proxy ports private in the Tailnet policy. Grant only the required client hosts and both Agent Vault TCP ports. Do not install a full broker on `dev` while its agents can use Docker or inspect host processes. Install only the client tooling, client configuration, encrypted client token, and CA trust there.
+
+The migration snapshot and central R2 backup are the current recovery evidence. Do not call the running Mac broker a rollback until it has a separate integrity and proxy test.
 
 ## Infisical project boundaries
 
@@ -52,6 +58,18 @@ Use environments for lifecycle separation: `dev`, `staging`, and `prod`. Use pat
 
 Infisical Secret Imports compose folders inside one project. They do not replace a cross-project trust decision. For cross-project use, prefer a separate scoped credential for each project. If one credential must stay shared, expose it through a narrow Agent Vault shared vault instead of copying its value into every project.
 
+## Secret create and update flow
+
+Agent Vault is the injection plane. It is not the write path.
+
+1. Use the write-only Infisical publisher to create or update one approved secret key.
+2. Keep the project, environment, and path as narrow as the consumer boundary.
+3. Wait for the related Agent Vault store to report a successful sync. Discover the configured poll interval live.
+4. Test one request through the service mapping without printing the value.
+5. If a new key needs a new host, header, or service rule, require a separate Agent Vault policy change. A successful secret sync does not create that mapping.
+
+Agents can perform steps 1, 3, and 4 when their task authorizes the write. They must not receive Infisical read, delete, identity-administration, or Agent Vault policy-administration rights.
+
 ## Credential rules
 
 - Prefer workload identity and short-lived provider tokens.
@@ -65,6 +83,8 @@ Infisical Secret Imports compose folders inside one project. They do not replace
 
 Give each worker only the vault needed for its task. Use a project vault for repository work. Use a separate shared-tool vault only for the command that needs the shared service.
 
+Create a distinct Agent Vault identity per host or stable Herdr trust group. Use separate identities per worker only when independent revocation or audit attribution is required. Do not reuse one migration token as the long-term identity for both the Mac and `dev`.
+
 The Herdr coordinator can pass a broker endpoint, CA location, vault name, and narrow session to the pane. It must not pass raw provider secrets or Infisical credentials. Keep strict host and service allowlists in the broker. Use the Agent Vault native skills for exact CLI and proxy commands.
 
 ## Live discovery
@@ -77,3 +97,4 @@ Check these facts before a change:
 4. List vault names and grant metadata without showing values.
 5. Check the Infisical project, environment, and path attached to each vault.
 6. Test one allowed upstream endpoint and one deliberate deny case.
+7. Check both backup timers and the newest complete snapshot metadata.
