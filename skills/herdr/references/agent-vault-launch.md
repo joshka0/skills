@@ -4,21 +4,21 @@ Read this only when a Herdr task may need a secret or authenticated external API
 
 ## Classify before launch
 
-Choose one credential mode before the agent starts:
+Choose one credential mode before sending the task prompt:
 
 | Mode | Use when | Launch action |
 | --- | --- | --- |
 | `none` | Local files, code, public data, or an unauthenticated API are sufficient | Start the model executable normally |
-| `agent-vault` | The agent must call an authenticated external HTTP API | Start the model through one named Agent Vault vault |
+| `agent-vault-command` | One or more commands must call an authenticated external HTTP API | Start the model normally; wrap each credential-bearing command through one named vault |
 | `infisical-runtime` | The application or service needs a secret as an environment variable or file | Keep the coding agent unwrapped; inject only into the application process |
 | `control-plane` | The task changes Infisical policy, Agent Vault grants, service mappings, identities, or recovery state | Use `agent-secret-infrastructure`; do not give the worker an owner credential |
 
-Default to `none`. Do not wrap every agent. Proxy and CA variables affect the full child process, and vault access must follow the task boundary.
+Default to `none`. Do not wrap the model TUI. A command-scoped wrapper leaves the model, MCP servers, browser bridge, and unrelated tools on their normal network paths.
 
 Record only safe launch metadata in the task brief:
 
 ```text
-credential_mode: agent-vault
+credential_mode: agent-vault-command
 agent_vault_vault: <vault>
 required_hosts: <host-list>
 ```
@@ -31,21 +31,23 @@ Do not put tokens, secret values, Infisical identities, or broker administrator 
 2. Run `agent-vault-run <vault> -- agent-vault vault discover --json` before the split. Confirm the expected vault and host from safe metadata.
 3. Stop if the launcher is missing, the vault is not granted, the broker is unreachable, or the required host is absent. Do not fall back to a raw token or direct request.
 
-One launched process uses one primary vault. If a project task also needs a shared tool, run only that tool command through the shared vault or launch a separate narrowly scoped worker. Do not broaden the project vault.
+One command uses one vault. A worker can use a project vault for one command and the shared vault for another. Do not merge broad shared credentials into a project vault.
 
 ## Interactive launch
 
-Agent Vault changes only the executable command. Herdr still starts the model interactively, waits for its TUI, and sends the prompt afterward.
+Herdr starts the model normally, waits for its TUI, and sends the prompt afterward.
 
 ```sh
-herdr pane run <pane-id> "agent-vault-run <vault> -- codex"
+herdr pane run <pane-id> "codex"
 herdr wait agent-status <pane-id> --status idle --timeout 30000
 herdr pane run <pane-id> "/rename <task-label>"
-herdr pane run <pane-id> "<task-prompt>"
+herdr pane run <pane-id> "<task-prompt and safe command-scoped vault instruction>"
 ```
 
 Use `claude`, `pi`, `opencode`, or another installed model command in the same position. Never pass the task prompt as an argument to the model executable or to `agent-vault-run`.
 
-If a running agent later discovers a real credential need, stop that task and relaunch it through the selected vault. Do not add a token to the current process environment.
+The worker runs an approved operation as `agent-vault-run <vault> -- <command>`. The wrapper injects proxy state only into that subprocess. It does not add a token to the model environment.
+
+Do not launch the full model through Agent Vault unless the user explicitly requests full-session egress control. That separate design needs a tested passthrough allowlist for the model and every required remote tool.
 
 Vault selection is a broker scope and audit boundary. It is not an operating-system sandbox. Use separate host identities or isolated workers when independent revocation or protection from a hostile local process is required.

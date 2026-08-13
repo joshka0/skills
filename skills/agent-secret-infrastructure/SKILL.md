@@ -31,7 +31,7 @@ Do not use this skill for an ordinary proxied API call. Use the Agent Vault skil
 1. Discover the live state. Check the `vps` and `dev` SSH aliases, Tailscale reachability, service status, installed client versions, and listener addresses. Do not infer state from this document.
 2. Classify the request. Read-only checks and a requested secret write can proceed. Stop before a host move, broker centralization, identity redesign, project split, restore cutover, or destructive rotation unless the user approved that change.
 3. Keep Infisical authoritative. Use a human administrator for policy changes. Require the approved write-only publisher for a routine secret create or update. Stop when it is not installed; never replace it with a raw-value command argument.
-4. Keep agents behind Agent Vault. Launch a Herdr worker through the host-local `agent-vault-run` command only when its task needs an authenticated external API. The worker does not receive an Infisical machine identity.
+4. Keep credentials behind Agent Vault. Launch the Herdr worker normally. Run only its credential-bearing command through the host-local `agent-vault-run` command. The worker does not receive an Infisical machine identity.
 5. Assign one primary vault for each task. Add a separate shared-tool session only when the task needs it. Do not merge broad shared credentials into every project vault.
 6. Verify through behavior. Confirm that an allowed proxied request works and that a denied host, path, or service stays denied. Never print the injected value.
 7. For recovery work, follow the batch and restore gates in the recovery reference. Preserve the old host and local state until the replacement passes application checks.

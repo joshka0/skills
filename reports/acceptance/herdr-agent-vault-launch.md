@@ -5,17 +5,18 @@
 - Canonical owner: `skills/herdr`
 - Archetype: private leaf
 - Pre-rewrite git ref: `a14aadf`
+- Pre-command-scope rewrite ref: `7370682`
 - Package verdict: **PACKAGE-CONFORMS**
 - Catalog verdict: **BLOCKED** by the provider-linker policy conflict recorded in `agent-vault.md`.
 
-The added delta classifies credential mode before launch and preserves Herdr's interactive model sequence: start the TUI, wait, rename, then send the prompt.
+The added delta classifies credential mode before the prompt, preserves Herdr's interactive model sequence, and limits Agent Vault to the credential-bearing command.
 
 ## Collision matrix
 
 | Signal | First owner | Nearest competitor | Discriminator and handoff |
 | --- | --- | --- | --- |
 | Launch an interactive Herdr model | `herdr` | `agent-orchestration` | Herdr owns pane transport and the start-wait-prompt sequence. |
-| Launch a Herdr model with brokered API access | `herdr` | `agent-vault` | Herdr selects and starts the vault. Agent Vault owns requests inside the process. |
+| Give a Herdr task brokered API access | `herdr` | `agent-vault` | Herdr starts the model normally and passes safe scope metadata. Agent Vault owns the selected command. |
 | Add or rotate a secret | `agent-secret-infrastructure` | `herdr` | This is a publisher and sync flow, not pane launch. |
 | Inject an application runtime value | `local-dev` | `herdr` | The app process receives it; the coding agent stays unwrapped. |
 
@@ -25,9 +26,10 @@ The added delta classifies credential mode before launch and preserves Herdr's i
 | --- | --- | --- |
 | Models open interactively before prompts | Kept and made explicit | `SKILL.md` workflow and `command-recipes.md` |
 | No prompt in model arguments | Kept and made explicit | Both launch references |
-| No vault by default | Added | `agent-vault-launch.md` classification |
-| One named vault for an authenticated API task | Added | `agent-vault-launch.md` preflight and launch |
-| A credential need after start requires relaunch | Added | `agent-vault-launch.md` stop rule |
+| Model TUI stays outside Agent Vault | Added | `agent-vault-launch.md` classification and interactive launch |
+| One named vault for each authenticated API command | Added | `agent-vault-launch.md` preflight and command rule |
+| Project and shared access use separate commands | Added | `agent-vault-launch.md` preflight |
+| MCP and browser tools keep their normal network path | Added | `agent-vault-launch.md` classification |
 | Vault scope is not an OS sandbox | Added | `agent-vault-launch.md` boundary note |
 
 ## Checklist
@@ -44,11 +46,11 @@ The added delta classifies credential mode before launch and preserves Herdr's i
 | A08 | PASS | The description names Herdr workspace, pane, and transport signals. |
 | A09 | PASS | Neighbor collisions have explicit handoffs. |
 | A10 | PASS | No greedy external-API trigger was added to the Herdr description. |
-| A11 | PASS | `SKILL.md` is 57 lines and 5,915 bytes. |
+| A11 | PASS | `SKILL.md` is 57 lines and 5,962 bytes. |
 | A12 | PASS | The active body contains route, workflow, safety, stops, and output only. |
 | A13 | PASS | Each of three references has an explicit selection condition and resolves. |
-| A14 | PASS | References are 51, 101, and 22 lines; package total is 231 lines and 16,060 bytes. |
-| A15 | PASS | Interactive launch has one recipe owner; Agent Vault detail is selected only for credential tasks. |
+| A14 | PASS | References are 53, 101, and 22 lines; package total is 233 lines and 16,363 bytes. |
+| A15 | PASS | Interactive launch has one recipe owner; Agent Vault detail is selected only for credential-bearing commands. |
 | A16 | N/A | Not a suite. |
 | A17 | N/A | No modes. |
 | A18 | N/A | Not a router. |
@@ -68,7 +70,7 @@ The added delta classifies credential mode before launch and preserves Herdr's i
 | A32 | PASS | The package remains the private-tool golden shape. |
 | A33 | N/A | This is an additive private-policy update, not a consolidation. |
 | A34 | PASS | The preservation ledger accounts for each launch delta. |
-| A35 | PASS | The pre-edit Herdr package is committed at `a14aadf`. |
+| A35 | PASS | The pre-edit Herdr package is committed at `a14aadf`; its pre-command-scope form is committed at `7370682`. |
 
 ## Validation evidence
 

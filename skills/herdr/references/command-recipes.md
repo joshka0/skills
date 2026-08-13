@@ -36,7 +36,7 @@ herdr pane run <pane-id> "/rename diff-reviewer"
 herdr pane run <pane-id> "Review the current diff and report only actionable findings."
 ```
 
-When the task requires an authenticated external API, first read `agent-vault-launch.md`. Launch `agent-vault-run <vault> -- <model>` in place of the plain model command. Keep the same wait, rename, and prompt sequence.
+When one task operation requires an authenticated external API, first read `agent-vault-launch.md`. Keep the plain model launch. Put the safe vault name and required host in the prompt so the worker wraps only the credential-bearing command.
 
 Send the session rename only when the agent's slash help lists such a command;
 match it to the pane label so live view and session history tell one story.
