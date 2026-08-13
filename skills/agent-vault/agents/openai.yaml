@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Vault"
+  short_description: "Use brokered API credentials safely"
+  default_prompt: "Use $agent-vault to call an authenticated external API through the current brokered session without exposing credential values."

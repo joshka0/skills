@@ -13,7 +13,7 @@ Verify this state before use.
 - The old local Infisical instance stays intact until the VPS deployment and its clients remain stable.
 - Client hosts must not receive a copied broker database, broker master material, or an Infisical machine credential.
 - The Mac uses the scoped `local-codex` identity. The `dev` host uses the scoped `dev-herdr` identity. Both have no instance access and only `proxy` grants for `shared` and `skills`.
-- The secret publisher can describe, create, and edit secrets in approved development paths. It cannot read values or delete secrets.
+- No general write-only secret publisher is currently verified as installed. Secret create and update work must stop until the approved publisher exists and passes its capability checks.
 
 ## Live topology
 
@@ -62,7 +62,7 @@ Infisical Secret Imports compose folders inside one project. They do not replace
 
 Agent Vault is the injection plane. It is not the write path.
 
-1. Use the write-only Infisical publisher to create or update one approved secret key.
+1. Verify the approved write-only Infisical publisher. Use it to create or update one approved secret key. Stop if it is unavailable.
 2. Keep the project, environment, and path as narrow as the consumer boundary.
 3. Wait for the related Agent Vault store to report a successful sync. Discover the configured poll interval live.
 4. Test one request through the service mapping without printing the value.
@@ -85,7 +85,9 @@ Give each worker only the vault needed for its task. Use a project vault for rep
 
 Create a distinct Agent Vault identity per host or stable Herdr trust group. Use separate identities per worker only when independent revocation or audit attribution is required. Rotate the retained identity after a host split so copied migration tokens become invalid.
 
-The Herdr coordinator can pass a broker endpoint, CA location, vault name, and narrow session to the pane. It must not pass raw provider secrets or Infisical credentials. Keep strict host and service allowlists in the broker. Use the Agent Vault native skills for exact CLI and proxy commands.
+The Herdr coordinator selects the credential mode before launch. For a brokered task, it starts the interactive model through the host-local `agent-vault-run <vault> -- <model>` command, waits for the model TUI, and then sends the prompt. It must not pass raw provider secrets, Agent Vault client tokens, or Infisical credentials through Herdr. Keep strict host and service allowlists in the broker. Use the canonical `agent-vault` skill inside the launched process.
+
+Vault selection limits broker use and improves audit attribution. It does not isolate a worker from other credentials that its operating-system identity can access. Use separate host identities or an isolated worker when that boundary is required.
 
 ## Live discovery
 

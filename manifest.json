@@ -21,10 +21,6 @@
       "exclude": [
         "dormant",
         "claude_only"
-      ],
-      "native": [
-        "native/agents/agent-vault-cli",
-        "native/agents/agent-vault-http"
       ]
     },
     "codex": {

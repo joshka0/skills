@@ -13,8 +13,8 @@ Use this skill as the control-plane runbook. Treat all recorded host state as a 
 | --- | --- |
 | Secret source of truth and access policy | Infisical |
 | Agent-safe credential injection | Agent Vault broker |
-| One-secret create or update from this Mac | `local-dev` with its secrets reference |
-| Agent Vault commands and HTTP proxy behavior | `agent-vault-cli` or `agent-vault-http` |
+| Application secret ownership and runtime injection | `local-dev` with its secrets reference |
+| Brokered external API requests | `agent-vault` |
 | Cloudflare token creation and R2 changes | `cloudflare-operations` |
 | Private topology, project boundaries, Herdr vault assignment, and recovery | This skill |
 
@@ -24,13 +24,14 @@ Do not use this skill for an ordinary proxied API call. Use the Agent Vault skil
 
 - Read [references/architecture-and-policy.md](references/architecture-and-policy.md) for every task.
 - Also read [references/backup-and-restore.md](references/backup-and-restore.md) for backup, recovery, key rotation, or host replacement.
+- Also read [references/publishing-and-sync.md](references/publishing-and-sync.md) for secret creation, update, rotation, or Agent Vault sync.
 
 ## Workflow
 
 1. Discover the live state. Check the `vps` and `dev` SSH aliases, Tailscale reachability, service status, installed client versions, and listener addresses. Do not infer state from this document.
 2. Classify the request. Read-only checks and a requested secret write can proceed. Stop before a host move, broker centralization, identity redesign, project split, restore cutover, or destructive rotation unless the user approved that change.
-3. Keep Infisical authoritative. Use a human administrator for policy changes. Use the write-only publisher for routine secret create or update work. Never give that publisher secret-read or delete rights.
-4. Keep agents behind Agent Vault. A Herdr worker receives a broker address, CA trust, vault name, and narrow Agent Vault session or token. It does not receive an Infisical machine identity.
+3. Keep Infisical authoritative. Use a human administrator for policy changes. Require the approved write-only publisher for a routine secret create or update. Stop when it is not installed; never replace it with a raw-value command argument.
+4. Keep agents behind Agent Vault. Launch a Herdr worker through the host-local `agent-vault-run` command only when its task needs an authenticated external API. The worker does not receive an Infisical machine identity.
 5. Assign one primary vault for each task. Add a separate shared-tool session only when the task needs it. Do not merge broad shared credentials into every project vault.
 6. Verify through behavior. Confirm that an allowed proxied request works and that a denied host, path, or service stays denied. Never print the injected value.
 7. For recovery work, follow the batch and restore gates in the recovery reference. Preserve the old host and local state until the replacement passes application checks.

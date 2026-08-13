@@ -5,7 +5,7 @@ harness through symlinks.
 
 ```text
 skills/          canonical skill packages (the only content layer)
-native/          provider-specific packages (agent-vault, heroui)
+native/          provider-specific or retained imported packages
 providers/       GENERATED symlink farms, one per consumer — gitignored, rebuilt by bin/link
 home/            versioned $HOME agent config, installed by symlink
 manifest.json    per-provider exposure: exclusion groups, native grafts, preserved live entries

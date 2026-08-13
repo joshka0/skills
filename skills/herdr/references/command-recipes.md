@@ -27,7 +27,7 @@ is running in it.
 
 ## Launch an agent interactively
 
-Start the agent's normal executable so its interactive TUI opens — Codex: `codex`, Claude Code: `claude`, pi: `pi`, OpenCode: `opencode`, OMP: `omp`. Do not pass the task as an argv prompt and do not add non-interactive flags unless the user explicitly asks for a different launch mode.
+Always open the model's interactive TUI first. Wait until it is ready, then send the prompt as a separate Herdr action. Codex uses `codex`; Claude Code uses `claude`; pi uses `pi`; OpenCode uses `opencode`; OMP uses `omp`. Do not pass the task as an argv prompt and do not add non-interactive flags unless the user explicitly asks for a different launch mode.
 
 ```sh
 herdr pane run <pane-id> "codex"
@@ -35,6 +35,8 @@ herdr wait agent-status <pane-id> --status idle --timeout 30000
 herdr pane run <pane-id> "/rename diff-reviewer"
 herdr pane run <pane-id> "Review the current diff and report only actionable findings."
 ```
+
+When the task requires an authenticated external API, first read `agent-vault-launch.md`. Launch `agent-vault-run <vault> -- <model>` in place of the plain model command. Keep the same wait, rename, and prompt sequence.
 
 Send the session rename only when the agent's slash help lists such a command;
 match it to the pane label so live view and session history tell one story.

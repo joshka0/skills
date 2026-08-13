@@ -19,14 +19,16 @@ Operate Herdr — a terminal multiplexer and runtime for coding agents — throu
 | --- | --- |
 | `references/command-recipes.md` | Splitting panes, launching agents or commands, sending prompts, choosing read sources, or waiting on output |
 | `references/status-semantics.md` | Interpreting or waiting on `agent_status` (idle, done, working, blocked, unknown) |
+| `references/agent-vault-launch.md` | Classifying or launching a task that may need a secret or authenticated external API |
 
 ## Workflow
 
 1. Inspect live state first: `herdr workspace list`, `herdr pane list --workspace "$HERDR_WORKSPACE_ID"`, `herdr agent list`. Most control commands print JSON; read identifiers and state from those responses.
 2. Target with `--pane "$HERDR_PANE_ID"` or an explicit ID parsed from a JSON response. IDs (`w1`, `w1:t1`, `w1:p1`, `term_...`) are opaque strings; closed IDs are not reused, moved panes get new IDs — re-read after every mutation and never construct an ID from display order.
-3. Act through the pane as the one stable control surface for agents, shells, servers, and logs. `herdr pane run <pane-id> '<text>'` sends the text and Enter together — use it for prompts and follow-ups. `herdr agent send <target> '<text>'` sends literal text to a detected agent; verify submission by reading afterward.
-4. Read before and after acting; wait for the specific state or output you expect (`herdr wait agent-status ...`, `herdr wait output ...`), then re-read.
-5. Keep cross-agent requests self-contained: task, context to read first, allowed scope, prohibitions, and expected return shape.
+3. Launch model agents interactively. Start the model executable, wait until its TUI is ready, rename the session when supported, and only then send the prompt. Never pass the task as an executable argument. For a credentialed task, read the Agent Vault launch reference before the split and replace only the model launch command.
+4. Act through the pane as the one stable control surface for agents, shells, servers, and logs. `herdr pane run <pane-id> '<text>'` sends the text and Enter together — use it for prompts and follow-ups. `herdr agent send <target> '<text>'` sends literal text to a detected agent; verify submission by reading afterward.
+5. Read before and after acting; wait for the specific state or output you expect (`herdr wait agent-status ...`, `herdr wait output ...`), then re-read.
+6. Keep cross-agent requests self-contained: task, context to read first, allowed scope, prohibitions, and expected return shape.
 
 ## Hard rules
 
@@ -38,6 +40,7 @@ Operate Herdr — a terminal multiplexer and runtime for coding agents — throu
 - Default new work to a sibling split in the current tab and cwd; create a workspace, tab, or different cwd only when the user requests that topology.
 - **Parallel writers get isolated checkouts**: when two or more agents will mutate the same repo concurrently, give each its own `herdr worktree create --branch <task> --label <task>` instead of sharing the checkout; file-disjoint sharing is only for explicitly coordinated same-wave edits with a named coordinator.
 - Quote literal messages so the calling shell cannot expand metacharacters. Never send secrets through Herdr.
+- Select credential mode before launch. Use no vault by default. Never add a credential to an already running agent process.
 - Do not close workspaces, tabs, panes, or sessions you did not create unless the user explicitly asked.
 - Reads render at the pane's current size: on crowded layouts prefer `recent-unwrapped`, and if output is still clipped, `pane zoom --on`, read, then `--off` — never leave a zoom you set.
 - Never run `herdr server stop` from an active session and never kill the main Herdr process; use named test sessions for isolated experiments.
