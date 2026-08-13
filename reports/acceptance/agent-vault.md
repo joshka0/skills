@@ -6,6 +6,7 @@
 - Archetype: private leaf
 - Pre-create git ref: `a14aadf`
 - Pre-command-scope rewrite ref: `7370682`
+- Pre-credential-worker rewrite ref: `0b5bfd3`
 - Package verdict: **PACKAGE-CONFORMS**
 - Catalog verdict: **BLOCKED**. `manifest.json` replaces the two native Agent Vault imports with this canonical owner. Composition is not run because the current linker permanently removes obsolete symlinks, which conflicts with the repository's Trash-only policy.
 
@@ -16,7 +17,7 @@ The non-default delta is the local broker contract: wrap only the credential-bea
 | Signal | First owner | Nearest competitor | Discriminator and handoff |
 | --- | --- | --- | --- |
 | Authenticated API from a brokered command | `agent-vault` | `agent-secret-infrastructure` | This skill owns safe request behavior. Infrastructure owns broker policy and deployment. |
-| Herdr secret-aware task | `herdr` | `agent-vault` | Herdr starts the model normally and passes safe scope metadata. This skill owns the selected command. |
+| Herdr secret-aware task | `herdr` | `agent-vault` | Herdr creates a separate credential worker and passes safe scope metadata. This skill owns the selected command. |
 | Application environment injection | `local-dev` | `agent-vault` | `local-dev` owns app runtime values. Agent Vault owns brokered HTTP requests. |
 | Vault grant, service mapping, or sync | `agent-secret-infrastructure` | `agent-vault` | These are control-plane changes, not ordinary requests. |
 | Public unauthenticated web request | Web or browser owner | `agent-vault` | No credential session is needed, so Agent Vault does not trigger. |
@@ -48,10 +49,10 @@ The non-default delta is the local broker contract: wrap only the credential-bea
 | A08 | PASS | The description names brokered credentials and an authenticated external API. |
 | A09 | PASS | Collision rules give one first owner per signal. |
 | A10 | PASS | The skill does not claim public or unauthenticated requests. |
-| A11 | PASS | `SKILL.md` is 38 lines and 2,622 bytes. |
+| A11 | PASS | `SKILL.md` is 38 lines and 2,648 bytes. |
 | A12 | PASS | The body contains preflight, workflow, handoffs, stops, and output only. |
 | A13 | N/A | The package has no references. |
-| A14 | PASS | The two-file package is 42 lines and 2,870 bytes. |
+| A14 | PASS | The two-file package is 42 lines and 2,896 bytes. |
 | A15 | PASS | Active policy has one canonical owner; catalog removal is deferred. |
 | A16 | N/A | Not a suite. |
 | A17 | N/A | No modes. |
@@ -70,9 +71,9 @@ The non-default delta is the local broker contract: wrap only the credential-bea
 | A30 | BLOCKED | Desired exposure is in `manifest.json`; provider farms are not composed. |
 | A31 | BLOCKED | The linker conflicts with the Trash-only removal policy. |
 | A32 | PASS | The package follows the compact private-tool shape of the Herdr pilot. |
-| A33 | PASS | The canonical package is 40 lines versus 495 lines across the two retained imported manuals. |
+| A33 | PASS | The canonical package is 42 lines versus 495 lines across the two retained imported manuals. |
 | A34 | PASS | The preservation ledger accounts for the imported non-default deltas. |
-| A35 | PASS | The package did not exist at pre-create ref `a14aadf`; its pre-command-scope form is committed at `7370682`. |
+| A35 | PASS | The package did not exist at pre-create ref `a14aadf`; later baselines are committed at `7370682` and `0b5bfd3`. |
 
 ## Validation evidence
 

@@ -85,7 +85,9 @@ Give each worker only the vault needed for its task. Use a project vault for rep
 
 Create a distinct Agent Vault identity per host or stable Herdr trust group. Use separate identities per worker only when independent revocation or audit attribution is required. Rotate the retained identity after a host split so copied migration tokens become invalid.
 
-The Herdr coordinator selects the credential mode before it sends the task prompt. It starts the interactive model normally, waits for the TUI, and then sends safe vault metadata. The worker runs only the credential-bearing command through `agent-vault-run <vault> -- <command>`. This keeps MCP servers, browser tools, and unrelated traffic outside the broker. Herdr must not pass raw provider secrets, Agent Vault client tokens, or Infisical credentials. Keep strict host and service allowlists in the broker. Use the canonical `agent-vault` skill for the scoped command.
+The Herdr coordinator selects the credential mode before it sends the task prompt. It creates one dedicated credential worker per vault in a separate labeled pane. It starts the interactive model normally, waits for the TUI, and then sends safe vault metadata and one bounded operation. The worker runs only the credential-bearing command through `agent-vault-run <vault> -- <command>`. This keeps MCP servers, browser tools, and unrelated traffic outside the broker. Herdr must not pass raw provider secrets, Agent Vault client tokens, or Infisical credentials. Keep strict host and service allowlists in the broker. Use the canonical `agent-vault` skill for the scoped command.
+
+Do not use a model's internal background or subagent feature as the credential boundary. It may share a supervisor, environment, or host identity with other work. The separate Herdr pane is a task and audit boundary only; use a separate OS identity or isolated worker for hard access control.
 
 Vault selection limits broker use and improves audit attribution. It does not isolate a worker from other credentials that its operating-system identity can access. Use separate host identities or an isolated worker when that boundary is required.
 

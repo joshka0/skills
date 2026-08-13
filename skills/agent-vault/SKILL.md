@@ -27,7 +27,7 @@ If the launcher, vault grant, or service is absent, stop. Do not retrieve a clie
 
 ## Handoffs
 
-- Use `herdr` to launch the interactive agent normally and pass safe command-scoped vault instructions in the prompt.
+- Use `herdr` to create a separate credential worker, launch its model normally, and pass safe command-scoped vault instructions in the prompt.
 - Use `agent-secret-infrastructure` for vault grants, service mappings, Infisical sync, deployment, or recovery.
 - Use `local-dev` when an application process needs named runtime injection rather than a brokered HTTP request.
 

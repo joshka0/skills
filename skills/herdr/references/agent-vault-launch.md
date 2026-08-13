@@ -31,7 +31,31 @@ Do not put tokens, secret values, Infisical identities, or broker administrator 
 2. Run `agent-vault-run <vault> -- agent-vault vault discover --json` before the split. Confirm the expected vault and host from safe metadata.
 3. Stop if the launcher is missing, the vault is not granted, the broker is unreachable, or the required host is absent. Do not fall back to a raw token or direct request.
 
-One command uses one vault. A worker can use a project vault for one command and the shared vault for another. Do not merge broad shared credentials into a project vault.
+One command uses one vault. Use a separate credential worker for each project or shared vault. Do not merge broad shared credentials into a project vault.
+
+## Dedicated credential worker
+
+Create a sibling Herdr pane labeled `credential-worker-<vault>`. Launch its model normally, wait for the TUI, rename the session, and then send a bounded brief:
+
+```text
+Role: credential worker
+Vault: <vault>
+Required hosts: <host-list>
+Operation: <one bounded external operation>
+Allowed scope: <safe project or resource identifiers>
+Return: status, safe identifiers, and artifact paths only
+Never return credential, header, token, or secret values.
+```
+
+The worker runs only the external operation as `agent-vault-run <vault> -- <command>`. It returns the verified result to the coordinating agent and then becomes eligible for normal Herdr cleanup.
+
+Use one worker per vault. If a task needs project and shared services, use two workers or two sequential worker tasks. This separation makes the audit trail and task scope clear. It is an operating convention, not an OS access boundary.
+
+### Claude constraint
+
+**Pack constraint — Herdr owner:** a Claude credential worker must be a separate Herdr pane. Do not use `claude agents`, `--bg`, or `/background` as the credential boundary. Claude background agents run under a shared supervisor, and shell launcher or environment inheritance is not a stable boundary across versions.
+
+Before changing this constraint, inspect the installed Claude version and current official enterprise network documentation. Require a live test that the worker uses the intended launcher, keeps the model and local tools outside its proxy subprocess, and returns no secret value.
 
 ## Interactive launch
 

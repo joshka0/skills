@@ -9,6 +9,7 @@
 - Pre-rewrite git ref: `82cca5c`
 - Pre-publisher-contract git ref: `a14aadf`
 - Pre-command-scope rewrite ref: `7370682`
+- Pre-credential-worker rewrite ref: `0b5bfd3`
 - Package verdict: **PACKAGE-CONFORMS**
 - Catalog verdict: **DEFERRED**. The new links resolve in every provider and in the installed Codex views. The repository-wide `bin/link` command exits 1 because it finds unrelated unmanaged real entries in existing provider farms.
 
@@ -39,6 +40,8 @@ The non-default delta is a private control-plane runbook that fixes the Infisica
 | `home-root` narrows to shared personal tooling and bootstrap use | Kept | `references/architecture-and-policy.md` |
 | Herdr and product secrets use product or trust-boundary projects | Kept | `references/architecture-and-policy.md` |
 | Shared secrets are granted only to consumers with equal trust | Kept | `references/architecture-and-policy.md` |
+| Credential operations use one separate Herdr worker per vault | Kept as an operating and audit boundary | `SKILL.md` and `references/architecture-and-policy.md` |
+| Model-internal background agents are not a credential boundary | Kept | `references/architecture-and-policy.md`; use OS identity or isolation for hard enforcement. |
 | A publisher may create or edit but cannot read values or delete | Kept as a fail-closed contract | `SKILL.md`, `references/architecture-and-policy.md`, and `references/publishing-and-sync.md`; no publisher is currently verified as installed. |
 | Infisical Restic recovery requires matching config, environment, and database batch tags | Kept | `SKILL.md` and `references/backup-and-restore.md` |
 | Agent Vault state needs a separate consistent backup and restore test | Implemented and kept as the current recovery design | `SKILL.md` and `references/backup-and-restore.md` |
@@ -59,10 +62,10 @@ The non-default delta is a private control-plane runbook that fixes the Infisica
 | A08 | PASS | It names multi-host access, R2 recovery, Herdr vault assignment, and concrete check, recovery, extension, and explanation triggers. |
 | A09 | PASS | Neighbor descriptions were compared and the collision matrix assigns one first owner per signal. |
 | A10 | PASS | The trigger does not claim ordinary API calls, local one-key imports, Cloudflare mutations, or generic Herdr transport. |
-| A11 | PASS | `SKILL.md` is 49 lines and 4,079 bytes, below the private-leaf limit. |
+| A11 | PASS | `SKILL.md` is 49 lines and 4,119 bytes, below the private-leaf limit. |
 | A12 | PASS | The active body contains only ownership, selective loading, workflow, and hard rules. |
 | A13 | PASS | All three references have explicit loading conditions and all links resolve. |
-| A14 | PASS | References are 102, 100, and 34 lines. The complete package is 289 lines and 19,522 bytes, below all private-leaf and package hard limits. |
+| A14 | PASS | References are 104, 100, and 34 lines. The complete package is 291 lines and 19,963 bytes, below all private-leaf and package hard limits. |
 | A15 | PASS | Policy and recovery prose each have one owner. All rendered provider links resolve to the canonical package. |
 | A16 | N/A | The package is not a suite. |
 | A17 | N/A | The package has no modes. |
@@ -83,7 +86,7 @@ The non-default delta is a private control-plane runbook that fixes the Infisica
 | A32 | PASS | The package follows the compact `herdr` private-leaf shape and its explicit safety and live-state posture. |
 | A33 | N/A | This is a new package, not a consolidation or trim. |
 | A34 | PASS | The preservation ledger accounts for each durable setup decision and excludes private or volatile values. |
-| A35 | PASS | The skill did not exist at pre-create ref `d4d730a03617a047184edec750fca29d5bae244c`. The first complete package was committed at `82cca5c`; later baselines are committed at `a14aadf` and `7370682`. |
+| A35 | PASS | The skill did not exist at pre-create ref `d4d730a03617a047184edec750fca29d5bae244c`. The first complete package was committed at `82cca5c`; later baselines are committed at `a14aadf`, `7370682`, and `0b5bfd3`. |
 
 ## Validation evidence
 
