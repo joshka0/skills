@@ -32,7 +32,7 @@ The non-default delta is a private control-plane runbook that fixes the Infisica
 | Agents receive Agent Vault access, not Infisical identities | Kept | `SKILL.md` and `references/architecture-and-policy.md` |
 | `ssh dev` uses the same private broker as Mac Herdr workers | Kept as the verified live topology | `references/architecture-and-policy.md` |
 | The Mac loopback files stay preserved during central stabilization | Kept, with the failed sync and database-integrity state recorded | `references/architecture-and-policy.md` |
-| Agent Vault identities should separate hosts or Herdr trust groups | Kept, with the shared migration identity recorded as a limitation | `references/architecture-and-policy.md` |
+| Agent Vault identities should separate hosts or Herdr trust groups | Implemented as `local-codex` for Mac and `dev-herdr` for `dev` | `references/architecture-and-policy.md` |
 | A broker on an agent-controlled Docker host is not an isolation boundary | Kept | `SKILL.md` and `references/architecture-and-policy.md` |
 | `home-root` narrows to shared personal tooling and bootstrap use | Kept | `references/architecture-and-policy.md` |
 | Herdr and product secrets use product or trust-boundary projects | Kept | `references/architecture-and-policy.md` |

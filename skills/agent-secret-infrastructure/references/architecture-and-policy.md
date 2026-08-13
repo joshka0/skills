@@ -12,7 +12,7 @@ Verify this state before use.
 - Cloudflare R2 stores encrypted Restic backups of Infisical and Agent Vault. Each Agent Vault backup includes an isolated restore and SQLite integrity check.
 - The old local Infisical instance stays intact until the VPS deployment and its clients remain stable.
 - Client hosts must not receive a copied broker database, broker master material, or an Infisical machine credential.
-- The Mac and `dev` currently share the scoped `local-codex` Agent Vault identity as migration state. Create one identity per host or Herdr trust group before audit attribution matters.
+- The Mac uses the scoped `local-codex` identity. The `dev` host uses the scoped `dev-herdr` identity. Both have no instance access and only `proxy` grants for `shared` and `skills`.
 - The secret publisher can describe, create, and edit secrets in approved development paths. It cannot read values or delete secrets.
 
 ## Live topology
@@ -83,7 +83,7 @@ Agents can perform steps 1, 3, and 4 when their task authorizes the write. They 
 
 Give each worker only the vault needed for its task. Use a project vault for repository work. Use a separate shared-tool vault only for the command that needs the shared service.
 
-Create a distinct Agent Vault identity per host or stable Herdr trust group. Use separate identities per worker only when independent revocation or audit attribution is required. Do not reuse one migration token as the long-term identity for both the Mac and `dev`.
+Create a distinct Agent Vault identity per host or stable Herdr trust group. Use separate identities per worker only when independent revocation or audit attribution is required. Rotate the retained identity after a host split so copied migration tokens become invalid.
 
 The Herdr coordinator can pass a broker endpoint, CA location, vault name, and narrow session to the pane. It must not pass raw provider secrets or Infisical credentials. Keep strict host and service allowlists in the broker. Use the Agent Vault native skills for exact CLI and proxy commands.
 
