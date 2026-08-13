@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Secret Infrastructure"
+  short_description: "Operate Infisical and Agent Vault safely"
+  default_prompt: "Use $agent-secret-infrastructure to inspect or explain the private secret infrastructure and its recovery posture."
