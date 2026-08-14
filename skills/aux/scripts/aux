@@ -1,0 +1,196 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: aux [context|secrets|tools]
+
+Set AUX_REPO to inspect a repository other than the current directory.
+This command prints names and status only. It never reads a credential value.
+EOF
+}
+
+command_name="${1:-context}"
+case "$command_name" in
+  context|secrets|tools) ;;
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  *)
+    usage >&2
+    exit 64
+    ;;
+esac
+
+target_input="${AUX_REPO:-$PWD}"
+if ! target_repo="$(cd "$target_input" 2>/dev/null && pwd -P)"; then
+  printf 'AUX: repository path is not accessible: %s\n' "$target_input" >&2
+  exit 66
+fi
+
+primary_vault=''
+shared_vault=''
+scope='unmapped'
+infisical_path=''
+agent_vault_path=''
+
+case "$target_repo" in
+  "$HOME/repos/skills"|"$HOME/repos/skills"/*)
+    scope='githubs/skills'
+    primary_vault='skills'
+    shared_vault='shared'
+    infisical_path='/repos/githubs/skills'
+    agent_vault_path="$infisical_path"
+    ;;
+  "$HOME/repos/githubs/herdr-project"|"$HOME/repos/githubs/herdr-project"/*)
+    scope='githubs/herdr-project'
+    primary_vault='herdr-project-dev'
+    shared_vault='shared'
+    infisical_path='/repos/githubs/herdr-project'
+    agent_vault_path="$infisical_path/agent-vault"
+    ;;
+  "$HOME/repos/foxway/workspace"|"$HOME/repos/foxway/workspace"/*)
+    scope='foxway/workspace'
+    primary_vault='foxway-workspace-dev'
+    infisical_path='/repos/foxway/workspace'
+    agent_vault_path="$infisical_path"
+    ;;
+  "$HOME/repos/personal/"*)
+    personal_tail="${target_repo#"$HOME/repos/personal/"}"
+    personal_repo="${personal_tail%%/*}"
+    if [[ -n "$personal_repo" ]]; then
+      scope="personal/$personal_repo"
+      primary_vault="personal-$personal_repo-dev"
+      shared_vault='shared'
+      infisical_path="/repos/personal/$personal_repo"
+      agent_vault_path="$infisical_path/agent-vault"
+    fi
+    ;;
+esac
+
+resolve_launcher() {
+  if command -v agent-vault-run >/dev/null 2>&1; then
+    command -v agent-vault-run
+  elif [[ -x "$HOME/.local/bin/agent-vault-run" ]]; then
+    printf '%s\n' "$HOME/.local/bin/agent-vault-run"
+  else
+    return 1
+  fi
+}
+
+resolve_client() {
+  if command -v agent-vault >/dev/null 2>&1; then
+    command -v agent-vault
+  elif [[ -x /usr/local/bin/agent-vault ]]; then
+    printf '%s\n' /usr/local/bin/agent-vault
+  else
+    return 1
+  fi
+}
+
+launcher=''
+client=''
+if launcher="$(resolve_launcher 2>/dev/null)" && client="$(resolve_client 2>/dev/null)"; then
+  :
+else
+  launcher=''
+  client=''
+fi
+
+print_vault() {
+  local label="$1"
+  local vault_name="$2"
+  local discovery=''
+
+  printf '%s vault: %s\n' "$label" "$vault_name"
+  if [[ -z "$launcher" || -z "$client" ]]; then
+    printf '  status: launcher unavailable\n'
+    return 1
+  fi
+
+  if ! discovery="$("$launcher" "$vault_name" -- "$client" vault discover --json 2>/dev/null)"; then
+    printf '  status: unavailable, ungranted, or unmapped\n'
+    return 1
+  fi
+
+  if ! printf '%s' "$discovery" | jq -e \
+      --arg vault "$vault_name" '.vault == $vault' >/dev/null 2>&1; then
+    printf '  status: invalid discovery response\n'
+    return 1
+  fi
+
+  printf '  status: available\n'
+  printf '  services:\n'
+  if ! printf '%s' "$discovery" | jq -er \
+      '.services[] | "    - \(.name): \(.host)"' 2>/dev/null; then
+    printf '    - none\n'
+  fi
+  printf '  credential names:\n'
+  if ! printf '%s' "$discovery" | jq -er \
+      '.available_credentials[] | "    - \(.)"' 2>/dev/null; then
+    printf '    - none\n'
+  fi
+  printf '  launch: %s %s -- <command>\n' "$launcher" "$vault_name"
+}
+
+print_secrets() {
+  printf 'AUX secret context\n'
+  printf 'Repository: %s\n' "$scope"
+
+  if [[ -z "$primary_vault" ]]; then
+    printf 'Primary vault: no mapping\n'
+    printf 'Stop: add an AUX repository mapping and an Agent Vault grant. Do not use a dotenv fallback.\n'
+    return 1
+  fi
+
+  printf 'Application secrets: %s\n' "$infisical_path"
+  printf 'Agent Vault source: %s\n' "$agent_vault_path"
+  if ! print_vault 'Primary' "$primary_vault"; then
+    printf 'Stop: the primary vault is not usable. Do not use a dotenv fallback.\n'
+    return 1
+  fi
+  if [[ -n "$shared_vault" && "$shared_vault" != "$primary_vault" ]]; then
+    print_vault 'Optional shared' "$shared_vault" || true
+  fi
+
+  printf 'Credential modes:\n'
+  printf '  - authenticated HTTP command: agent-vault-command\n'
+  printf '  - application environment or file: infisical-runtime\n'
+  printf '  - vault, grant, service, or policy change: control-plane\n'
+}
+
+print_tool() {
+  local tool_name="$1"
+  if command -v "$tool_name" >/dev/null 2>&1; then
+    printf '  - %s: installed\n' "$tool_name"
+  else
+    printf '  - %s: unavailable\n' "$tool_name"
+  fi
+}
+
+print_tools() {
+  printf 'AUX tool context\n'
+  for tool_name in herdr agent-vault infisical tofu az aws gh jq rg; do
+    print_tool "$tool_name"
+  done
+
+  if [[ -n "${BROWSER_BRIDGE_URL:-}" && -s "$HOME/.config/browser-bridge/token" ]]; then
+    printf '  - local HTTP browser bridge: ready\n'
+  elif [[ -s "$HOME/.config/browser-bridge/token" ]]; then
+    printf '  - local HTTP browser bridge: token present, URL not injected\n'
+  else
+    printf '  - local HTTP browser bridge: unavailable\n'
+  fi
+}
+
+case "$command_name" in
+  context)
+    print_secrets
+    printf '\n'
+    print_tools
+    ;;
+  secrets) print_secrets ;;
+  tools) print_tools ;;
+esac

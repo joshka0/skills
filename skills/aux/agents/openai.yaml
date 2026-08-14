@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUX"
+  short_description: "Orient agents to local tools and secret scopes"
+  default_prompt: "Use $aux to show the current repository’s available tools, secret scopes, and safe launch commands."
