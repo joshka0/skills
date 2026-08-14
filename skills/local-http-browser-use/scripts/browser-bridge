@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage:
+  browser-bridge status [--json]
+  browser-bridge call <browser_tool> [<json-object>|-]
+
+The client reads the bridge token from BROWSER_BRIDGE_TOKEN_FILE or the
+managed local token file. Use '-' to read a request object from standard input.
+EOF
+}
+
+fail() {
+  printf 'browser-bridge: %s\n' "$1" >&2
+  exit "${2:-1}"
+}
+
+bridge_base="${BROWSER_BRIDGE_URL:-${BROWSER_BRIDGE_BASE:-http://127.0.0.1:8765}}"
+token_file="${BROWSER_BRIDGE_TOKEN_FILE:-$HOME/.local/share/llm-browser-bridge/.bridge-token}"
+
+if [[ ! "$bridge_base" =~ ^http://(127[.]0[.]0[.]1|localhost):[0-9]+$ ]]; then
+  fail 'refusing to send the bridge token to a non-loopback URL' 64
+fi
+
+command -v curl >/dev/null 2>&1 || fail 'curl is unavailable' 69
+command -v jq >/dev/null 2>&1 || fail 'jq is unavailable' 69
+[[ -s "$token_file" ]] || fail 'managed token file is missing or empty' 66
+if token_mode="$(stat -f '%Lp' "$token_file" 2>/dev/null)"; then
+  :
+elif token_mode="$(stat -c '%a' "$token_file" 2>/dev/null)"; then
+  :
+else
+  fail 'cannot verify managed token file permissions' 69
+fi
+case "$token_mode" in
+  400|600) ;;
+  *) fail 'managed token file must be owner-readable only' 77 ;;
+esac
+
+bridge_token_value="$(<"$token_file")"
+[[ -n "$bridge_token_value" ]] || fail 'managed token file is empty' 66
+trap 'unset bridge_token_value' EXIT
+
+request_tool() {
+  local tool_name="$1"
+  local request_body="$2"
+
+  curl --fail --silent --show-error \
+    --connect-timeout 1 \
+    --max-time 10 \
+    --request POST \
+    --header "Authorization: Bearer $bridge_token_value" \
+    --header 'Content-Type: application/json' \
+    --data "$request_body" \
+    "$bridge_base/tool/$tool_name"
+}
+
+command_name="${1:-}"
+case "$command_name" in
+  status)
+    [[ "$#" -le 2 ]] || { usage >&2; exit 64; }
+    output_mode="${2:-}"
+    [[ -z "$output_mode" || "$output_mode" == '--json' ]] || { usage >&2; exit 64; }
+
+    if ! status_response="$(request_tool browser_status '{}')"; then
+      fail 'controller is unavailable or rejected authorization' 69
+    fi
+    if ! printf '%s' "$status_response" | jq -e \
+        '.ok == true and (.result.server.listening | type == "string") and (.result.extension.connected | type == "boolean")' \
+        >/dev/null 2>&1; then
+      fail 'controller returned an invalid status response' 65
+    fi
+
+    if [[ "$output_mode" == '--json' ]]; then
+      printf '%s' "$status_response" | jq '{
+        controller: "ready",
+        extension: (if .result.extension.connected then "connected" else "disconnected" end),
+        url: .result.server.listening,
+        version: .result.server.version
+      }'
+    else
+      printf '%s' "$status_response" | jq -r '
+        "controller: ready\nextension: \(if .result.extension.connected then "connected" else "disconnected" end)\nurl: \(.result.server.listening)\nversion: \(.result.server.version)"
+      '
+    fi
+    ;;
+  call)
+    [[ "$#" -ge 2 && "$#" -le 3 ]] || { usage >&2; exit 64; }
+    tool_name="$2"
+    if [[ ! "$tool_name" =~ ^browser_[a-z0-9_]+$ ]]; then
+      fail 'tool name must start with browser_ and contain lowercase letters, digits, or underscores' 64
+    fi
+
+    if [[ "$#" -eq 3 ]]; then
+      request_body="$3"
+    else
+      request_body='{}'
+    fi
+    if [[ "$request_body" == '-' ]]; then
+      request_body="$(</dev/stdin)"
+    fi
+    if ! printf '%s' "$request_body" | jq -e 'type == "object"' >/dev/null 2>&1; then
+      fail 'request body must be a JSON object' 65
+    fi
+    request_tool "$tool_name" "$request_body"
+    printf '\n'
+    ;;
+  -h|--help)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 64
+    ;;
+esac

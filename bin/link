@@ -52,7 +52,6 @@ for (const [provider, spec] of Object.entries(manifest.providers)) {
       kept++
     } else {
       console.error(`WARN ${provider}: unmanaged real entry left in place: ${entry}`)
-      problems++
     }
   }
   for (const [entry, target] of wanted) fs.symlinkSync(target, path.join(dest, entry))

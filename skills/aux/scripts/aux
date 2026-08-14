@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: aux [context|secrets|tools]
+Usage: aux [context|secrets|tools|browser]
 
 Set AUX_REPO to inspect a repository other than the current directory.
 This command prints names and status only. It never reads a credential value.
@@ -13,7 +13,7 @@ EOF
 
 command_name="${1:-context}"
 case "$command_name" in
-  context|secrets|tools) ;;
+  context|secrets|tools|browser) ;;
   -h|--help)
     usage
     exit 0
@@ -173,19 +173,93 @@ print_tool() {
   fi
 }
 
+resolve_browser_client() {
+  local candidate=''
+
+  if command -v browser-bridge >/dev/null 2>&1; then
+    command -v browser-bridge
+    return
+  fi
+
+  for candidate in \
+    "$HOME/.local/bin/browser-bridge" \
+    "$HOME/.agents/skills/local-http-browser-use/scripts/browser-bridge" \
+    "${CODEX_HOME:-$HOME/.codex}/skills/local-http-browser-use/scripts/browser-bridge" \
+    "$HOME/.claude/skills/local-http-browser-use/scripts/browser-bridge" \
+    "$HOME/.gemini/skills/local-http-browser-use/scripts/browser-bridge"
+  do
+    if [[ -x "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+      return
+    fi
+  done
+
+  return 1
+}
+
+browser_summary='unavailable'
+browser_client=''
+browser_status=''
+
+detect_browser_bridge() {
+  if ! browser_client="$(resolve_browser_client 2>/dev/null)"; then
+    browser_summary='client unavailable'
+    return 1
+  fi
+
+  if ! browser_status="$($browser_client status --json 2>/dev/null)"; then
+    browser_summary='controller unavailable or token missing'
+    return 1
+  fi
+
+  if ! printf '%s' "$browser_status" | jq -e \
+      '.controller == "ready" and (.extension == "connected" or .extension == "disconnected")' \
+      >/dev/null 2>&1; then
+    browser_summary='invalid status response'
+    return 1
+  fi
+
+  if [[ "$(printf '%s' "$browser_status" | jq -r '.extension')" == 'connected' ]]; then
+    browser_summary='ready'
+  else
+    browser_summary='controller ready, extension disconnected'
+  fi
+}
+
+print_browser_bridge() {
+  detect_browser_bridge || true
+
+  printf 'AUX browser context\n'
+  printf '  status: %s\n' "$browser_summary"
+  if [[ -n "$browser_client" ]]; then
+    printf '  client: %s\n' "$browser_client"
+  fi
+  printf '  token source: $HOME/.local/share/llm-browser-bridge/.bridge-token\n'
+  printf '  skill: local-http-browser-use\n'
+
+  case "$browser_summary" in
+    ready)
+      printf '  observe: %s call browser_observe '\''{"maxElements":80}'\''\n' "$browser_client"
+      ;;
+    'controller ready, extension disconnected')
+      printf 'Stop: connect the extension in a visible browser before browser actions. Do not use a hidden or headless fallback.\n'
+      return 1
+      ;;
+    *)
+      printf 'Stop: repair the reported client, controller, or managed token path before browser actions.\n'
+      return 1
+      ;;
+  esac
+}
+
 print_tools() {
   printf 'AUX tool context\n'
   for tool_name in herdr agent-vault infisical tofu az aws gh jq rg; do
     print_tool "$tool_name"
   done
 
-  if [[ -n "${BROWSER_BRIDGE_URL:-}" && -s "$HOME/.config/browser-bridge/token" ]]; then
-    printf '  - local HTTP browser bridge: ready\n'
-  elif [[ -s "$HOME/.config/browser-bridge/token" ]]; then
-    printf '  - local HTTP browser bridge: token present, URL not injected\n'
-  else
-    printf '  - local HTTP browser bridge: unavailable\n'
-  fi
+  detect_browser_bridge || true
+  printf '  - local HTTP browser bridge: %s; run aux browser\n' "$browser_summary"
 }
 
 case "$command_name" in
@@ -196,4 +270,5 @@ case "$command_name" in
     ;;
   secrets) print_secrets ;;
   tools) print_tools ;;
+  browser) print_browser_bridge ;;
 esac

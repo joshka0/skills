@@ -17,8 +17,9 @@ Give an agent safe operational context without revealing a credential or requiri
    - Use `infisical-runtime` when an application needs a secret in its environment or a file. Hand off to `local-dev`; Agent Vault proxy mode does not inject application environment variables.
    - Use `control-plane` for vault, service, grant, Infisical policy, or recovery changes. Hand off to `agent-secret-infrastructure`.
 4. For a Herdr task, keep the model interactive and unwrapped. Give a separate credential worker the reported vault, host, and one bounded command.
-5. Run `aux secrets` only when tool status is irrelevant. Run `aux tools` only when secret context is irrelevant.
-6. If the same AUX-owned friction repeats, hand it to `wiki` after the main task reaches a safe checkpoint. The wiki skill owns the recurrence threshold, deduplication, and request format.
+5. For visible browser work, run `aux browser`. Require `ready` status, then use the reported `browser-bridge` client with `local-http-browser-use`; do not retrieve or export its token.
+6. Run `aux secrets` only when tool status is irrelevant. Run `aux tools` only when secret context is irrelevant.
+7. If the same AUX-owned friction repeats, hand it to `wiki` after the main task reaches a safe checkpoint. The wiki skill owns the recurrence threshold, deduplication, and request format.
 
 ## Hard rules
 
@@ -29,8 +30,9 @@ Give an agent safe operational context without revealing a credential or requiri
 - Do not pass a token, secret value, Infisical identity, or Agent Vault administrator credential through AUX or Herdr.
 - Keep employer and personal scopes separate. The Foxway workspace does not inherit the personal `shared` vault.
 - Treat a missing mapping, launcher, grant, service, or broker connection as a stop. Do not fall back to `$HOME/.env`.
+- Treat a browser controller without a connected visible-browser extension as a stop. Do not use a hidden or headless browser fallback.
 - Do not repeat vault discovery or search local memory when the current AUX result already answers the task.
 
 ## Output
 
-Return the detected repository scope, primary and optional vaults, safe services and credential names, installed-tool status, the selected credential mode, exact launch command, and any stop condition.
+Return the detected repository scope, primary and optional vaults, safe services and credential names, installed-tool status, verified browser controller and extension status, the selected credential mode, exact client command, and any stop condition.

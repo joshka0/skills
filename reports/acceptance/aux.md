@@ -2,11 +2,11 @@
 
 ## Result
 
-- Verdict: **PACKAGE-CONFORMS**. AUX is exposed in each provider farm. `bin/link` completed with exit 0. It preserved unrelated unmanaged real entries with warnings; this package report does not audit those entries or assert full-catalog conformance.
+- Verdict: **PACKAGE-CONFORMS**. AUX validates and its links resolve. `bin/link` returns exit 0 while reporting and preserving unrelated plugin-managed real entries.
 - Canonical owner: `skills/aux`.
 - Archetype: `private-leaf`.
-- Pre-rewrite refs: `632429c` preserves the first tested package; `343e588` preserves the package before the Wiki feedback handoff.
-- Package size: 239 text lines and 8,700 bytes. `SKILL.md` is 36 lines and 2,969 bytes. The deterministic script is 199 lines and 5,506 bytes.
+- Pre-rewrite refs: `632429c` preserves the first tested package; `343e588` preserves the package before the Wiki feedback handoff; `f171623` preserves the package before browser-bridge orientation.
+- Package size: 316 text lines and 11,187 bytes. `SKILL.md` is 38 lines and 3,341 bytes. The deterministic script is 274 lines and 7,621 bytes.
 - Validators: `Skill is valid!` and `PASS: skills/aux (private-leaf)`.
 
 ## Collision matrix
@@ -18,6 +18,7 @@
 | Agent needs an authenticated HTTP command | `agent-vault` | `aux` | AUX selects and reports the vault. Agent Vault owns the credential-bearing request. |
 | Agent needs an application environment secret | `local-dev` | `aux` | AUX reports `infisical-runtime`. `local-dev` owns injection and exact-path verification. |
 | Agent needs a vault, grant, service, or policy change | `agent-secret-infrastructure` | `aux` | AUX reports `control-plane` and stops. Infrastructure owns the change. |
+| Agent needs the local visible-browser bridge | `aux` | `local-http-browser-use` | AUX verifies readiness and reports the client. The browser skill owns observe-act-verify and consent. |
 | Agent repeatedly hits AUX-owned friction | `wiki` | `aux` | AUX detects recurrence and hands off. Wiki owns deduplication and the feature-request record. |
 
 ## Preservation ledger
@@ -31,7 +32,9 @@
 | Repeated agent-UX feedback loop | Kept as handoff | `SKILL.md:21`; `wiki` owns threshold, deduplication, and capture. |
 | Exact command-scoped launch guidance | Kept | `SKILL.md:14-20`; `scripts/aux:135`. |
 | Personal and employer trust-boundary separation | Kept | `SKILL.md:28`; `scripts/aux:39-71`. |
+| Browser controller, extension, client, and safe token-path orientation | Kept and corrected | `SKILL.md:20,33`; `scripts/aux:176-263`. The stale config-token check was removed. |
 | Secret mutation, runtime injection, and Herdr transport | Handed off | `SKILL.md:14-20`; canonical owners remain `local-dev`, `agent-vault`, `agent-secret-infrastructure`, and `herdr`. |
+| Browser interaction and consent | Handed off | `SKILL.md:20`; `local-http-browser-use` remains the action owner. |
 
 ## Checklist
 
@@ -39,7 +42,7 @@
 | --- | --- | --- |
 | A01 | PASS | Non-default delta: deterministic safe orientation to private local vault and tool topology. |
 | A02 | PASS | Every fresh agent and unfamiliar repository needs the same recurring orientation. |
-| A03 | PASS | The collision matrix preserves each operational owner and gives AUX only the orientation boundary. |
+| A03 | PASS | The collision matrix preserves each operational owner and gives AUX only repository, credential, tool, and browser-readiness orientation. |
 | A04 | PASS | Exactly one archetype: private-tool leaf. |
 | A05 | PASS | `skills/aux` matches unique `name: aux`. |
 | A06 | PASS | Shared frontmatter contains only `name` and `description`; provider UI data is in `agents/openai.yaml`. |
@@ -47,31 +50,31 @@
 | A08 | PASS | The description names orientation and concrete unfamiliar-workspace and secret/tool signals. |
 | A09 | PASS | The collision matrix establishes one first owner for each claimed signal. |
 | A10 | PASS | No greedy trigger, persona, or deterministic user macro exists. |
-| A11 | PASS | The 36-line body is below the private-leaf cap. The 199-line script is below its 300-line cap. |
+| A11 | PASS | The 38-line body is below the private-leaf cap. The 274-line script is below its 300-line cap. |
 | A12 | PASS | The body contains workflow, handoffs, hard rules, stops, and output only. |
 | A13 | N/A | No references. |
-| A14 | PASS | The package is 233 lines and 7,932 bytes, below all hard limits. |
+| A14 | PASS | The package is 316 lines and 11,187 bytes, below all hard limits. |
 | A15 | PASS | Each instruction and support file has one canonical owner; no catalog copy exists. |
 | A16 | N/A | Private leaf; no modes. |
 | A17 | N/A | Private leaf; no mode table. |
 | A18 | N/A | Private leaf; not a router. |
 | A19 | N/A | Private leaf; no routed child overlay. |
-| A20 | PASS | The script uses live path, command, launcher, broker, service, and credential-name discovery. Agent Vault 0.39.1 behavior and the current upstream README were checked before correcting unmatched-host guidance. |
+| A20 | PASS | The script uses live path, command, launcher, broker, service, credential-name, browser-controller, and browser-extension discovery. |
 | A21 | PASS | No external manual or tool catalog is copied. |
 | A22 | N/A | No pinned volatile pack constraint. |
 | A23 | PASS | Secret-shape scan returned no match. The package contains names only. |
-| A24 | PASS | The script calls `vault discover`; it never calls `credential get` or reads dotenv values. |
+| A24 | PASS | The script calls `vault discover` and the normalized browser status client. It never calls `credential get`, reads dotenv values, or reads the browser token. |
 | A25 | PASS | Paths use `$HOME` or runtime output. No literal personal-home path exists. |
-| A26 | PASS | Missing repository mappings, launchers, grants, vaults, and invalid discovery responses fail clearly. |
-| A27 | PASS | `scripts/aux` is referenced, deterministic, Bash syntax-checked, and smoke-tested against skills, Foxway, portfolio, `ssh dev`, and an ungranted repository. Three fresh Herdr agents exercised the workflow. |
+| A26 | PASS | Missing repository mappings, launchers, grants, vaults, browser clients, controllers, tokens, extensions, and invalid responses fail clearly. |
+| A27 | PASS | `scripts/aux` is referenced, deterministic, Bash syntax-checked, and smoke-tested for local browser readiness. The remote controller and disconnected-extension state were also verified directly. |
 | A28 | PASS | `agents/openai.yaml` matches the skill and contains only UI metadata. No assets exist. |
-| A29 | PASS | Rules prevent value access, dotenv fallback, trust-boundary mixing, and false usability claims. |
+| A29 | PASS | Rules prevent value access, dotenv fallback, trust-boundary mixing, false usability claims, and headless browser fallback. |
 | A30 | PASS | AUX links exist once in all five provider farms. No AUX collision exists. |
-| A31 | PASS | `bin/link` returned exit 0. Each installed AUX link resolves to `skills/aux`; unrelated provider warnings were preserved. |
+| A31 | PASS | `bin/link` returns exit 0. Each AUX link resolves to `skills/aux`; unrelated plugin-managed real entries remain in place with warnings. |
 | A32 | PASS | Shape was compared with the private-leaf Herdr pilot and the normative contract. |
 | A33 | N/A | New package; no consolidation or trim claim. |
-| A34 | PASS | The preservation ledger accounts for each qualifying delta and handoff. |
-| A35 | PASS | Commits `632429c` and `343e588` preserve both earlier package states before their rewrites. |
+| A34 | PASS | The preservation ledger accounts for each qualifying delta and browser-action handoff. |
+| A35 | PASS | Commits `632429c`, `343e588`, and `f171623` preserve the package states before each rewrite. |
 
 ## Validation evidence
 
@@ -91,5 +94,7 @@ Herdr Foxway trial: allowed request 200; unmatched host passed through as 200
 Herdr portfolio trial: stopped because the OpenRouter service and credential mapping were absent
 Herdr Foxway retest: first command was aux context; correct scope; no confusion
 Final command contract: aux once, then one required brokered command; no duplicate discovery
-bin/link: exit 0; AUX links verified in codex, agents, claude, gemini, and gemini-antigravity
+Local browser bridge: aux browser exit 0; controller ready; extension connected; token value not printed
+Remote browser bridge service: controller ready; extension disconnected
+bin/link: exit 0; AUX links resolve in codex, agents, claude, gemini, and gemini-antigravity; unrelated real entries were reported and preserved
 ```
