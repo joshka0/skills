@@ -2,12 +2,12 @@
 
 ## Result
 
-- Verdict: **PACKAGE-CONFORMS**. AUX validates, its links resolve, global Codex and Claude rules give it first ownership of visible-browser readiness, and the final fresh-agent wave followed that route without prompting.
+- Verdict: **PACKAGE-CONFORMS**. AUX is defined as Agent User Experience, validates, and remains a conditional orientation layer for unfamiliar repositories, secrets, tools, credential modes, visible-browser readiness, and repeated-friction feedback.
 - Canonical owner: `skills/aux`.
 - Archetype: `private-leaf`.
 - Selected authoring modes: `package-and-routing` and `validation-and-acceptance`.
-- Pre-rewrite refs: `632429c` preserves the first tested package; `343e588` preserves the package before the Wiki feedback handoff; `f171623` preserves the package before browser-bridge orientation; `467938e` preserves the first browser-routing attempt before blind-agent correction.
-- Package size: 317 text lines and 11,538 bytes. `SKILL.md` is 38 lines and 3,570 bytes. The deterministic script is 275 lines and 7,743 bytes.
+- Pre-rewrite refs: `632429c` preserves the first tested package; `343e588` preserves the package before the Wiki feedback handoff; `f171623` preserves the package before browser-bridge orientation; `467938e` preserves the first browser-routing attempt before blind-agent correction; `01ed0e1` preserves the package before Agent User Experience naming and conditional-load clarification.
+- Package size: 318 text lines and 11,724 bytes. `SKILL.md` is 39 lines and 3,756 bytes. The deterministic script is 275 lines and 7,743 bytes.
 - Validators: `Skill is valid!` and `PASS: skills/aux (private-leaf)`.
 
 ## Collision matrix
@@ -21,12 +21,14 @@
 | Agent needs a vault, grant, service, or policy change | `agent-secret-infrastructure` | `aux` | AUX reports `control-plane` and stops. Infrastructure owns the change. |
 | Agent asks for visible-browser automation | `aux` | `local-http-browser-use`; bundled in-app browser control | AUX is the first readiness owner. The local browser skill acts after ready status; in-app control wins only for an explicitly requested in-app surface. |
 | Agent repeatedly hits AUX-owned friction | `wiki` | `aux` | AUX detects recurrence and hands off. Wiki owns deduplication and the feature-request record. |
+| Routine task already has complete context | Task-specific owner | `aux` | Skip AUX. Load it only when orientation, secret/tool discovery, credential-mode selection, or browser readiness is needed. |
 
 ## Preservation ledger
 
 | Qualifying delta | Disposition | Evidence |
 | --- | --- | --- |
 | Zero-context repository and vault orientation | Kept | `SKILL.md:8-20`; `scripts/aux:27-71,138-162`. |
+| Agent User Experience name and conditional loading | Kept and clarified | `SKILL.md:6-8,35`; global Codex and Claude instructions link the installed skill and tell routine tasks to skip it. |
 | Target-repository discovery from a packaged skill | Kept and corrected | `SKILL.md:12`; the one-command entry point is `aux` in the target repository. |
 | Safe service and credential-name discovery | Kept | `SKILL.md:24-29`; `scripts/aux:102-136`. |
 | Credential-injection scope versus unmatched-host egress | Kept and clarified | `SKILL.md:27`; `scripts/aux:162-164`. Discovery does not claim strict deny. |
@@ -41,20 +43,20 @@
 
 | Item | Result | Evidence |
 | --- | --- | --- |
-| A01 | PASS | Non-default delta: deterministic safe orientation to private local vault and tool topology. |
-| A02 | PASS | Every fresh agent and unfamiliar repository needs the same recurring orientation. |
+| A01 | PASS | Non-default delta: deterministic Agent User Experience orientation to private repository, vault, tool, credential-mode, and browser topology. |
+| A02 | PASS | Unfamiliar repositories, credentialed tasks, tool discovery, and visible-browser work recur across agents; routine tasks explicitly skip AUX. |
 | A03 | PASS | The collision matrix preserves each operational owner and gives AUX only repository, credential, tool, and browser-readiness orientation. |
 | A04 | PASS | Exactly one archetype: private-tool leaf. |
 | A05 | PASS | `skills/aux` matches unique `name: aux`. |
 | A06 | PASS | Shared frontmatter contains only `name` and `description`; provider UI data is in `agents/openai.yaml`. |
 | A07 | PASS | Description is one physical line, two sentences, and below 220 characters. |
-| A08 | PASS | The description names repository orientation, safe secret/tool discovery, and visible-browser readiness with concrete unfamiliar-workspace and browser signals. |
-| A09 | PASS | Live `AGENTS.md` and `CLAUDE.md` rules assign AUX first ownership. Fresh Codex and Claude sessions followed the route without AUX or bridge hints in the task prompts. |
-| A10 | PASS | No greedy trigger, persona, or deterministic user macro exists. |
-| A11 | PASS | The 38-line body is below the private-leaf cap. The 275-line script is below its 300-line cap. |
+| A08 | PASS | The description expands Agent User Experience and names concrete unfamiliar-workspace and visible-browser selection signals. |
+| A09 | PASS | Live `AGENTS.md` and `CLAUDE.md` rules link the installed skill, assign AUX first ownership only for its claimed triggers, and tell routine tasks to skip it. |
+| A10 | PASS | No greedy trigger, persona, or deterministic user macro exists; the hard rules explicitly reject universal preflight use. |
+| A11 | PASS | The 39-line body is below the private-leaf cap. The 275-line script is below its 300-line cap. |
 | A12 | PASS | The body contains workflow, handoffs, hard rules, stops, and output only. |
 | A13 | N/A | No references. |
-| A14 | PASS | The package is 317 lines and 11,538 bytes, below all hard limits. |
+| A14 | PASS | The package is 318 lines and 11,724 bytes, below all hard limits. |
 | A15 | PASS | Each instruction and support file has one canonical owner; no catalog copy exists. |
 | A16 | N/A | Private leaf; no modes. |
 | A17 | N/A | Private leaf; no mode table. |
@@ -75,7 +77,7 @@
 | A32 | PASS | Shape was compared with the private-leaf Herdr pilot and the normative contract. |
 | A33 | N/A | New package; no consolidation or trim claim. |
 | A34 | PASS | The preservation ledger accounts for each qualifying delta and browser-action handoff. |
-| A35 | PASS | Commits `632429c`, `343e588`, `f171623`, and `467938e` preserve the package states before each rewrite. |
+| A35 | PASS | Commits `632429c`, `343e588`, `f171623`, `467938e`, and `01ed0e1` preserve the package states before each rewrite. |
 
 ## Validation evidence
 

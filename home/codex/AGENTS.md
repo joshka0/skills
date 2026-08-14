@@ -120,8 +120,19 @@ task to a verifiable end state; your job while it runs is to wait, not to manage
 - If a rail in the brief (scope, prohibitions, rails) conflicts with what the
   task seems to need, STOP and report the conflict. Do not work around it.
 
-## Browser routing
+## Agent User Experience (AUX)
 
+AUX means Agent User Experience. It gives a zero-context agent the smallest
+safe orientation it needs. It currently covers repository and vault scope,
+safe credential modes and names, installed tools, Herdr credential handoffs,
+visible-browser readiness, and wiki feedback for repeated friction.
+
+Load the `aux` skill only when the task needs this orientation:
+`${CODEX_HOME:-$HOME/.codex}/skills/aux/SKILL.md`. Do not run AUX for a routine
+task when the current context already supplies what the agent needs.
+
+- Run `aux` in an unfamiliar repository or when the task needs secret, tool,
+  or credential-mode discovery.
 - Run `aux browser` before you select a browser surface for visible-browser
   work.
 - For a remote target, run `aux browser` on that target as the first command

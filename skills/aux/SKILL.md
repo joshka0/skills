@@ -1,11 +1,11 @@
 ---
 name: aux
-description: "Orient a zero-context agent to repository secrets, tools, and visible-browser bridge readiness. Use when starting in an unfamiliar workspace or before visible-browser automation."
+description: "Provide Agent User Experience (AUX) orientation for repository scope, secrets, tools, and visible-browser readiness. Use when starting in an unfamiliar workspace or before visible-browser automation."
 ---
 
-# AUX
+# Agent User Experience (AUX)
 
-Give an agent safe operational context without revealing a credential or requiring prior conversation history.
+Give a zero-context agent the smallest safe operational context it needs without revealing a credential.
 
 ## Workflow
 
@@ -32,6 +32,7 @@ Give an agent safe operational context without revealing a credential or requiri
 - Treat a missing mapping, launcher, grant, service, or broker connection as a stop. Do not fall back to `$HOME/.env`.
 - Treat a browser controller without a connected visible-browser extension as a terminal stop. Report the AUX result without inspecting browser processes, desktop sessions, services, ports, configuration, or bridge internals unless the user asks for diagnosis. Do not use a hidden or headless browser fallback.
 - Do not repeat vault discovery or search local memory when the current AUX result already answers the task.
+- Do not run AUX for a routine task when the current context already supplies the required repository, tool, credential mode, and browser context.
 
 ## Output
 
