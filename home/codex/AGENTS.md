@@ -120,6 +120,21 @@ task to a verifiable end state; your job while it runs is to wait, not to manage
 - If a rail in the brief (scope, prohibitions, rails) conflicts with what the
   task seems to need, STOP and report the conflict. Do not work around it.
 
+## Browser routing
+
+- Run `aux browser` before you select a browser surface for visible-browser
+  work.
+- For a remote target, run `aux browser` on that target as the first command
+  after the minimum SSH connection check.
+- When AUX reports `ready`, use its reported `browser-bridge` client with the
+  `local-http-browser-use` skill.
+- Use bundled in-app browser control only when the user explicitly asks for
+  the in-app Browser surface.
+- When AUX reports a browser stop, report that result and stop. Do not inspect
+  browser processes, desktop sessions, services, ports, configuration, or
+  bridge internals unless the user explicitly asks for diagnosis. Do not fall
+  back to hidden or headless automation.
+
 ## Verification discipline
 
 - Never author the tests that gate your own implementation. Examples and

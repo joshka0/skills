@@ -2,7 +2,18 @@
 
 Read this only after loading the active bridge skill and needing request detail.
 
-Use the bridge URL and bearer token supplied through the approved local-secret path. Confirm status and extension connection before a workflow. Use its advertised tool surface rather than assuming names or parameter variants.
+Use the bridge URL and bearer token supplied through the approved local-secret path. Use the AUX result to confirm status and extension connection before a workflow. Use its advertised tool surface rather than assuming names or parameter variants.
+
+For the installed bridge, use these common calls instead of searching its source:
+
+```sh
+browser-bridge call browser_observe '{"maxElements":80}'
+browser-bridge call browser_new_tab '{"url":"https://example.com","active":true}'
+browser-bridge call browser_wait '{"tabId":123,"ms":500}'
+browser-bridge call browser_observe '{"tabId":123,"maxElements":80}'
+```
+
+Replace the example URL and returned tab ID. Read the advertised schema only when a task needs another tool or request shape.
 
 The normal sequence is:
 

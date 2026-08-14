@@ -240,6 +240,7 @@ print_browser_bridge() {
   case "$browser_summary" in
     ready)
       printf '  observe: %s call browser_observe '\''{"maxElements":80}'\''\n' "$browser_client"
+      printf '  new tab: %s call browser_new_tab '\''{"url":"https://example.com","active":true}'\''\n' "$browser_client"
       ;;
     'controller ready, extension disconnected')
       printf 'Stop: connect the extension in a visible browser before browser actions. Do not use a hidden or headless fallback.\n'

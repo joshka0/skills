@@ -2,20 +2,20 @@
 
 ## Result
 
-- Verdict: **PACKAGE-CONFORMS**. The package validates and its links resolve. `bin/link` returns exit 0 while reporting and preserving unrelated plugin-managed real entries.
+- Verdict: **PACKAGE-CONFORMS**. The package validates, its links resolve, global Codex and Claude rules route visible-browser readiness through AUX, and the final fresh-agent wave used the bridge or stopped at the AUX boundary as required.
 - Canonical owner: `skills/local-http-browser-use` owns visible-browser bridge operation. `skills/aux` owns readiness orientation only.
 - Archetype: `interaction`.
-- Selected authoring modes: `evidence-and-safety` and `validation-and-acceptance`.
-- Pre-rewrite ref: `f171623`.
-- Package size: 168 text lines and 7,795 bytes. `SKILL.md` is 30 lines and 2,190 bytes. The reference is 20 lines and 1,951 bytes. The client is 118 lines and 3,654 bytes.
+- Selected authoring modes: `package-and-routing` and `validation-and-acceptance`.
+- Pre-rewrite refs: `f171623` preserves the package before the token-safe client; `467938e` preserves the first client routing contract before blind-agent correction.
+- Package size: 180 text lines and 8,500 bytes. `SKILL.md` is 31 lines and 2,386 bytes. The reference is 31 lines and 2,460 bytes. The client is 118 lines and 3,654 bytes.
 - Validators: `PASS: skills/local-http-browser-use (interaction)` and zero Kingfisher findings.
 
 ## Collision matrix
 
 | Claimed signal | First owner | Nearest competitor | Discriminator or handoff |
 | --- | --- | --- | --- |
-| Check whether the private bridge can be used | `aux` | `local-http-browser-use` | AUX reports controller and extension readiness. This skill acts only after ready status. |
-| Operate the authorized visible browser bridge | `local-http-browser-use` | generic browser automation | This skill requires the visible extension, observed state, and consent for sensitive actions. |
+| Check whether visible-browser automation can be used | `aux` | `local-http-browser-use`; bundled in-app browser control | AUX runs first and reports the usable surface. |
+| Operate the authorized visible Chrome or Brave | `local-http-browser-use` | bundled in-app browser control | This skill wins after AUX reports the private bridge ready. In-app control requires an explicit in-app Browser request. |
 | Send one authenticated bridge request | `local-http-browser-use` | `agent-vault` | The local client reads its owner-only local token. Agent Vault remains for mapped external HTTP services. |
 | Manage bridge installation or token lifecycle | host operations | `local-http-browser-use` | This package operates an existing bridge. It does not install, rotate, or disclose credentials. |
 
@@ -28,8 +28,9 @@
 | Sensitive-action consent | Kept | `SKILL.md:20-26`; `references/tool-contract.md`. |
 | Screenshot verification boundary | Kept | `SKILL.md:15,25`; `references/tool-contract.md`. |
 | Local token handoff through shell exports | Replaced | `SKILL.md:12-13,24`; `scripts/browser-bridge` reads the managed token internally. |
+| Visible-browser trigger and in-app collision | Kept and clarified | Frontmatter, `SKILL.md:12`, and the live global rules make AUX readiness precede browser action. |
 | Controller and extension readiness | Kept and exposed to AUX | `SKILL.md:12-13`; `scripts/browser-bridge:63-89`. |
-| Tool request details | Kept selectively | `SKILL.md:16`; `references/tool-contract.md`. |
+| Tool request details | Kept selectively | `SKILL.md:16`; `references/tool-contract.md` gives the common observe, new-tab, wait, and tab-observe calls. |
 
 ## Checklist
 
@@ -41,14 +42,14 @@
 | A04 | PASS | Exactly one archetype: interaction. |
 | A05 | PASS | `skills/local-http-browser-use` matches its unique kebab-case name. |
 | A06 | PASS | Frontmatter contains only `name` and `description`. |
-| A07 | PASS | The one-line description is below the interaction limit. |
-| A08 | PASS | It names the visible HTTP bridge, observe-act-verify, consent, and a concrete `Use when` trigger. |
-| A09 | PASS | AUX owns orientation; this package owns bridge interaction. |
+| A07 | PASS | The one-line, two-sentence description is below the interaction limit. |
+| A08 | PASS | It names authorized visible Chrome or Brave, the private bridge, and AUX readiness for visible-browser work. |
+| A09 | PASS | Live `AGENTS.md` and `CLAUDE.md` rules give AUX first ownership. Fresh Codex and Claude sessions followed that route without task-level hints. |
 | A10 | PASS | The trigger is bridge-specific and does not activate for generic web work. |
-| A11 | PASS | The 30-line body and 168-line package pass interaction budgets. |
+| A11 | PASS | The 31-line body and 180-line package pass interaction budgets. |
 | A12 | PASS | Active prose contains only workflow, safety rules, stops, and output. |
 | A13 | PASS | `references/tool-contract.md` resolves and loads only when request or failure detail is needed. |
-| A14 | PASS | The 20-line reference and 7,795-byte package pass hard budgets. |
+| A14 | PASS | The 31-line reference and 8,500-byte package pass hard budgets. |
 | A15 | PASS | One canonical body owns the workflow. Provider entries are links. |
 | A16 | N/A | No modes. |
 | A17 | N/A | No mode table. |
@@ -69,7 +70,7 @@
 | A32 | PASS | The package keeps the Herdr pilot's compact private-transport shape while using the explicit interaction archetype. |
 | A33 | N/A | No consolidation or trim claim. |
 | A34 | PASS | The preservation ledger accounts for each prior non-default browser delta. |
-| A35 | PASS | Commit `f171623` preserves the pre-rewrite package. |
+| A35 | PASS | Commits `f171623` and `467938e` preserve both pre-rewrite package states. |
 
 ## Validation evidence
 
@@ -80,6 +81,14 @@ Local status: controller ready; extension connected; exit 0
 Local authenticated browser_status call: ok true; extension connected; exit 0
 Remote service status: controller ready; extension disconnected
 Non-loopback URL gate: exit 64 before token use
+Blind Codex wave 1: bundled in-app browser selected; AUX not called
+Blind Claude wave 1: AUX called only after ad hoc host discovery
+Blind Codex wave 2 after description correction: bundled in-app browser still selected; AUX not called
+Blind Claude wave 2 after description correction: AUX called before bridge action; extra diagnosis remained
+Blind Codex wave 3 after global routing rule: AUX selected first and browser task completed; common new-tab discovery still required source search
+Blind Claude wave 3 after global routing rule: AUX selected first; unrequested host diagnosis remained
+Blind Codex wave 4 after common-call recipe: AUX, observe, new tab, observe; Example Domain verified; no source search
+Blind Claude wave 4 after explicit terminal-stop rule: minimum SSH check, aux browser, terminal stop; no extra diagnosis
 Kingfisher findings: 0
 bin/link: exit 0; links resolve in codex, agents, claude, gemini, and gemini-antigravity; unrelated real entries were reported and preserved
 ```

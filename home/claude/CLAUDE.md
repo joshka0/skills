@@ -88,6 +88,21 @@ Standing rules that hold even before any skill loads:
 - Cleanup is part of "done": close the panes, worktrees, watches, and scratch
   files you created (never ones you didn't) before calling a task finished.
 
+## Browser routing
+
+- Run `aux browser` before you select a browser surface for visible-browser
+  work.
+- For a remote target, run `aux browser` on that target as the first command
+  after the minimum SSH connection check.
+- When AUX reports `ready`, use its reported `browser-bridge` client with the
+  `local-http-browser-use` skill.
+- Use bundled in-app browser control only when the user explicitly asks for
+  the in-app Browser surface.
+- When AUX reports a browser stop, report that result and stop. Do not inspect
+  browser processes, desktop sessions, services, ports, configuration, or
+  bridge internals unless the user explicitly asks for diagnosis. Do not fall
+  back to hidden or headless automation.
+
 ## Verification
 
 - No agent authors the tests that gate its own code: implementation and its
