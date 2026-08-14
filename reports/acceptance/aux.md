@@ -5,8 +5,8 @@
 - Verdict: **PACKAGE-CONFORMS**. AUX is exposed in each provider farm. `bin/link` completed with exit 0. It preserved unrelated unmanaged real entries with warnings; this package report does not audit those entries or assert full-catalog conformance.
 - Canonical owner: `skills/aux`.
 - Archetype: `private-leaf`.
-- Pre-rewrite ref: `632429c`. It preserves the first tested AUX package before the Herdr-trial rewrite.
-- Package size: 238 text lines and 8,511 bytes. `SKILL.md` is 35 lines and 2,780 bytes. The deterministic script is 199 lines and 5,506 bytes.
+- Pre-rewrite refs: `632429c` preserves the first tested package; `343e588` preserves the package before the Wiki feedback handoff.
+- Package size: 239 text lines and 8,700 bytes. `SKILL.md` is 36 lines and 2,969 bytes. The deterministic script is 199 lines and 5,506 bytes.
 - Validators: `Skill is valid!` and `PASS: skills/aux (private-leaf)`.
 
 ## Collision matrix
@@ -18,6 +18,7 @@
 | Agent needs an authenticated HTTP command | `agent-vault` | `aux` | AUX selects and reports the vault. Agent Vault owns the credential-bearing request. |
 | Agent needs an application environment secret | `local-dev` | `aux` | AUX reports `infisical-runtime`. `local-dev` owns injection and exact-path verification. |
 | Agent needs a vault, grant, service, or policy change | `agent-secret-infrastructure` | `aux` | AUX reports `control-plane` and stops. Infrastructure owns the change. |
+| Agent repeatedly hits AUX-owned friction | `wiki` | `aux` | AUX detects recurrence and hands off. Wiki owns deduplication and the feature-request record. |
 
 ## Preservation ledger
 
@@ -27,6 +28,7 @@
 | Target-repository discovery from a packaged skill | Kept and corrected | `SKILL.md:12`; the one-command entry point is `aux` in the target repository. |
 | Safe service and credential-name discovery | Kept | `SKILL.md:24-29`; `scripts/aux:102-136`. |
 | Credential-injection scope versus unmatched-host egress | Kept and clarified | `SKILL.md:27`; `scripts/aux:162-164`. Discovery does not claim strict deny. |
+| Repeated agent-UX feedback loop | Kept as handoff | `SKILL.md:21`; `wiki` owns threshold, deduplication, and capture. |
 | Exact command-scoped launch guidance | Kept | `SKILL.md:14-20`; `scripts/aux:135`. |
 | Personal and employer trust-boundary separation | Kept | `SKILL.md:28`; `scripts/aux:39-71`. |
 | Secret mutation, runtime injection, and Herdr transport | Handed off | `SKILL.md:14-20`; canonical owners remain `local-dev`, `agent-vault`, `agent-secret-infrastructure`, and `herdr`. |
@@ -45,7 +47,7 @@
 | A08 | PASS | The description names orientation and concrete unfamiliar-workspace and secret/tool signals. |
 | A09 | PASS | The collision matrix establishes one first owner for each claimed signal. |
 | A10 | PASS | No greedy trigger, persona, or deterministic user macro exists. |
-| A11 | PASS | The 35-line body is below the private-leaf cap. The 199-line script is below its 300-line cap. |
+| A11 | PASS | The 36-line body is below the private-leaf cap. The 199-line script is below its 300-line cap. |
 | A12 | PASS | The body contains workflow, handoffs, hard rules, stops, and output only. |
 | A13 | N/A | No references. |
 | A14 | PASS | The package is 233 lines and 7,932 bytes, below all hard limits. |
@@ -69,7 +71,7 @@
 | A32 | PASS | Shape was compared with the private-leaf Herdr pilot and the normative contract. |
 | A33 | N/A | New package; no consolidation or trim claim. |
 | A34 | PASS | The preservation ledger accounts for each qualifying delta and handoff. |
-| A35 | PASS | Commit `632429c` preserves the first package before the Herdr-trial rewrite. |
+| A35 | PASS | Commits `632429c` and `343e588` preserve both earlier package states before their rewrites. |
 
 ## Validation evidence
 

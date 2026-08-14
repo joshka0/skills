@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Wiki"
+  short_description: "Search and capture durable agent knowledge"
+  default_prompt: "Use $wiki to search durable knowledge or log a repeated AUX papercut."

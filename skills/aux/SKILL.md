@@ -18,6 +18,7 @@ Give an agent safe operational context without revealing a credential or requiri
    - Use `control-plane` for vault, service, grant, Infisical policy, or recovery changes. Hand off to `agent-secret-infrastructure`.
 4. For a Herdr task, keep the model interactive and unwrapped. Give a separate credential worker the reported vault, host, and one bounded command.
 5. Run `aux secrets` only when tool status is irrelevant. Run `aux tools` only when secret context is irrelevant.
+6. If the same AUX-owned friction repeats, hand it to `wiki` after the main task reaches a safe checkpoint. The wiki skill owns the recurrence threshold, deduplication, and request format.
 
 ## Hard rules
 
