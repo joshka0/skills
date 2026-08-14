@@ -33,7 +33,7 @@ Do not use this skill for an ordinary proxied API call. Use the Agent Vault skil
 3. Keep Infisical authoritative. Use a human administrator for policy changes. Require the approved write-only publisher for a routine secret create or update. Stop when it is not installed; never replace it with a raw-value command argument.
 4. Keep credentials behind Agent Vault. Create a dedicated Herdr credential worker and launch its model normally. Run only its credential-bearing command through the host-local `agent-vault-run` command. The worker does not receive an Infisical machine identity.
 5. Assign one primary vault for each task. Add a separate shared-tool session only when the task needs it. Do not merge broad shared credentials into every project vault.
-6. Verify through behavior. Confirm that an allowed proxied request works and that a denied host, path, or service stays denied. Never print the injected value.
+6. Verify through behavior. Confirm that a mapped request works. Test unmatched-host behavior separately because service mapping controls credential injection, not necessarily egress. Require strict deny before claiming an unmatched host is blocked. Never print the injected value.
 7. For recovery work, follow the batch and restore gates in the recovery reference. Preserve the old host and local state until the replacement passes application checks.
 8. Report only safe metadata: project, environment, path, key name, identity name, vault name, service state, snapshot ID, and test result.
 

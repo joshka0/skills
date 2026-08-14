@@ -7,7 +7,7 @@ Verify this state before use.
 - Infisical runs on the private `vps` host. It is the only secret source of truth.
 - One Agent Vault broker runs as a dedicated system service on `vps`. It binds only to the Tailnet address.
 - The central `shared` and `skills` vaults read the Infisical development environment. Verify their latest sync status before use.
-- The Mac central launcher and the client-only installation on `ssh dev` both pass one allowed GitHub request and one unmatched-host deny test.
+- The Mac central launcher and the client-only installation on `ssh dev` both have prior allowed-request evidence. Re-test live before use. Do not claim an unmatched-host deny unless the current vault policy and a behavior test both prove it.
 - The original Mac loopback broker and files stay preserved. Its current Infisical sync is expired, and its logs report a malformed database. It is not a verified rollback. Do not remove or repair it until the central path remains stable and the user selects a recovery action.
 - Cloudflare R2 stores encrypted Restic backups of Infisical and Agent Vault. Each Agent Vault backup includes an isolated restore and SQLite integrity check.
 - The old local Infisical instance stays intact until the VPS deployment and its clients remain stable.
@@ -100,5 +100,7 @@ Check these facts before a change:
 3. Check the Agent Vault client and server versions.
 4. List vault names and grant metadata without showing values.
 5. Check the Infisical project, environment, and path attached to each vault.
-6. Test one allowed upstream endpoint and one deliberate deny case.
+6. Test one mapped upstream endpoint and one unmatched host. Record whether the live vault passes through or denies the unmatched request.
 7. Check both backup timers and the newest complete snapshot metadata.
+
+Agent Vault service rules scope credential injection. They are not an automatic network allowlist. Verify each vault's unmatched-host policy live. Use strict deny for a command-scoped credential worker when only mapped hosts are required. Keep the model TUI and general tools outside that subprocess, so strict deny does not block unrelated tools such as browser bridges or public search.

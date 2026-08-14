@@ -28,7 +28,7 @@ Do not put tokens, secret values, Infisical identities, or broker administrator 
 ## Preflight
 
 1. Require `agent-vault-run` on the target host. This host-local command owns client authentication and must not print its bootstrap credential.
-2. Run `agent-vault-run <vault> -- agent-vault vault discover --json` before the split. Confirm the expected vault and host from safe metadata.
+2. Use the current `aux` result when it already discovered the expected vault and host. Otherwise run `agent-vault-run <vault> -- agent-vault vault discover --json` before the split. Discover once per task; do not repeat the same preflight in the worker.
 3. Stop if the launcher is missing, the vault is not granted, the broker is unreachable, or the required host is absent. Do not fall back to a raw token or direct request.
 
 One command uses one vault. Use a separate credential worker for each project or shared vault. Do not merge broad shared credentials into a project vault.

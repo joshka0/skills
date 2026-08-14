@@ -159,6 +159,9 @@ print_secrets() {
   printf '  - authenticated HTTP command: agent-vault-command\n'
   printf '  - application environment or file: infisical-runtime\n'
   printf '  - vault, grant, service, or policy change: control-plane\n'
+  printf 'Proxy boundary:\n'
+  printf '  - listed services control credential injection\n'
+  printf '  - unmatched-host policy: not reported by discovery; verify before claiming deny\n'
 }
 
 print_tool() {

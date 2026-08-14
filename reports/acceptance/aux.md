@@ -2,11 +2,11 @@
 
 ## Result
 
-- Verdict: **PACKAGE-CONFORMS**. AUX is exposed in each provider farm. Full catalog conformance is blocked by unrelated unmanaged real entries already present in `providers/claude` and `providers/agents`.
+- Verdict: **PACKAGE-CONFORMS**. AUX is exposed in each provider farm. `bin/link` completed with exit 0. It preserved unrelated unmanaged real entries with warnings; this package report does not audit those entries or assert full-catalog conformance.
 - Canonical owner: `skills/aux`.
 - Archetype: `private-leaf`.
-- Pre-rewrite ref: N/A. This is a new package and no prior `aux` skill existed.
-- Package size: 233 text lines and 7,932 bytes. `SKILL.md` is 33 lines and 2,387 bytes. The deterministic script is 196 lines and 5,320 bytes.
+- Pre-rewrite ref: `632429c`. It preserves the first tested AUX package before the Herdr-trial rewrite.
+- Package size: 238 text lines and 8,511 bytes. `SKILL.md` is 35 lines and 2,780 bytes. The deterministic script is 199 lines and 5,506 bytes.
 - Validators: `Skill is valid!` and `PASS: skills/aux (private-leaf)`.
 
 ## Collision matrix
@@ -24,7 +24,9 @@
 | Qualifying delta | Disposition | Evidence |
 | --- | --- | --- |
 | Zero-context repository and vault orientation | Kept | `SKILL.md:8-20`; `scripts/aux:27-71,138-162`. |
+| Target-repository discovery from a packaged skill | Kept and corrected | `SKILL.md:12`; the one-command entry point is `aux` in the target repository. |
 | Safe service and credential-name discovery | Kept | `SKILL.md:24-29`; `scripts/aux:102-136`. |
+| Credential-injection scope versus unmatched-host egress | Kept and clarified | `SKILL.md:27`; `scripts/aux:162-164`. Discovery does not claim strict deny. |
 | Exact command-scoped launch guidance | Kept | `SKILL.md:14-20`; `scripts/aux:135`. |
 | Personal and employer trust-boundary separation | Kept | `SKILL.md:28`; `scripts/aux:39-71`. |
 | Secret mutation, runtime injection, and Herdr transport | Handed off | `SKILL.md:14-20`; canonical owners remain `local-dev`, `agent-vault`, `agent-secret-infrastructure`, and `herdr`. |
@@ -43,7 +45,7 @@
 | A08 | PASS | The description names orientation and concrete unfamiliar-workspace and secret/tool signals. |
 | A09 | PASS | The collision matrix establishes one first owner for each claimed signal. |
 | A10 | PASS | No greedy trigger, persona, or deterministic user macro exists. |
-| A11 | PASS | The 33-line body is below the private-leaf cap. The 196-line script is below its 300-line cap. |
+| A11 | PASS | The 35-line body is below the private-leaf cap. The 199-line script is below its 300-line cap. |
 | A12 | PASS | The body contains workflow, handoffs, hard rules, stops, and output only. |
 | A13 | N/A | No references. |
 | A14 | PASS | The package is 233 lines and 7,932 bytes, below all hard limits. |
@@ -52,22 +54,22 @@
 | A17 | N/A | Private leaf; no mode table. |
 | A18 | N/A | Private leaf; not a router. |
 | A19 | N/A | Private leaf; no routed child overlay. |
-| A20 | PASS | The script uses live path, command, launcher, broker, service, and credential-name discovery. |
+| A20 | PASS | The script uses live path, command, launcher, broker, service, and credential-name discovery. Agent Vault 0.39.1 behavior and the current upstream README were checked before correcting unmatched-host guidance. |
 | A21 | PASS | No external manual or tool catalog is copied. |
 | A22 | N/A | No pinned volatile pack constraint. |
 | A23 | PASS | Secret-shape scan returned no match. The package contains names only. |
 | A24 | PASS | The script calls `vault discover`; it never calls `credential get` or reads dotenv values. |
 | A25 | PASS | Paths use `$HOME` or runtime output. No literal personal-home path exists. |
 | A26 | PASS | Missing repository mappings, launchers, grants, vaults, and invalid discovery responses fail clearly. |
-| A27 | PASS | `scripts/aux` is referenced, deterministic, Bash syntax-checked, and smoke-tested against skills, Foxway, portfolio, and an ungranted repository. |
+| A27 | PASS | `scripts/aux` is referenced, deterministic, Bash syntax-checked, and smoke-tested against skills, Foxway, portfolio, `ssh dev`, and an ungranted repository. Three fresh Herdr agents exercised the workflow. |
 | A28 | PASS | `agents/openai.yaml` matches the skill and contains only UI metadata. No assets exist. |
 | A29 | PASS | Rules prevent value access, dotenv fallback, trust-boundary mixing, and false usability claims. |
-| A30 | BLOCKED | AUX links exist in all five provider farms. Unrelated unmanaged provider entries make `bin/link` return nonzero. |
-| A31 | BLOCKED | Installed AUX links resolve correctly. The global provider warning must be handled by its owner. |
+| A30 | PASS | AUX links exist once in all five provider farms. No AUX collision exists. |
+| A31 | PASS | `bin/link` returned exit 0. Each installed AUX link resolves to `skills/aux`; unrelated provider warnings were preserved. |
 | A32 | PASS | Shape was compared with the private-leaf Herdr pilot and the normative contract. |
 | A33 | N/A | New package; no consolidation or trim claim. |
 | A34 | PASS | The preservation ledger accounts for each qualifying delta and handoff. |
-| A35 | N/A | New package; no pre-rewrite original existed. |
+| A35 | PASS | Commit `632429c` preserves the first package before the Herdr-trial rewrite. |
 
 ## Validation evidence
 
@@ -82,4 +84,10 @@ Smoke evidence:
 skills context: exit 0
 foxway secrets: exit 0
 ungranted personal repository: exit 1 with explicit no-dotenv stop
+ssh dev skills context: exit 0
+Herdr Foxway trial: allowed request 200; unmatched host passed through as 200
+Herdr portfolio trial: stopped because the OpenRouter service and credential mapping were absent
+Herdr Foxway retest: first command was aux context; correct scope; no confusion
+Final command contract: aux once, then one required brokered command; no duplicate discovery
+bin/link: exit 0; AUX links verified in codex, agents, claude, gemini, and gemini-antigravity
 ```

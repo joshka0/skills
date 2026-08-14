@@ -11,7 +11,7 @@ Use Agent Vault for the smallest command that needs a credential. Keep the inter
 
 1. Require `agent-vault-run` on the host. This local launcher owns client authentication. Never inspect its credential source.
 2. Select one project or shared vault for the command.
-3. Run `agent-vault-run <vault> -- agent-vault vault discover --json`. Read only the vault name, service hosts, and credential key names.
+3. Reuse the current `aux` result when it already discovered the same vault in this task. Otherwise run `agent-vault-run <vault> -- agent-vault vault discover --json`. Read only the vault name, service hosts, and credential key names.
 4. Confirm that the required upstream host appears before making an authenticated request.
 
 If the launcher, vault grant, or service is absent, stop. Do not retrieve a client token, open local credential storage, or relaunch the whole agent through the vault.
@@ -22,8 +22,9 @@ If the launcher, vault grant, or service is absent, stop. Do not retrieve a clie
 2. Keep the model TUI, MCP servers, browser bridge, web tools, and unrelated network commands outside that subprocess.
 3. Keep application auth headers empty unless the service contract requires a non-secret placeholder. Never invent, copy, or log a credential value.
 4. Verify the real operation and its status. Use broker request metadata only when diagnosis needs it.
-5. Treat an unmatched-host `403` as an enforced policy boundary for that command. Do not bypass the proxy, change the host, use a second ingress, or create a local credential.
-6. Respect `Retry-After` on `429`. On `401`, report an expired or invalid Agent Vault session. On a missing credential or service mapping, report the safe host and key name.
+5. Distinguish credential injection from egress policy. A matching service authorizes injection. An unmatched host can pass through without injection unless the vault has strict unmatched-host deny enabled. Verify the live behavior before claiming a network boundary.
+6. If strict deny returns `403`, treat it as an enforced boundary. Do not bypass the proxy, change the host, use a second ingress, or create a local credential.
+7. Respect `Retry-After` on `429`. On `401`, report an expired or invalid Agent Vault session. On a missing credential or service mapping, report the safe host and key name.
 
 ## Handoffs
 
@@ -35,4 +36,4 @@ This deployment does not use Agent Vault proposals as a second secret store. Do 
 
 ## Output
 
-Report the vault name, upstream host, safe credential key names, request status, and any policy or sync blocker. Never report token, header, proxy credential, or secret values.
+Report the vault name, upstream host, safe credential key names, request status, observed unmatched-host behavior when tested, and any policy or sync blocker. Never report token, header, proxy credential, or secret values.
