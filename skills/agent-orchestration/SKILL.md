@@ -1,6 +1,6 @@
 ---
 name: agent-orchestration
-description: "Coordinate engine selection, bounded live agent dispatch, swarm integration, collaboration, delta briefs, and optional mux transport. Use when users invoke /delegate-codex, /swarm, collaboration-protocol, a delta brief, or when choosing the model, harness, or effort tier for delegated or review work."
+description: "Coordinate agent dispatch and model selection. Use when invoking /delegate-codex, /swarm, or collaboration-protocol; sending delta briefs; or choosing a model or harness for delegation."
 ---
 
 # Agent Orchestration
@@ -41,7 +41,7 @@ Select exactly one dispatch mode and read only that reference. Combine modes onl
 - Parallel mutations must be file-disjoint or use explicitly coordinated isolated work surfaces; serialize shared APIs, data models, security boundaries, and other high-coupling work.
 - Keep version-control, publication, and external side effects with the supervisor unless the user explicitly delegates them. Filesystem cleanup is Trash-only; permanent deletion and destructive Git remain forbidden even after confirmation or delegation.
 - Do not infer an agent's permissions, tool flags, model, or terminal protocol. Verify current capability from the execution surface or report the uncertainty.
-- **Let a dispatched agent run to completion.** Do not timebox it, cut it off, or send follow-up input while it is still producing output — a long or quiet stretch is work, not a stall. Wait on an observed terminal state (its verdict line, or a `done`/`idle`/`blocked` status), and when a wait call times out, re-read and keep waiting rather than intervening. Interrupt only on evidence the agent is genuinely stuck: no new output across repeated reads, a crash, or a block awaiting input you must supply. Give it the full context its task needs up front for the same reason — a truncated brief and a truncated run fail the same way.
+- Let agents finish. A wait timeout means re-read and keep waiting. Do not interrupt or send follow-ups while output continues; intervene only after repeated reads show no progress, a crash, or a block awaiting your input. Honor bounds in an explicitly selected workflow such as `herdr-goal`. Report results only after an observed terminal state.
 - A material conclusion needs current evidence; a collaboration decision also needs an independent critical pass before synthesis and its selected durable ledger record.
 - A delta brief points to an updated durable source of truth; a chat message is never the only record of a settled change.
 - Keep credentials and secret values out of packets, transport, collaboration ledgers, and status reports.

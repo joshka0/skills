@@ -30,82 +30,36 @@ state-mutating command to `~/.codex/logs/mutation-audit.log`. If a destructive
 command is genuinely required, STOP and ask the user; only the user may perform
 it or change this policy.
 
-## Subagent discipline (fan-out cap)
-
-Delegation is expensive. Deep or reflexive fan-out burns enormous token budgets
-for little gain, and it is the single most common failure mode in this setup.
-
-**The cap: one level of delegation. A subagent you spawn must be able to finish
-its entire assigned task by itself, without spawning subagents of its own.**
-
-- Before delegating, ask: *is this a complete, self-contained unit of work that
-  one agent can carry to a verifiable end state?* If yes, delegate it whole. If
-  no, it is not ready to delegate — decompose it further **yourself** first, or
-  do it yourself.
-- Never delegate "explore this area and delegate what you find." Scouting and
-  decomposition are the orchestrator's job, not a subagent's.
-- Subagents are told, in their brief, that they own the task end-to-end and must
-  not sub-delegate. State it explicitly in every brief you write.
-- Prefer doing the work directly when a task is small enough that briefing a
-  subagent costs more context than just doing it. A subagent must earn its
-  overhead.
-- Batch related small tasks into one subagent brief rather than spawning several
-  near-identical agents.
-- Parallel subagents are fine and encouraged — the cap is on **depth**, not
-  width. Many peers, one level deep.
-- Stop and report rather than fanning out further when a task turns out to be
-  bigger than its brief. A blocker honestly reported is a good outcome; a
-  recursive delegation cascade is not.
-
 ## Model and effort selection
 
-**Sol plans. Luna executes the plan.** Two roles, never collapsed into one.
+- Honor the user's selected model. For open-ended Codex planning, coding, UI,
+  debugging, or review, default to `gpt-6-astra`. Keep `gpt-5.6-sol` available
+  when selected. Either model may plan and implement the task end to end.
+- Use `gpt-5.6-luna` at `max` only for a simple, bounded, low-risk task with an
+  exact plan from Astra, Sol, or another suitable stronger model. Luna must report
+  missing, ambiguous, or conflicting steps instead of planning or improvising.
+  State this constraint in its brief.
+- Preserve the chosen reasoning effort. Check model and effort support before
+  switching; use `ultra` only with user approval. Do not use Terra.
+- Preserve explicit workflow pins, including the Luna verifier in
+  `herdr-goal`. Astra and Sol are both OpenAI models; switching between them
+  does not provide a different model family for review.
+- Report the model and effort that actually ran. Use `agent-orchestration`
+  for delegated model and harness selection.
 
-- **`sol(medium)` — the planner**, and the daily driver for scoped work not
-  worth splitting into two panes.
-- **`sol(high|xhigh)` — the executor whenever UI design or frontend work is
-  involved**, and the tier for genuinely hard problems: deep review, design
-  convergence, gnarly debugging.
-- **`sol(max)` — the ceiling.** Adversarial passes and highest-stakes synthesis
-  only. (`ultra` exists above it; do not use it — ask the user first.)
-- **`luna(max)` — the default executor** for work that arrives as a precise,
-  exact plan authored by sol or a stronger model. Luna performs very well given
-  an exact plan and poorly without one.
-- **`terra` is retired.** Do not use it.
+## Delegation
 
-The luna contract — all three, or dispatch sol instead:
-
-1. A stronger model authored the plan. Luna never plans its own work and never
-   receives a bare goal.
-2. Luna executes *that exact plan*. Where the plan is silent, ambiguous, or
-   wrong, it stops and reports rather than improvising — deviation is a defect,
-   not initiative. State this in the brief.
-3. The task is neither high-risk nor complex. Judgment-dense, exploratory, or
-   risky work goes to sol regardless of how tight the plan looks.
-
-If you are running as luna and your brief contains a goal rather than a plan,
-stop and report that — do not plan it yourself.
-
-Escalate by *effort* within sol; sol-vs-luna is a role choice, not a rung on the
-effort ladder. State the model and effort you chose for each subagent in your
-report.
-
-## Supervising agents you dispatch
-
-**Let them finish. No timeboxing.** A subagent or pane agent you spawned owns its
-task to a verifiable end state; your job while it runs is to wait, not to manage.
-
-- Do not impose a deadline, cut a run short, or send follow-up input while the
-  agent is still producing output. Slow or quiet is working, not stuck.
-- Wait for an observed terminal state — the agent's own verdict line, or a
-  `done`/`idle`/`blocked` status. A wait command that times out means keep
-  waiting: re-read and wait again. It is not permission to interrupt.
-- Interrupt only on evidence: no new output across repeated reads, a crash, or a
-  block genuinely awaiting input from you.
-- Give the full context the task needs in the brief up front. A truncated brief
-  and a truncated run produce the same failure — a confident partial answer.
-- Never report a dispatched agent's result before its terminal state. Do not
-  summarize, predict, or fill in what it "was going to say".
+- Delegate only when a complete independent task earns the coordination cost.
+  Keep one level of delegation. Every brief must forbid sub-delegation and
+  include the task, source artifacts, scope, constraints, and required evidence.
+- Give reviewers the original artifacts and avoid supplying the desired
+  verdict. Preserve review independence and vendor restrictions required by
+  the task.
+- Let agents finish. Do not timebox, interrupt, or send follow-up input while
+  they are producing output. A wait timeout means read again and keep waiting.
+  Honor bounds in an explicitly selected workflow such as `herdr-goal`.
+- Intervene only after repeated reads show no progress, a crash, or a block
+  awaiting your input. Report results only after an observed terminal state.
 
 ## Working with a task brief
 
