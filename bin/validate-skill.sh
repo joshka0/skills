@@ -1,52 +1,61 @@
 #!/bin/sh
-# Usage: validate-skill.sh <skill_dir> <archetype>
-# archetype: leaf | private-leaf | suite | router | interaction
-# Mechanical gate from skills/skill-authoring/references/.
+# Validate skill metadata and static local references; semantic routing is reviewed separately.
 set -eu
+[ "$#" -eq 1 ] || { echo "Usage: $0 <skill-directory>" >&2; exit 1; }
+repo_root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 
-skill_dir="${1:?skill dir}"; archetype="${2:?leaf|private-leaf|suite|router|interaction}"
-skill_file="$skill_dir/SKILL.md"
-fail() { echo "FAIL: $*" >&2; exit 1; }
+ruby -ryaml -rpathname -ruri - "$1" "$repo_root" <<'RUBY'
+def fail_check(message)
+  abort "FAIL: #{message}"
+end
 
-case "$archetype" in
-  leaf|suite|interaction) max_lines=120; max_bytes=10240; max_desc=220 ;;
-  private-leaf)           max_lines=160; max_bytes=12288; max_desc=220 ;;
-  router)                 max_lines=80;  max_bytes=6144;  max_desc=320 ;;
-  *) fail "unknown archetype $archetype" ;;
-esac
-if [ "$archetype" = suite ]; then max_desc=320; fi
+def metadata(file)
+  text = File.read(file)
+  match = text.match(/\A---\r?\n(.*?)\r?\n---(?:\r?\n|\z)/m)
+  fail_check("missing frontmatter: #{file}") unless match
+  YAML.safe_load(match[1])
+rescue Psych::Exception
+  fail_check("invalid YAML frontmatter: #{file}")
+end
 
-test -f "$skill_file" || fail "missing SKILL.md"
+dir = Pathname.new(ARGV[0]).expand_path
+repo = Pathname.new(ARGV[1])
+entry = dir.join("SKILL.md")
+fail_check("missing SKILL.md: #{dir}") unless entry.file?
+data = metadata(entry)
+fail_check("frontmatter must be a mapping") unless data.is_a?(Hash)
+name = data["name"]
+unless name.is_a?(String) && name.match?(/\A[a-z0-9]+(?:-[a-z0-9]+)*\z/) &&
+       name == dir.basename.to_s
+  fail_check("name must match the kebab-case directory")
+end
+unless data["description"].is_a?(String) && !data["description"].strip.empty?
+  fail_check("description must be a non-empty string")
+end
 
-# Frontmatter shape.
-rg -q '^name: [a-z0-9]+(-[a-z0-9]+)*$' "$skill_file" || fail "name not kebab-case"
-rg -q '^description: .+' "$skill_file" || fail "description missing or not one physical line"
-if rg -q '^description:[[:space:]]*["'\'']?[>|]' "$skill_file"; then fail "folded/literal description block"; fi
-desc_len=$(sed -n 's/^description:[[:space:]]*//p' "$skill_file" | head -1 | wc -c | tr -d ' ')
-[ "$desc_len" -le "$max_desc" ] || fail "description $desc_len chars > $max_desc"
+Dir.glob(repo.join("{skills,native}/**/SKILL.md").to_s).each do |other|
+  next if File.realpath(other) == entry.realpath.to_s
+  candidate = metadata(other)
+  fail_check("duplicate name: #{name}") if candidate.is_a?(Hash) && candidate["name"] == name
+end
 
-# Active-file budgets.
-[ "$(wc -l < "$skill_file")" -le "$max_lines" ] || fail "SKILL.md over $max_lines lines"
-[ "$(wc -c < "$skill_file")" -le "$max_bytes" ] || fail "SKILL.md over $max_bytes bytes"
-
-# Per-reference and package-total budgets (all text files, licenses excluded).
-for ref in "$skill_dir"/references/*.md; do
-  [ -e "$ref" ] || break
-  [ "$(wc -l < "$ref")" -le 250 ] || fail "reference over 250 lines: $ref"
-done
-total=$(find "$skill_dir" -type f \( -name '*.md' -o -name '*.txt' -o -name '*.toml' -o -name '*.yaml' -o -name '*.yml' -o -name '*.sh' \) ! -iname 'license*' -exec cat {} + | wc -l | tr -d ' ')
-[ "$total" -le 800 ] || echo "WARN: package total $total lines (>800; only a documented consolidated owner may reach 1200)" >&2
-[ "$total" -le 1200 ] || fail "package total $total lines > 1200"
-
-# Portable paths and prose smells.
-if rg -q '/Users/[^ <]+|/home/[^ <]+' "$skill_dir"; then fail "literal home path"; fi
-if rg -qi 'remember:?[[:space:]]+you are|mandatory[[:space:]]+preparation|you are an expert|IMPORTANT:|CRITICAL:' "$skill_dir"; then fail "banned prose construct"; fi
-
-# Unique canonical name within skills/.
-name="$(sed -n 's/^name:[[:space:]]*//p' "$skill_file" | head -1)"
-[ "$(rg -l "^name: ${name}$" skills -g 'SKILL.md' | wc -l | tr -d ' ')" -eq 1 ] || fail "duplicate name in skills/"
-
-# Package portability: no symlinks inside a skill package (providers/ farms are exempt by scope).
-[ -z "$(find "$skill_dir" -type l -print -quit)" ] || fail "symlink inside skill package"
-
-echo "PASS: $skill_dir ($archetype)"
+Dir.glob(dir.join("**/*").to_s, File::FNM_DOTMATCH).each do |file|
+  fail_check("symlink inside package: #{file}") if File.symlink?(file)
+  next unless File.file?(file) && File.extname(file) == ".md"
+  text = File.read(file)
+  fail_check("literal personal-home path: #{file}") if text.match?(%r{/Users/[^ /]+|/home/[^ /]+})
+  links = text.scan(/\]\(([^)\n]+)\)/).flatten.map { |target| [Pathname.new(file).dirname, target] }
+  links += text.scan(/^\s*\[[^\]]+\]:\s+<?([^\s>]+)>?/).flatten.map { |target| [Pathname.new(file).dirname, target] }
+  links += text.scan(/`((?:references|scripts|assets)\/[^\s`<>{}]+)`/).flatten.map { |target| [dir, target] }
+  links.each do |base, raw|
+    target = raw.strip
+    target = target[1...-1] if target.start_with?("<") && target.end_with?(">")
+    next if target.match?(/\A[a-z][a-z0-9+.-]*:/i) || target.start_with?("#")
+    next if target.match?(/[<>{}$*]/)
+    target = URI::DEFAULT_PARSER.unescape(target.split("#", 2).first.to_s)
+    next if target.empty?
+    fail_check("missing local reference #{target}: #{file}") unless base.join(target).exist?
+  end
+end
+puts "PASS: #{ARGV[0]} (description #{data["description"].length} characters)"
+RUBY

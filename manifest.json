@@ -1,7 +1,6 @@
 {
   "claude_only": [
     "caveman",
-    "crew",
     "git-guardrails-claude-code",
     "grill-me",
     "peon-ping",
@@ -21,6 +20,13 @@
       "exclude": [
         "dormant",
         "claude_only"
+      ],
+      "native": [
+        "native/agents/firecrawl",
+        "native/agents/firecrawl-build",
+        "native/agents/firecrawl-monitor",
+        "native/agents/firecrawl-developer-index",
+        "native/agents/firecrawl-research-index"
       ]
     },
     "codex": {

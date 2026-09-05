@@ -1,6 +1,6 @@
 # Motion Design
 
-Read this only for the `motion` mode: a production interface needs a motion decision, a motion review, or a precise name for an observed effect. Use `product-platform` for an installed animation library, native API, or implementation mechanism.
+Read this for a motion decision, review, or precise effect name. Resolve implementation through the project's installed animation library, native APIs, and current primary documentation.
 
 1. Name the job before choosing an effect: feedback, state transition, continuity, navigation direction, orientation, or intentional ambient presence. If no user-facing state or relationship changes, remove the motion.
 2. For a vague request, give the most useful term and at most two contrasts: origin-aware transition, continuity/shared-element transition, layout transition, direction-aware transition, stagger, rubber-banding, velocity handoff, or interruptible motion. Do not turn this reference into a glossary.

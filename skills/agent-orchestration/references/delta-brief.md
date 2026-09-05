@@ -10,4 +10,6 @@ First update the durable source of truth that a fresh session would read. Identi
 4. the exact artifact or area to revisit; and
 5. what explicitly remains unchanged, plus the durable source to read.
 
-Split unrelated change events rather than disguising a re-brief as one delta. Do not use a chat message as a competing specification or as the only record of the decision.
+Queue the brief until the recipient is idle unless the active task explicitly
+authorizes interruption. Split unrelated change events. Do not use a chat message
+as a competing specification or as the only record of the decision.

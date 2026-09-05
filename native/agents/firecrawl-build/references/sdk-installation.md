@@ -1,36 +1,21 @@
-# SDK Installation
+# SDK and REST selection
 
-Install the SDK that matches the project language. Prefer the language already used by the app.
+Check installed dependencies and types first. Reuse the project's HTTP client
+or existing SDK. The imported package names are `@mendable/firecrawl-js` for
+JavaScript/TypeScript and `firecrawl-py` for Python; verify current support and
+use the project's package manager if a dependency is needed.
 
-For existing projects, inspect the repo first and match its package manager, dependency conventions, and where third-party API clients already live.
+Read the current source-of-truth page for the selected language when implementing
+request/response schemas, endpoint paths, or SDK methods:
 
-## JavaScript / TypeScript
+- [Node / TypeScript](https://docs.firecrawl.dev/agent-source-of-truth/node)
+- [Python](https://docs.firecrawl.dev/agent-source-of-truth/python)
+- [Rust](https://docs.firecrawl.dev/agent-source-of-truth/rust)
+- [Java](https://docs.firecrawl.dev/agent-source-of-truth/java)
+- [Elixir](https://docs.firecrawl.dev/agent-source-of-truth/elixir)
+- [REST](https://docs.firecrawl.dev/agent-source-of-truth/curl)
 
-```bash
-npm install @mendable/firecrawl-js
-```
-
-## Python
-
-```bash
-pip install firecrawl-py
-```
-
-## REST
-
-Use direct HTTP calls when:
-
-- the project language does not have an official SDK in scope
-- the existing networking layer already wraps third-party APIs
-- the integration needs a minimal dependency footprint
-
-After installation, run a smoke test from the real integration path. See [verification.md](verification.md).
-
-Source of truth for SDK usage, schemas, and endpoint details (read the page matching your language):
-
-- **Node / TypeScript**: [docs.firecrawl.dev/agent-source-of-truth/node](https://docs.firecrawl.dev/agent-source-of-truth/node)
-- **Python**: [docs.firecrawl.dev/agent-source-of-truth/python](https://docs.firecrawl.dev/agent-source-of-truth/python)
-- **Rust**: [docs.firecrawl.dev/agent-source-of-truth/rust](https://docs.firecrawl.dev/agent-source-of-truth/rust)
-- **Java**: [docs.firecrawl.dev/agent-source-of-truth/java](https://docs.firecrawl.dev/agent-source-of-truth/java)
-- **Elixir**: [docs.firecrawl.dev/agent-source-of-truth/elixir](https://docs.firecrawl.dev/agent-source-of-truth/elixir)
-- **cURL / REST**: [docs.firecrawl.dev/agent-source-of-truth/curl](https://docs.firecrawl.dev/agent-source-of-truth/curl)
+These are documentation targets, not a promise that every language has the same
+SDK surface. The CLI is unnecessary for an application that uses SDK or REST.
+Do not run `firecrawl init --all` to add an app dependency; that command also
+changes editor tooling and may launch authentication.

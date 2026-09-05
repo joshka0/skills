@@ -22,16 +22,16 @@ Do not use this skill for an ordinary proxied API call. Use the Agent Vault skil
 
 ## Load references
 
-- Read [references/architecture-and-policy.md](references/architecture-and-policy.md) for every task.
+- Read [references/architecture-and-policy.md](references/architecture-and-policy.md) for topology, identity, custody, or access-policy decisions.
 - Also read [references/backup-and-restore.md](references/backup-and-restore.md) for backup, recovery, key rotation, or host replacement.
 - Also read [references/publishing-and-sync.md](references/publishing-and-sync.md) for secret creation, update, rotation, or Agent Vault sync.
 
 ## Workflow
 
-1. Discover the live state. Check the `vps` and `dev` SSH aliases, Tailscale reachability, service status, installed client versions, and listener addresses. Do not infer state from this document.
+1. Verify the live state relevant to the task. Check the affected host, reachability, service, client version, or listener when the conclusion depends on it; an explanation does not require a full host survey.
 2. Classify the request. Read-only checks and a requested secret write can proceed. Stop before a host move, broker centralization, identity redesign, project split, restore cutover, or destructive rotation unless the user approved that change.
 3. Keep Infisical authoritative. Use a human administrator for policy changes. Require the approved write-only publisher for a routine secret create or update. Stop when it is not installed; never replace it with a raw-value command argument.
-4. Keep credentials behind Agent Vault. Create a dedicated Herdr credential worker and launch its model normally. Run only its credential-bearing command through the host-local `agent-vault-run` command. The worker does not receive an Infisical machine identity.
+4. For credential-bearing execution, use a dedicated Herdr credential worker and launch its model normally. Run only its credential-bearing command through host-local `agent-vault-run`. The worker does not receive an Infisical machine identity.
 5. Assign one primary vault for each task. Add a separate shared-tool session only when the task needs it. Do not merge broad shared credentials into every project vault.
 6. Verify through behavior. Confirm that a mapped request works. Test unmatched-host behavior separately because service mapping controls credential injection, not necessarily egress. Require strict deny before claiming an unmatched host is blocked. Never print the injected value.
 7. For recovery work, follow the batch and restore gates in the recovery reference. Preserve the old host and local state until the replacement passes application checks.

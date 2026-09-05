@@ -1,69 +1,34 @@
 ---
 name: vocab-deck
-description: "Build an Anki flashcard deck teaching a domain's vocabulary so a learner names and describes things precisely. Use when asked for flashcards or an Anki deck to learn terminology or visual vocabulary from a reference."
+description: "Build source-grounded Anki vocabulary decks. Use when requesting flashcards or an Anki deck for terminology, recognition, or visual vocabulary."
 ---
 
-# Vocab Deck
+# Vocabulary deck
 
-Turn a rich reference source into a spaced-repetition deck that builds precise
-recognition-and-naming vocabulary — the exact words a learner needs to describe
-things, including when prompting an AI.
-
-## Route
-
-Read only the reference for the phase you are in.
+Use the requested source and scope; infer routine choices from the task.
+Ask about missing choices only when they materially change the deck.
 
 | Need | Read |
 | --- | --- |
-| Design the cards — types, schema, anti-leak, pruning, tagging | `references/card-types.md` |
-| Source content and capture clean visuals from the reference | `references/sourcing.md` |
-| Orchestrate generation and package the `.apkg` | `references/pipeline.md` |
+| Card schema, types, anti-leak design, and pruning | [card-types](references/card-types.md) |
+| Source records and clean visuals | [sourcing](references/sourcing.md) |
+| Build and inspect the .apkg | [pipeline](references/pipeline.md) |
 
-## Workflow
+Preserve source provenance and stable item IDs. Balance recall and understanding;
+use discrimination cards for confusable concepts and remove redundant cards.
 
-1. **Scope** with the user before building: the source, breadth (how many items),
-   concept-vs-code emphasis, and rough size. Batch choices that materially change
-   the deck into one interview; infer the rest.
-2. **Source** — extract one structured record per item (term, aliases,
-   plain-language "describe-the-thing" phrases, a tight definition) and capture
-   one clean visual each. → `sourcing.md`
-3. **Author** a diverse card set that balances recall and understanding, with
-   discrimination cards for confusable siblings. Delegate the generation to a
-   different model family than the orchestrator. → `card-types.md`
-4. **Package** to a single `.apkg` with genanki in an isolated venv:
-   deterministic GUIDs, subdecks, embedded media, loud validation. → `pipeline.md`
-5. **QA and deliver** — render real cards to confirm no answer leaks and every
-   image resolves, prune redundant cards, then deliver with import steps and a
-   short "what's in / what was cut and why" note.
+A recall prompt must not reveal its answer, including labels inside an image.
+Use clean source visuals, accurate authored graphics, or text-only cards as the
+requested deck allows. Do not silently replace a required visual with an
+unrelated or answer-leaking image.
 
-## Hard rules
+Build one reproducible `.apkg` with stable deck/model IDs, deterministic note
+GUIDs, and embedded media. Render actual cards to check image visibility and
+answer leakage; structural checks alone do not prove card quality.
 
-- A recall card tests one cue → the term. Never expose the answer in the prompt —
-  including a term label baked into a captured image.
-- Cover recall AND understanding; always include discrimination cards for
-  confusable sets. Cut redundant and near-duplicate cards — quality over count.
-- Generate card content with a different model family than the orchestrator, and
-  package with a separate agent; verify output against the source, not the brief.
-  (→ `crew`, `agent-orchestration`)
-- Prefer uniform catalog/grid thumbnails over annotated detail captures. If the
-  source renders a concept too small or too interactive to capture cleanly,
-  author a crisp SVG icon rather than shipping a blurry crop.
-- Package as one `.apkg` via genanki in a project-local venv; derive GUIDs
-  deterministically so re-import updates in place; embed all media; fail loudly
-  on any missing file. Never hardcode time- or random-based deck/model IDs.
-- Get the user's OK before installing packages or driving their browser; keep
-  capture visible through the authorized bridge (→ `local-http-browser-use`).
+Delegate only when independent generation or review earns the coordination
+cost. A separate author, packager, or model family is not required.
 
-## Stops
-
-- Scope that changes deck composition is ambiguous → ask (batched interview),
-  don't guess.
-- Clean visuals are unobtainable for some items → stop and offer options (author
-  an SVG, skip the visual, or keep the term verbal-only). Never ship blurry or
-  answer-leaking images.
-
-## Output
-
-Report the deck path, import steps (Anki desktop + AnkiWeb sync + AnkiMobile),
-per-deck/per-type counts, and what was included, cut, and why. Keep the source
-records, media, and build script reproducible in the work directory.
+Keep browser capture within the authorized visible surface. Use the existing
+build environment or an isolated local environment within the task's authority.
+Deliver the deck, source/build files, counts, import instructions, and caveats.

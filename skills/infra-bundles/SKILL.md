@@ -1,6 +1,6 @@
 ---
 name: infra-bundles
-description: "Route Kubernetes and IaC desired/live work through kubernetes-operations, kubernetes-platform, iac-operations, or iac-platform. Use when a task names a Kubernetes cluster, Terraform/OpenTofu state, a Terraform/OpenTofu plan, IaC drift, infrastructure recovery, or a Kubernetes rollout."
+description: "Operate or review Kubernetes and Terraform/OpenTofu changes, drift, recovery, and ownership with the repository's infrastructure gates."
 ---
 
 # Infrastructure Bundles
@@ -16,7 +16,7 @@ Choose one infrastructure risk surface, then load only its selected reference.
 | `iac-operations` | The task is a Terraform/OpenTofu audit, plan, failure, delivery, recovery, migration, drift, security, or cost operation on declared infrastructure | `references/iac-operations.md` |
 | `iac-platform` | The task changes a Terraform/OpenTofu module, provider, backend, state, IAM, or infrastructure ownership design | `references/iac-platform.md` |
 
-Select one target by default. Combine targets only when a requested change has both an operating action and a platform-design decision; state their order and separate evidence.
+Read only the references needed for the affected operation or design decision.
 
 ## Neighbor precedence
 
@@ -27,7 +27,7 @@ Select one target by default. Combine targets only when a requested change has b
 ## Workflow
 
 1. Identify the exact environment, owner, target, and allowed mutation scope.
-2. Inspect repository desired state before live state, then gather the evidence needed for the selected risk surface.
+2. Compare repository desired state with the live evidence needed for the task.
 3. Detect the installed tool and repository workflow before using version-sensitive flags, schemas, provider behavior, or external rules.
 4. Form a concrete change or failure hypothesis, choose the smallest reversible action, and verify health, ownership, and rollback reality afterward.
 

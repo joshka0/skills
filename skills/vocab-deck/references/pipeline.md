@@ -1,66 +1,25 @@
-# Pipeline — cross-family generation and packaging
+# Packaging and delivery
 
-Two parallel tracks against one written contract: an author (card content) and a
-packager (the `.apkg` builder). Keep them decoupled so they run at once.
+Keep source records, card schema, stable IDs, and deck structure in one written
+contract when work spans separate steps or agents. A supplied `SPEC.md` remains
+authoritative; a small deck does not require a separate campaign.
 
-## The SPEC contract
+Use genanki in the existing environment or a task-local virtual environment.
+The builder reads card records and media, then produces one `.apkg`.
 
-Write a `SPEC.md` first — the single source of truth both tracks build against.
-It defines the input record schema, the card schema and `type` enum
-(→ `card-types.md`), per-item guidance (how many cards, which types, discrimination
-sets), tagging, the deck tree, and the packager requirements below. Point every
-agent at the file; never rely on conversation history.
+- Route Basic and Cloze cards from the card type. Keep image visibility tied to
+  the intended question or answer side.
+- Use stable deck/model IDs and derive note GUIDs from stable card IDs so
+  re-import updates notes instead of duplicating them.
+- Embed every referenced media file by basename. Fail with the missing filename
+  if an expected asset is absent; do not silently drop it.
+- Apply the chosen tags and deck grouping. Make templates legible in supported
+  themes, and report note counts by type and deck.
 
-## Cross-family delegation
+Render real templates with their actual card content and media. Check recall
+fronts for answer leakage and confirm that answer-side images stay hidden on
+the question side. Compare the result with source records.
 
-Card authoring is the creative bulk — delegate it to a **different model family**
-than the orchestrator (fresh weights, different blind spots), and have a
-**separate** agent build the packager. Use the crew verdict-file protocol
-(→ `crew`, `agent-orchestration`, `herdr` for transport):
-
-- Each delegation is a self-contained brief pointing at `SPEC.md` + the source
-  records, with an explicit no-sub-delegation rule and a required verdict line.
-- Each agent writes a report ending in one greppable verdict
-  (`CARDS STATUS: READY` / `PACKAGER STATUS: READY`).
-- Watch verdict files, not screens. Verify the output against the source records,
-  not the author's self-report.
-
-The author does not need the image bytes — only the deterministic filenames — so
-authoring and visual capture run in parallel.
-
-## Packaging (genanki)
-
-`build_deck.py` reads the cards + `media/` and emits one `.apkg`. Requirements:
-
-- **Models**: a rich Basic model with fields `Front, Back, Image, ImageSide,
-  Extra` and one template that renders the image only on the side `ImageSide`
-  names (drive it with CSS: hide `.media` by default; reveal it per
-  `.question`/`.answer-side` × `data-side`). A Cloze model for cloze cards. Route
-  cards to a model by `type`.
-- **Deterministic IDs**: hardcode model and deck IDs; derive each note GUID from
-  the card `id` (`genanki.guid_for`). Never use time/random IDs — re-import must
-  update in place, not duplicate.
-- **Deck tree**: one parent deck with subdecks by group, routed on `platform`.
-- **Media**: attach every referenced file; reference images by basename
-  (`<img src="basename.ext">`, Anki flattens media). Validate that every non-null
-  image exists and **fail loudly** listing any missing file — never silently drop.
-  Allow standalone assets (e.g. `atom_*`) to differ from a source screenshot.
-- **Styling + tags**: one clean, dark-mode-friendly CSS; apply each card's tags.
-- Print a summary: total notes, per-model and per-deck counts, warnings.
-
-Anki renders SVG in `<img>`, so hand-authored SVG icons embed and stay crisp with
-no rasterization step.
-
-## Build, QA, deliver
-
-- Install genanki in a **project-local venv** (`python3 -m venv .venv`), with the
-  user's OK; run the packager from it.
-- **Render real cards to verify** end-to-end: build a preview from the actual
-  template + CSS + media and view it. Confirm recall fronts show no answer, and
-  that back-side images stay hidden on the front. This catches template/leak bugs
-  a structural check misses.
-- Deliver the `.apkg` with import steps: Anki desktop (free) → import → create a
-  free AnkiWeb account → Sync; iPhone via AnkiMobile (paid) or ankiuser.net in
-  Safari (free), same account. Re-importing an updated deck updates in place.
-- Clean up: close panes and browser tabs you opened, trash scratch/preview files,
-  and leave the work directory holding only the reproducible deliverables.
+Deliver the deck with instructions to import into Anki and sync through the
+user's chosen client. Keep the source records, media, and builder reproducible.
+Move discarded scratch artifacts to Trash; preserve requested previews.

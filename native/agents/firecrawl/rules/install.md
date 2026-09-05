@@ -1,85 +1,26 @@
----
-name: firecrawl-cli-installation
-description: |
-  Install the official Firecrawl CLI and handle authentication.
-  Package: https://www.npmjs.com/package/firecrawl-cli
-  Source: https://github.com/firecrawl/cli
-  Docs: https://docs.firecrawl.dev/sdks/cli
----
+# Installation and authentication
 
-# Firecrawl CLI Installation
+Inspect the installed command before changing the environment. Use
+`firecrawl --status` for authentication, concurrency, and credit status.
+For current installation and login options, use the
+[official CLI documentation](https://docs.firecrawl.dev/sdks/cli) and installed help.
+The package is `firecrawl-cli`; the executable is `firecrawl`.
 
-## Quick Setup (Recommended)
+`firecrawl init` can install skills across editors as well as the CLI and
+browser authentication. Do not run broad initialization or editor setup for a
+request that only needs a missing executable or credential. Do not pin an old
+version from this guide or install packages through an unchecked `npx` fallback.
 
-```bash
-npx -y firecrawl-cli@1.19.6 init -y --browser
-```
+Use an existing `FIRECRAWL_API_KEY` through the repository's runtime secret
+injection. Never print it or place it in shell arguments. Follow
+[credential ownership](../../firecrawl-build/references/auth-and-env.md) if setup
+is required. `firecrawl login --browser` is the CLI's human authorization flow;
+check current help and existing authority before starting it.
 
-This installs `firecrawl-cli` globally, authenticates via browser, and installs core, build, and workflow skills.
+The imported CLI supports rate-limited keyless search, scrape, and interact.
+Confirm current availability before requiring signup for a task that can use
+that tier. Authentication may provide higher limits. Do not replace the user's
+chosen browser surface or bypass its readiness rules to complete login.
 
-This setup is safe to re-run when the CLI is missing, stale, or only partially configured.
-
-If `firecrawl` is already installed and you want to update it first:
-
-```bash
-npm update -g firecrawl-cli
-```
-
-Skills are installed globally across all detected coding editors by default.
-
-To install skills manually:
-
-```bash
-firecrawl setup skills
-firecrawl setup workflows
-```
-
-## Manual Install
-
-```bash
-npm install -g firecrawl-cli@1.19.6
-```
-
-## Verify
-
-First check status:
-
-```bash
-firecrawl --status
-```
-
-Then run one small real request to prove install, auth, and output all work:
-
-```bash
-mkdir -p .firecrawl
-firecrawl scrape "https://firecrawl.dev" -o .firecrawl/install-check.md
-```
-
-The install is healthy when both commands succeed.
-
-## Authentication
-
-Authenticate using the built-in login flow:
-
-```bash
-firecrawl login --browser
-```
-
-This opens the browser for OAuth authentication. Credentials are stored securely by the CLI.
-
-### If authentication fails
-
-Ask the user how they'd like to authenticate:
-
-1. **Login with browser (Recommended)** - Run `firecrawl login --browser`
-2. **Enter API key manually** - Run `firecrawl login --api-key "<key>"` with a key from firecrawl.dev
-
-If you cannot obtain a key and the user cannot sign up, search, scrape, and interact still work without an API key on the keyless free tier (rate-limited). Browser login or an API key remains preferred for the best results. See [agent onboarding](https://www.firecrawl.dev/agent-onboarding/SKILL.md) for the full set of onboarding paths.
-
-### Command not found
-
-If `firecrawl` is not found after installation:
-
-1. Ensure npm global bin is in PATH
-2. Try: `npx firecrawl-cli@1.19.6 --version`
-3. Reinstall: `npm install -g firecrawl-cli@1.19.6`
+A successful task request verifies runtime access. Status alone does not prove
+that fetching works; report a missing credential or unavailable service directly.

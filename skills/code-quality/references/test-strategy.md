@@ -12,6 +12,6 @@ Rate benefit by bug probability, impact, feedback speed, and failure clarity. Ra
 4. Assert outcomes, not helper calls or implementation choreography. Mock system boundaries only.
 5. Keep a test only when removing it would meaningfully reduce confidence; otherwise delete, rewrite, demote, or quarantine it.
 
-For test-only ShoeHorn migration, inspect the installed package, lockfile, local types, and current primary documentation first. Preserve intentionally malformed-input cases, do not install a dependency without user approval, and run focused type and test checks.
+For test-only ShoeHorn migration, use the installed package contract. Preserve intentionally malformed-input cases and run the affected type and test checks. Keep dependency changes within the task's authority.
 
 For a suite review, return Keep, Delete, Rewrite, Missing High-Value Tests, and the immediate next step. Make failures behavior-named and cheap enough for their feedback stage.

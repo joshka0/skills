@@ -1,6 +1,6 @@
 ---
 name: spec-gauntlet
-description: "Verify spec-critical work by decorrelation: pre-code spec adversary, cross-family derivation of implementation and properties, ledger-writing reconciliation, execution-armed artifact adversary. Use when the user says gauntlet or decorrelated verification, or an invariant-critical change needs high assurance."
+description: "Run the explicitly requested spec gauntlet: isolated implementation and property derivation, reconciliation, and adversarial verification."
 ---
 
 # Spec Gauntlet
@@ -9,9 +9,6 @@ Verify a change by decorrelating the minds that could share blind spots:
 attack the spec before code exists, derive implementation and properties
 independently from the hardened spec, treat their disagreement as signal,
 then attack the merged artifact with execution access.
-
-**v0 — pending calibration.** Sections marked ⚖ encode theory, not yet
-empirical shape; tighten them from ledger data after real runs.
 
 ## Do not use when
 
@@ -24,7 +21,7 @@ empirical shape; tighten them from ledger data after real runs.
   prompt template.
 - A decision (not an implementation) needs independent passes → that is
   `agent-orchestration` collaborate mode.
-- A multi-stream campaign with its own verdict machinery → `crew` conducts;
+- A multi-stream campaign with its own verdict machinery → `agent-orchestration` conducts;
   a gauntlet can be one workstream inside it.
 
 ## Input contract
@@ -57,8 +54,7 @@ Engines, efforts, and family assignments come from `agent-orchestration`
 constraints on top:
 
 - Implementer and property author MUST be different model families.
-- Artifact adversary: fresh context required; different family preferred
-  (⚖ track hit-rate by attacker×implementer family).
+- Artifact adversary: fresh context required; different family preferred.
 - Every role spawns fresh with a self-contained brief; no role relies on
   conversation history.
 
@@ -74,13 +70,14 @@ constraints on top:
 - Every triage outcome appends a ledger entry (schema in the ledger header).
   The briefs load only the digest, never the raw ledger.
 - Final triage judgment is human; do not delegate it.
-- Teardown: `git worktree remove`; branches archived or tagged, never
-  destructive git; extract properties and reports before removal.
+- Teardown: preserve properties, reports, and unique work first. Move an
+  authorized workspace removal to Trash. Keep its branch and Git metadata;
+  do not use `git worktree remove` or destructive Git.
 
 ## Stop conditions
 
-- Stop and re-grill if the same requirement produces spec-holes twice —
-  iterating the gauntlet on a broken spec wastes it. ⚖
+- Return to spec clarification when evidence shows a requirement is incomplete
+  or contradictory; do not enforce a fixed retry count.
 - Stop dispatch and report if a role's isolation cannot be constructed as
   specified (e.g. the staging tree cannot be seeded clean).
 

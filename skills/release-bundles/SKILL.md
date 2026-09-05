@@ -28,7 +28,7 @@ State Apple, Android, or both before assessing a mode. When the evidence or resu
 
 ## Precedence
 
-`product-platform` owns app implementation and build-workflow design. `release-bundles` owns store-release evidence and readiness judgment. Use `local-dev` secrets mode for a value-free local credential handoff; `code-quality` owns generic source diagnosis.
+Use the project's build and release instructions for implementation. This skill owns store-readiness evidence. Use `local-dev` for credential ownership and `code-quality` for source diagnosis.
 
 ## Workflow
 

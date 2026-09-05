@@ -1,12 +1,17 @@
 # Implementation dossier
 
-Read only when an approved goal needs a `CODE_DOSSIER.md` before production implementation.
+Use this reference when a dossier is requested or required by the governing
+goal. Inspect current owners, interfaces, tests, and allowed files before
+defining the implementation.
 
-1. Trace the goal through feature and non-feature, behavior (including failure paths), structure, interface, test, location, and invariant. Use existing IDs; preserve legacy dossiers that use `D###` for structures, while new shared ledgers use `S###`.
-2. Inspect the codebase without editing: current patterns, reusable owners, tests, verification commands, likely files, and files that must not change.
-3. At each material layer, compare real alternatives, record the selected shape and strongest dissent, and return to the earliest affected layer when a lower decision contradicts an approved one.
-4. Define test evidence and exact allowed locations before implementation. TODO anchors mark approved edit sites; they are not implementation.
-5. When architecture uncertainty remains, make a temporary spike from the approved baseline, verify it, revert the spike, and record every deviation before revising the dossier.
-6. Run red teams on the feature contract, completed blueprint, and actual diff. Each has three substantive attacks or a reasoned none-found; the diff pass checks dossier drift, unproven tests, and out-of-map edits.
+Trace requirements to behavior, affected components, and acceptance evidence.
+Preserve the project's existing IDs and frozen ownership boundaries. Record
+alternatives only where they explain a consequential choice.
 
-Do not write final production code until the necessary dossier gates are approved. Final implementation must update the dossier before it extends the approved contract, location map, or invariants.
+Use a small isolated experiment when it can resolve a real uncertainty.
+Do not require TODO anchors, a complete trial implementation, or a revert cycle.
+Preserve experiment results and remove scratch work through Trash when done.
+
+Complete the dossier and its required review before crossing an explicit
+implementation gate. Within an authorized implementation task, keep the dossier
+current without adding new approval stages.

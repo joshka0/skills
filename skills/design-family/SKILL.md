@@ -1,6 +1,6 @@
 ---
 name: design-family
-description: "Shape production interfaces through build, review, improve, motion, and Apple-physicality modes. Use when users request frontend design, UI audit/critique, UI improve/tune, animation review, Apple-like gestures, or Impeccable depth."
+description: "Apply house design taste to production interfaces, UI critique, polish, motion, and Apple-like gestures."
 ---
 
 # Design Family
@@ -18,12 +18,15 @@ Choose one production-interface decision and load only its selected guidance.
 | `motion` | A named UI animation, motion review, gesture feel, or motion-effect term needs a design decision | `references/animation.md` |
 | `apple-physicality` | An explicit Apple-like, gesture-driven sheet, drawer, drag, swipe, momentum, or material-depth interaction needs a design decision | `references/apple-design.md` |
 
-Select exactly one mode by default. Read only its reference. For any selected mode that changes or judges interaction, motion, accessibility, responsive behavior, dynamic layout, input-aware prefetching, or data typography, also read `references/standards.md`.
+Read the reference that answers the design question. Use `build` for direction,
+`improve` for a named change, and `impeccable-depth` when that deeper critique is
+requested or needed. Consult the relevant part of `references/standards.md`
+when interaction, accessibility, layout, or data presentation is in scope.
 
 ## Do not use when
 
-- `product-platform` owns Expo, React Native, styling-adapter, Apple/iOS API, native implementation, and platform-constraint decisions.
-- `prototype` owns a throwaway state-model harness or competing UI variants created only to answer one question.
+- Use the project's platform documentation and installed APIs for implementation constraints; `uniwind` owns its styling and migration conventions.
+- Handle a requested throwaway experiment directly in the project's toolchain. Do not turn it into a production-design process.
 
 ## Shared workflow
 

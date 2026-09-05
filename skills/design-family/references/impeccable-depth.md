@@ -7,7 +7,7 @@ Read this only for the `impeccable-depth` mode: a real production surface needs 
 3. Treat required imagery, product shots, places, or diagrams as content. Do not replace unavailable real content with fake metrics, generic panels, or decorative card grids; surface the missing asset when it changes the direction.
 4. Classify system drift before changing it: a missing token, a reimplemented shared primitive, or a conceptual/flow mismatch. Compare hierarchy, disclosure, state arrival, and user-facing nouns/actions with neighboring surfaces; automation supplies defect evidence, never design proof.
 5. Design resilient interaction detail when it is material: labels remain visible, errors say what happened and a recovery path, and empty states explain value plus the next action. Prefer undo for recoverable destructive actions; reserve confirmation for irreversible or high-cost actions.
-6. A gesture needs a visible alternative. An overlay must remain reachable and legible outside clipping or stacking contexts through the repository's current native, portal, or fallback mechanism; hand the implementation choice to `product-platform`.
+6. A gesture needs a visible alternative. Keep overlays reachable and legible outside clipping or stacking contexts through the repository's supported native or portal mechanism.
 7. Adapt task flow to real input, connection, and content extremes rather than merely shrinking a layout. Check long, localized, empty, loading, error, permission, and slow/recovery states relevant to the surface.
 
 Keep asset generation, detector output, hooks, browser APIs, fixed palettes, typography scales, and aesthetic ban lists out of this reference. Resolve those from the project, live tools, and current primary guidance.

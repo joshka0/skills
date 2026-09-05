@@ -1,11 +1,16 @@
 # Reviewed implementation plan
 
-Read only when a bounded implementation request needs a saved, reviewed plan rather than a durable goal lifecycle.
+Save the plan at the requested path or the repository's plan location. Base it
+on current code, reusable owners, and the checks that can prove the outcome.
 
-1. Run one to three clarification rounds only for decisions that materially change scope, constraints, or the plan; record assumptions when proceeding without an answer.
-2. Reconnoiter the current repository before drafting. Write the full draft to `docs/plans/<plan-name>.md` or the repository's equivalent before review; a pane-only response is not the artifact.
-3. Require problem/outcome, chosen architecture and rejected alternatives, exact verified file changes and ownership, tests/edge cases/errors, migration and dependency implications, implementation order, verification, and open questions with defaults.
-4. Review against that contract. Record categorized actionable gaps and retained strengths, revise in the same artifact, and re-review.
-5. Stop after three review iterations for a maintainer decision. Mark the result `approved`, `needs-revision`, or `needs-decision` rather than implying approval.
+Include the problem, chosen design, affected files, implementation order,
+acceptance criteria, and material risks or decisions. Scale detail to the task.
+Distinguish settled facts from assumptions.
 
-When a planner agent drafts the plan, it may analyze repository state but must not mutate implementation or run Git commands. Mux transport is optional support, not part of the artifact contract.
+Review for missing behavior, dependencies, false parallelism, and unverifiable
+acceptance criteria. Revise when a finding changes the plan; stop reviewing when
+the requested scope is covered and no material issue remains. If a required
+decision is still missing, name it and finish the independent planning work.
+
+Planning-only scope permits investigation and the plan artifact, not product
+changes. Do not claim user approval from an agent's review verdict.

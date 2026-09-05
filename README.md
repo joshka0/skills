@@ -4,14 +4,14 @@ Personal agent skills, authored once in `skills/`, exposed to every local agent
 harness through symlinks.
 
 ```text
-skills/          canonical skill packages (the only content layer)
+skills/          canonical skill packages
 native/          provider-specific or retained imported packages
 providers/       GENERATED symlink farms, one per consumer — gitignored, rebuilt by bin/link
 home/            versioned $HOME agent config, installed by symlink
 manifest.json    per-provider exposure: exclusion groups, native grafts, preserved live entries
 bin/link         rebuilds providers/ from manifest.json
-bin/validate-skill.sh   mechanical gate for skill authoring
-reports/pilot/   golden-example artifacts cited by the skill-authoring contract
+bin/validate-skill.sh   YAML, naming, and static local-reference checks
+reports/        dated audit and verification records
 ```
 
 ## How it works
@@ -37,12 +37,18 @@ catalog, mirrors, archives, and reports live on the `attic` branch.
 ## Workflows
 
 - **Edit a skill**: edit `skills/<name>/` directly; consumers see it live.
-  Follow `skills/skill-authoring/` for authoring rules and run
-  `bin/validate-skill.sh skills/<name> <archetype>`.
+  Follow `AGENTS.md` and run `bin/validate-skill.sh skills/<name>`.
 - **Add a skill**: create `skills/<name>/SKILL.md`, run `bin/link`.
-- **Retire a skill**: move it to the `dormant` group in `manifest.json` (or
-  delete the directory after committing), run `bin/link`.
+- **Retire a skill**: repair its callers, preserve its original, move the
+  directory to Trash, update any native manifest entry, then run `bin/link`.
+  Use the `dormant` group only when retaining a canonical package for later use.
 - **Change exposure**: edit `manifest.json`, run `bin/link`.
+
+The linker checks all providers before mutation. It preserves consumer-owned
+and unmanaged real entries, and moves obsolete generated links to macOS Trash.
+An unmanaged entry that conflicts with a desired link must be resolved before
+composition. Firecrawl imports live under `native/agents/` and are exposed only
+through the shared `agents` provider.
 
 ## Consumer roots
 
@@ -54,9 +60,7 @@ catalog, mirrors, archives, and reports live on the `attic` branch.
 | `$HOME/.gemini/skills` | `providers/gemini` | Gemini CLI |
 | `$HOME/.gemini/antigravity/skills` | `providers/gemini-antigravity` | Antigravity IDE |
 
-A consumer that reads several roots must find each skill in exactly one of
-them, or it reports duplicate-name errors. Droid reads `~/.factory/skills`,
-`~/.droid/skills`, **and** the shared `~/.agents/skills`; since the shared
-root cannot be given up (Codex and Gemini load it too), Droid takes its
-skills from there alone and the other two roots stay unlinked. Adding a root
-for a consumer that already co-loads a shared one re-creates this.
+Droid takes its skills from the shared `~/.agents/skills` root. Keep
+`~/.factory/skills` and `~/.droid/skills` unlinked to avoid duplicate discovery
+in that consumer. Do not assume every harness handles overlapping roots the
+same way; inspect the installed catalog when changing exposure.
