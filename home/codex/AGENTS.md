@@ -25,12 +25,10 @@ Git — an agent never discards work or rewrites history:
   Never clear it. `git stash` (without drop/clear) is acceptable; losing the
   stash is not.
 
-Enforcement: a PreToolUse hook (`~/.codex/hooks/deletion-guard.py`) hard-denies
-all of the above, including inside `bash -c`/`sh -c` wrappers; a PostToolUse
-hook (`~/.codex/hooks/mutation-audit.py`) logs every state-mutating command to
-`~/.codex/logs/mutation-audit.log`. If a denied command is genuinely required,
-STOP and ask the user; only the user may perform it or change this policy. Do
-not bypass, disable, or work around the guard.
+Enforcement: a PostToolUse hook (`~/.codex/hooks/mutation-audit.py`) logs every
+state-mutating command to `~/.codex/logs/mutation-audit.log`. If a destructive
+command is genuinely required, STOP and ask the user; only the user may perform
+it or change this policy.
 
 ## Subagent discipline (fan-out cap)
 
@@ -120,6 +118,33 @@ task to a verifiable end state; your job while it runs is to wait, not to manage
 - If a rail in the brief (scope, prohibitions, rails) conflicts with what the
   task seems to need, STOP and report the conflict. Do not work around it.
 
+## Knowledge capture (agent wiki)
+
+- When you hit a gotcha, paper-cut, or make a durable decision, log it with
+  the `wiki` CLI: `wiki gotcha|papercut|note|decision "…"`. One line each.
+  For a source URL worth keeping: `wiki article <url>`.
+- Consult the compiled wiki before re-deriving known facts: `wiki index`
+  lists pages; `wiki search <query>` finds them. Vault: `~/vaults/wiki`.
+- Never write under `~/vaults/wiki/wiki/` directly — the librarian agent owns
+  that layer. Your only write path is the CLI (it lands items in `_inbox/`).
+- Foxway material: the CLI auto-tags captures from foxway paths; if you know
+  the content is Foxway-related and you are outside such a path, add
+  `--foxway` explicitly. Never omit it to dodge the quarantine.
+
+## Local secret topology
+
+- Use the `local-dev` secrets mode for Infisical ownership and Keychain-backed
+  issuer storage. A provider skill owns the actual token mint when one exists.
+- Check the repo `.infisical.json`, required key names, and exact repo path
+  first. Treat `~/.env` as migration input only. Never dump secret values.
+- Store provider-wide values once under `/shared/vendors/<provider>` or
+  `/shared/tooling/<tool>`. Import them into consumer folders under `/repos/...`.
+- Use the exact repo path with imports enabled. Do not use recursive injection
+  as inheritance. A direct repo secret shadows an imported secret.
+- Keep long-lived local issuer credentials in macOS Keychain. Store their
+  scoped runtime tokens in Infisical. Verify the provider's current issuer
+  mechanism. Do not assume that one PAT can create another PAT.
+
 ## Agent User Experience (AUX)
 
 AUX means Agent User Experience. It gives a zero-context agent the smallest
@@ -199,3 +224,28 @@ broke. A special case justified by the **domain** is fine; one justified by
 
 Simplest is not the same as temporary: rule out speculative complexity and
 known-throwaway work alike.
+
+## Writing style
+
+Write prose (docs, reports, commit messages, explanations) in ASD-STE100
+(Simplified Technical English): short sentences, one instruction per
+sentence, active voice, approved simple words, consistent terms for the
+same thing.
+
+Follow Zinsser's four principles of quality writing:
+
+1. **Simplicity** — strip every sentence to its cleanest components.
+2. **Brevity** — cut every word that does no work.
+3. **Clarity** — the reader must never have to reread to understand.
+4. **Humanity** — write warmly, as one person to another.
+
+From the Google developer documentation style guide:
+
+- Address the reader as "you".
+- Put the condition before the instruction: "If X, do Y", never "Do Y if X".
+- Use sentence case for titles and headings.
+- Use numbered lists for sequences; use bullets for everything else.
+- Make link text describe its destination; never "click here".
+- Write dates unambiguously (2026-08-18 or 18 August 2026, never 3/4/25).
+- Put code in code font and UI element names in bold.
+- Document what exists now; never pre-announce future work.
