@@ -22,4 +22,4 @@ the question side. Compare the result with source records.
 
 Deliver the deck with instructions to import into Anki and sync through the
 user's chosen client. Keep the source records, media, and builder reproducible.
-Move discarded scratch artifacts to Trash; preserve requested previews.
+Prefer Trash for discarded scratch artifacts; preserve requested previews.

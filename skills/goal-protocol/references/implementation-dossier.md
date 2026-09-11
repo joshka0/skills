@@ -10,7 +10,7 @@ alternatives only where they explain a consequential choice.
 
 Use a small isolated experiment when it can resolve a real uncertainty.
 Do not require TODO anchors, a complete trial implementation, or a revert cycle.
-Preserve experiment results and remove scratch work through Trash when done.
+Preserve experiment results; prefer Trash for authorized scratch cleanup.
 
 Complete the dossier and its required review before crossing an explicit
 implementation gate. Within an authorized implementation task, keep the dossier

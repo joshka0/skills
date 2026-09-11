@@ -34,6 +34,6 @@ explicit workflow such as `herdr-goal`. Accept results only after a terminal
 state and verification against the assignment.
 
 Keep Git, publication, and external effects with the supervisor unless explicitly
-delegated. Preserve Trash-only cleanup, user work, vendor restrictions, and secret
+delegated. Preserve the user's cleanup scope, work, vendor restrictions, and secret
 boundaries. Never reassign a blocked action merely to bypass another agent's rails.
 Report actual model/effort, returned evidence, integration, and remaining work.

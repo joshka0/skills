@@ -18,5 +18,5 @@ and rerun affected checks; reopen a finding with evidence when it is wrong.
 Do not invent extra roles, pass counts, or mandatory reviews for ordinary work.
 
 At close, reconcile accepted results and preserve material reports and unique
-work before authorized Trash cleanup. Verify merge and workspace state directly.
+work before authorized cleanup. Verify merge and workspace state directly.
 Keep branches and history. Write agent memory only when explicitly requested.

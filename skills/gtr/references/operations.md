@@ -16,7 +16,7 @@ Read one configuration value only when it affects the request, for example `git 
 
 For a requested isolated branch, use the installed help to choose the current create form, then verify with `git gtr list`. Resolve an existing target with `git gtr list` before editor, AI, run, or removal operations.
 
-Before requested cleanup, show the exact worktree and its branch/status. Use a gtr cleanup command only when current help proves it moves the filesystem target to Trash; otherwise stop and report the unsupported safe action. Never delete the branch or use destructive Git. Re-list afterward and report any stale metadata rather than forcing cleanup.
+Before requested cleanup, inspect the exact worktree and its branch/status. Verify the command's effects from current help, including branch removal. Preserve unique work and the branch; prefer Trash when practical, or use a supported non-forced removal within scope. Re-list afterward and report any unresolved metadata.
 
 ## Shared-worktree safety
 

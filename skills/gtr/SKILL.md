@@ -18,11 +18,11 @@ Operate the installed `git gtr` safely; live help and configured Git state are t
 ## Hard rules
 
 - Do not install or globally configure gtr without explicit user approval.
-- Move filesystem cleanup targets only with `/usr/bin/trash <path>`. Never use destructive Git, delete a branch, or invoke a gtr cleanup action unless live help proves it is Trash-backed; confirmation does not override this rule.
+- Before authorized cleanup, inspect the exact worktree, unique work, and command effects. Prefer Trash when practical. Preserve branches and history; do not force removal or discard uncommitted work.
 - Never automatically copy secret-bearing files or run a configured hook without user approval.
 - Do not guess worktree roots, branch names, editor, AI adapter, or gtr flags; inspect live configuration or `git gtr --help`.
 - Use one worktree per concurrent mutating agent and avoid touching a worktree owned by another active task.
 
 ## Output
 
-Report the resolved target, action, resulting worktree/status, and any Trash or live-help boundary used.
+Report the resolved target, action, resulting worktree/status, and any unresolved cleanup limit.

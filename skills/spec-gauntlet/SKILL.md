@@ -70,9 +70,9 @@ constraints on top:
 - Every triage outcome appends a ledger entry (schema in the ledger header).
   The briefs load only the digest, never the raw ledger.
 - Final triage judgment is human; do not delegate it.
-- Teardown: preserve properties, reports, and unique work first. Move an
-  authorized workspace removal to Trash. Keep its branch and Git metadata;
-  do not use `git worktree remove` or destructive Git.
+- Teardown: preserve properties, reports, and unique work first. Prefer Trash
+  for authorized workspace cleanup, or use non-forced `git worktree remove`
+  after verifying the target is clean. Keep its branch and history.
 
 ## Stop conditions
 

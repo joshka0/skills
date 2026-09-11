@@ -94,7 +94,7 @@ herdr worktree create --cwd <repo> --branch <task-branch> --label <task> --no-fo
 herdr worktree list --cwd <repo>
 ```
 
-Read the created workspace/pane IDs from the JSON and label the panes as usual. For requested cleanup, resolve the exact filesystem path and use a Herdr action only when current help proves it moves the target to Trash; otherwise stop. Never permanently delete a worktree, delete its branch, or use destructive Git, even after confirmation or archival.
+Read the created workspace/pane IDs from the JSON and label the panes as usual. For requested cleanup, resolve the exact filesystem path, inspect unique work and branch/status, and verify the Herdr action's effects from current help. Prefer Trash when practical. Use only removal within the authorized scope; preserve the branch and uncommitted work, and do not force cleanup.
 
 ## Agent-target transport
 

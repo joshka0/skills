@@ -45,7 +45,7 @@ Operate Herdr — a terminal multiplexer and runtime for coding agents — throu
 - Do not close workspaces, tabs, panes, or sessions you did not create unless the user explicitly asked.
 - Reads render at the pane's current size: on crowded layouts prefer `recent-unwrapped`, and if output is still clipped, `pane zoom --on`, read, then `--off` — never leave a zoom you set.
 - Never run `herdr server stop` from an active session and never kill the main Herdr process; use named test sessions for isolated experiments.
-- Move filesystem cleanup targets only with `/usr/bin/trash <path>`. Never use destructive Git or a Herdr action that permanently deletes a worktree; confirmation does not override this rule.
+- For authorized filesystem cleanup, verify the exact target and command effects. Prefer Trash when practical. Preserve unique work, branches, and history; do not force removal or discard uncommitted changes.
 - Do not ask another agent to run git commands, install packages, or modify broad/generated areas without the user's explicit approval.
 
 ## Stop conditions

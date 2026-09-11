@@ -34,7 +34,7 @@ Select exactly one mode. Combine them only when a topology operation also needs 
 
 - Do not store, print, summarize, or copy credential values. The `secrets` mode may pass names and inject values only for the user's exact authorized operation.
 - Do not freeze hostnames, ports, URLs, or paths in canonical content; discover them from config/status.
-- Move filesystem cleanup targets to Trash with `/usr/bin/trash <path>`; never permanently delete them. Confirmation does not authorize destructive Git or a cleanup command that bypasses Trash.
+- Keep filesystem cleanup within the requested scope and prefer Trash when practical. Preserve unrelated files, uncommitted changes, branches, and Git history.
 
 ## Output
 

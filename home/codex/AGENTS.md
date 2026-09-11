@@ -1,22 +1,25 @@
 # Global Codex instructions
 
-## Destructive-action policy (durable — do not override per session)
+## Preserve work and respect deletion scope
 
-**Never destroy work. Not files, not uncommitted changes, not history.**
-
-Files:
-- Never permanently delete a file or directory, by any mechanism. All removals
-  go to the macOS Trash: `/usr/bin/trash <path>` (the `rm` on PATH is a shim
-  that routes there).
-- Never use `/bin/rm`, `unlink`, `rmdir`, `shred`, `truncate`, `dd of=`,
-  `find -delete`, `rsync --delete`, `chmod -R 000`, deletion APIs in scripts
-  (Python `os.remove`/`shutil.rmtree`, Node `fs.rm*`/`rimraf`, Ruby
-  `FileUtils.rm*`), or file deletions via `apply_patch`.
+- Preserve unrelated files, uncommitted changes, and Git history. Inspect the
+  exact target and its ownership before cleanup.
+- Remove files when the requested change or cleanup includes their removal.
+  Prefer `/usr/bin/trash` for recoverable local cleanup when practical.
+  Permanent deletion and deletion APIs are allowed within the authorized scope;
+  the operation's effect and target determine permission, not its command name.
+- Implement requested application-data deletion, erasure, and Forget behavior.
+  Workspace-preservation rules do not change the product's retention contract.
+  Implementing a feature does not authorize deleting existing live personal data
+  or running a production cutover; those actions need their own task authority.
+- If ownership or deletion scope is unclear, ask about the specific target.
+  Do not ask again for a removal already authorized by the user.
 
 Git — an agent never discards work or rewrites history:
 - **Uncommitted work is sacred.** No `git reset --hard/--merge/--keep`, no
   `git clean`, no `git checkout .`/`-- <file>`/`-f`, **no `git restore` at all**
-  (even a single file discards changes), no `git rm`.
+  (even a single file discards changes). `git rm` is allowed for an authorized
+  file removal after checking for uncommitted work; do not force it.
 - **History and refs are sacred.** No `git rebase`, `commit --amend`,
   `filter-branch`/`filter-repo`, `reflog expire`, `gc --prune`, `update-ref -d`,
   `branch -D`, `tag -d`, `stash drop`/`clear`, or `push --force`
@@ -25,10 +28,9 @@ Git — an agent never discards work or rewrites history:
   Never clear it. `git stash` (without drop/clear) is acceptable; losing the
   stash is not.
 
-Enforcement: a PostToolUse hook (`~/.codex/hooks/mutation-audit.py`) logs every
-state-mutating command to `~/.codex/logs/mutation-audit.log`. If a destructive
-command is genuinely required, STOP and ask the user; only the user may perform
-it or change this policy.
+The PostToolUse hook (`~/.codex/hooks/mutation-audit.py`) records matching
+commands in `~/.codex/logs/mutation-audit.log`. It is an audit trail, not an
+approval gate. If a task needs a prohibited Git operation, report the conflict.
 
 ## Model and effort selection
 

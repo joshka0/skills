@@ -81,4 +81,4 @@ discover current syntax before launch.
   and constraints; Luna requires the exact plan above.
 - Validate returned evidence before integration. Record the actual model,
   effort, harness, and any substitution. Clean up only resources created for
-  the task, under the transport owner's rules and the user's Trash policy.
+  the task or explicitly named for cleanup, within the user's authorized scope.

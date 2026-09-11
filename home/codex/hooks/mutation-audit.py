@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """PostToolUse audit trail for Codex.
 
-PreToolUse (deletion-guard.py) is the enforcement layer; this is the detection
-layer. It cannot block — it records every state-mutating command an agent ran so
-a later "what destroyed my work?" question has an answer.
+This is a detection layer only. It cannot block — it records matching
+commands so a later "what changed my work?" question has an audit trail.
 
 Log: ~/.codex/logs/mutation-audit.log (append-only, one JSON line per event).
 Never writes command output (may contain secrets) — only the command itself,
