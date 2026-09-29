@@ -28,6 +28,9 @@
       ],
       "preserve": [
         "jsm"
+      ],
+      "native": [
+        "native/agents/hunk-review"
       ]
     },
     "agents": {
@@ -41,7 +44,8 @@
         "native/agents/firecrawl-build",
         "native/agents/firecrawl-monitor",
         "native/agents/firecrawl-developer-index",
-        "native/agents/firecrawl-research-index"
+        "native/agents/firecrawl-research-index",
+        "native/agents/hunk-review"
       ]
     },
     "codex": {
