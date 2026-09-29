@@ -7,19 +7,34 @@
     "riff-partner",
     "spec-gauntlet"
   ],
-  "dormant": [
-    "monid"
+  "codex_only": [
+    "foxway-wikijs"
+  ],
+  "dormant": [],
+  "jsm": [
+    ".SKILLS_MANAGED_BY_JSM",
+    "beads-br",
+    "beads-bv",
+    "beads-workflow",
+    "bend2-mega-skill",
+    "fixing-beads-problems",
+    "porting-to-bend2"
   ],
   "providers": {
     "claude": {
       "exclude": [
-        "dormant"
+        "dormant",
+        "codex_only"
+      ],
+      "preserve": [
+        "jsm"
       ]
     },
     "agents": {
       "exclude": [
         "dormant",
-        "claude_only"
+        "claude_only",
+        "codex_only"
       ],
       "native": [
         "native/agents/firecrawl",
@@ -35,19 +50,25 @@
         "claude_only"
       ],
       "preserve": [
-        ".system"
+        ".system",
+        "jsm"
       ]
     },
     "gemini": {
       "exclude": [
         "dormant",
-        "claude_only"
+        "claude_only",
+        "codex_only"
+      ],
+      "preserve": [
+        "jsm"
       ]
     },
     "gemini-antigravity": {
       "exclude": [
         "dormant",
-        "claude_only"
+        "claude_only",
+        "codex_only"
       ],
       "native": [
         "native/gemini-antigravity/heroui-pro-design-taste",

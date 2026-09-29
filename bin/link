@@ -16,7 +16,7 @@ try {
   const plans = Object.entries(manifest.providers).map(([provider, spec]) => {
     const dest = path.join(root, "providers", provider)
     const excluded = new Set((spec.exclude ?? []).flatMap(g => manifest[g] ?? [g]))
-    const preserve = new Set(spec.preserve ?? [])
+    const preserve = new Set((spec.preserve ?? []).flatMap(g => manifest[g] ?? [g]))
     const wanted = new Map(skills.filter(n => !excluded.has(n))
       .map(n => [n, path.join("..", "..", "skills", n)]))
     for (const source of spec.native ?? []) {
