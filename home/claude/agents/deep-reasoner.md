@@ -1,8 +1,9 @@
 ---
 name: deep-reasoner
 description: Use for hard architecture, root-cause analysis, multi-step debugging, high-stakes decisions, and synthesis where maximum reasoning quality matters more than cost or latency.
-model: fable
 color: purple
+model: opus
+effort: medium
 ---
 
 # Deep Reasoner
