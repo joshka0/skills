@@ -1,31 +1,23 @@
 ---
 name: local-http-browser-use
-description: "Operate the authorized visible Chrome or Brave through the private local HTTP bridge. Use after AUX reports the bridge ready for visible-browser work."
+description: "Drive the user's visible Chrome or Brave through the private local HTTP bridge. Use after `aux browser` reports ready."
 ---
 
-# Local HTTP Browser Use
+# Local HTTP browser use
 
-Operate the connected visible browser through its authorized bridge; observed page state and advertised bridge tools are the source of truth.
+Precondition: `aux browser` reported both the controller and the visible-browser extension as ready. Do not repeat the check.
 
-## Workflow
+```sh
+browser-bridge call browser_observe '{"maxElements":80}'
+browser-bridge call browser_new_tab '{"url":"https://example.com","active":true}'
+browser-bridge call browser_wait '{"tabId":123,"ms":500}'
+browser-bridge call browser_observe '{"tabId":123,"maxElements":80}'
+```
 
-1. Run `aux browser` first. On a remote target, make it the first target command after the minimum connection check. Use its reported `browser-bridge` client and require both controller and visible-browser extension status to be ready.
-2. Do not repeat the status check. Run `browser-bridge call browser_observe '{"maxElements":80}'` before meaningful action. The client reads the protected local token without printing or exporting it.
-3. Take one smallest action against an observed ref, wait briefly, observe again, and verify the intended result.
-4. For a visual question, use the advertised screenshot capability after observing; when it returns an artifact path, load that file as image input before making a visual claim.
-5. Read `references/tool-contract.md` only when request shape, error handling, or bridge capability needs detail.
-
-## Hard rules
-
-- Keep browser actions visible; do not use hidden, stealth, internal-page, CAPTCHA, access-control, credential, or bulk-scraping paths.
-- Do not guess refs, element IDs, selectors, page state, endpoint names, or bridge configuration.
-- Ask before a sensitive or destructive submission unless the user already authorized that exact action.
-- Do not enter passwords, MFA codes, payment data, private keys, tokens, or sensitive personal data without exact authorization.
-- Do not bypass the client by reading, printing, or exporting the bridge token. Use the token file only through `browser-bridge`.
-- Do not print inline screenshot data or capture a page that visibly contains an unapproved secret.
-- Treat an AUX browser stop as final. Do not inspect browser processes, desktop sessions, services, ports, configuration, or bridge internals unless the user asks for diagnosis.
-- Stop on ambiguous page state, missing bridge/extension status, failed authorization, or an unverified state change.
-
-## Output
-
-Report observed starting state, actions, verified result, and any consent or bridge-status boundary without exposing sensitive values.
+- Loop: observe, act once on a fresh ref, wait briefly, observe again, verify. A stale ref needs a new observation. Read the advertised schema only for other tools.
+- Use the DOM/accessibility observation for text, roles, and refs. Use screenshots for layout, overlays, and canvas. When a screenshot returns an artifact path, load that file as an image before you make a visual claim. A path or base64 is not verification.
+- Scroll-stitched captures can repeat sticky elements or miss lazy content. Report the tool's warnings.
+- The client reads the protected token itself. Never read, print, or export the token.
+- Navigation, menus, and filters are safe. Submit, buy, delete, publish, send, save, transfer, invite, remove, and unsubscribe need explicit confirmation unless that exact action is already authorized. Never type passwords, MFA codes, payment data, or secrets without exact authorization.
+- Never use hidden, stealth, internal-page, CAPTCHA, or bulk-scraping paths. Never capture a page that shows a secret.
+- If the bridge stops, that is final for work that needs the visible session. Report the stop with its one-line reason. Do not inspect browser processes or bridge internals unless the user asks.

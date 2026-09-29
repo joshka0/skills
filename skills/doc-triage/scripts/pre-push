@@ -6,8 +6,8 @@
 set -u
 
 # ---- config (override via env or a repo-local .driftrc sourced below) ----
-# DRIFT_MODEL empty = the CLI's default model. Never set a Haiku-tier model:
-# drift judgment is a reasoning task (house rule: smallest tier is Sonnet).
+# DRIFT_MODEL empty = the CLI's default model. Never set a Sonnet- or
+# Haiku-tier model: drift judgment is a reasoning task (house rule: Opus by default).
 DRIFT_MODEL="${DRIFT_MODEL:-}"
 DRIFT_TIMEOUT="${DRIFT_TIMEOUT:-90}"                       # seconds
 DRIFT_SOURCE_RE="${DRIFT_SOURCE_RE:-\.(ts|tsx|ex|exs|py|rs|go)$}"

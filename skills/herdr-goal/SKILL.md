@@ -1,92 +1,54 @@
 ---
 name: herdr-goal
-description: "Operate bounded Herdr goal loops with an explicit Luna verifier, sealed epoch packets, and watcher callbacks. Use when the user names herdr-goal, wants a Ralph loop, or asks for verifier-gated continuation."
+description: "Run a bounded Herdr goal loop: a main Codex worker, a read-only Luna verifier, sealed epoch packets, and watcher callbacks. Use when the user names herdr-goal, wants a Ralph loop, or asks for verifier-gated continuation."
 ---
 
-# Herdr Goal
+# Herdr goal
 
-Run a main Codex worker and a separate read-only Luna verifier as a bounded,
-durable loop. The main seals an exact epoch packet while working; watcher wakes
-Luna only after that pinned main session settles, then returns one authenticated
-verdict to the same main terminal.
-
-## Boundary
-
-- `herdr-goal` owns goal epochs, verifier launch, sealed packets, convergence,
-  stalls, and final completion reconciliation.
-- `herdr-watcher` owns settled wakes, epoch callbacks, terminal pinning,
-  delivery, and unknown write boundaries.
-- `herdr` owns pane creation and agent transport. Apply its targeting rules;
-  never substitute the focused pane.
-- `goal-protocol` owns authoring or changing a durable `GOAL.md`; this skill
-  executes an already measurable verification loop.
+The main worker seals an exact verification packet each epoch. After the pinned main session settles, the watcher wakes Luna. Luna runs only the packet and returns one authenticated verdict to the same main terminal.
 
 ## Preflight
 
-1. Require `HERDR_ENV=1`, nonempty Herdr workspace/tab/pane IDs, and direct
-   invocation from the main agent pane. Reject plugin-action context.
-2. Resolve `herdr-goal` and `herdr-watcher` from live plugin state or validated
-   paths. Read their live help and watcher `capabilities --json`.
-3. Run `herdr integration status`; require the Codex integration to be current
-   and verify both panes expose native `agent_session.value` identity.
-4. Require watcher capabilities `settled_wake_v1` and `epoch_callback_v1`.
-5. Inspect current goal state before mutation. Never infer an epoch or verdict
-   from pane text.
+- `HERDR_ENV=1` and nonempty workspace/tab/pane IDs. Invoke directly from the main agent pane, never a plugin action.
+- Resolve `herdr-goal` and `herdr-watcher`. Read their live help (`herdr-goal start --help`; never copy flags from here) and `herdr-watcher capabilities --json`. Require `settled_wake_v1` and `epoch_callback_v1`.
+- `herdr integration status`: the Codex integration must be current, and both panes must expose `agent_session.value`.
+- Read the current goal state before any mutation. Never infer an epoch or verdict from pane text.
 
-## Route
+## Start
 
-| Reference | Read when |
-| --- | --- |
-| `references/start-loop.md` | Starting a loop, selecting bounds, or launching the Luna verifier |
-| `references/checkpoint-and-report.md` | Sealing an epoch, executing a verifier packet, or returning a verdict |
-| `references/lifecycle.md` | Inspecting, completing, cancelling, recovering, or diagnosing a stalled loop |
+- Required inputs: a measurable goal with criterion IDs, the cwd and authoritative files, max epochs, an overall deadline, settle/wake/verifier timeouts, and the allowed verification side effects. If the goal is vague, settle it with the user first.
+- Run `start` inside the main Codex pane with every bound. Capture the goal ID.
+- Verify that it created one no-focus sibling pane in that cwd, with the pane and agent sharing the goal-specific name, running `codex -m gpt-5.6-luna -c model_reasoning_effort=max --no-alt-screen`. Re-read: both identities are pinned, and epoch 1 is active.
+- Goal handles its own `READY` bootstrap (sent when SessionStart has not yet exposed the session) and a bounded `agent_pane_busy` retry. Never reproduce either by hand. Never send Luna a goal prompt; it gets work only through a sealed packet.
+- Let goal derive the verifier label. Agent names are at most 32 bytes, lowercase, from a restricted alphabet.
+- If start fails, report the created resources. Close only a pane this attempt created, and only when live state proves it is safe.
 
-Read only the selected reference. Read more than one only when the requested
-operation crosses those lifecycle surfaces.
+## Each epoch (from the pinned main, while it is `working`)
 
-## Workflow
+1. Copy `assets/verification-packet-v1.json`. Replace the goal, epoch, objective, scopes, criteria, steps, and absolute cwd. Keep every key and the four prohibitions. List every side effect, including `target/`. Never add `callback_invite_path` or `callback_command`: goal injects those into the sealed copy.
+2. Validate against the goal ID and epoch. Create the dormant fixed-epoch callback (you get the invite path). Seal once with the invite path and the injected `callback_command` argv prefix, never the bearer. Sync, and record the SHA-256.
+3. Create the linked settle wake with deterministic goal/epoch client keys. Require durable callback and wake acks, plus `VerificationArmed`, before the main ends its turn.
+4. An equivalent retry returns the same resources. A conflicting client key or packet is a stall, never an overwrite.
 
-1. Confirm the goal and acceptance criteria are measurable. Do not give Luna a
-   bare goal; produce an exact read-only verification packet.
-2. Start with explicit maximum epochs, overall deadline, settle timeout, wake
-   timeout, and verifier timeout. Record the returned goal and verifier IDs.
-3. Before each main work turn ends, seal the current epoch with `checkpoint`.
-   Re-read state and require durable watcher acknowledgements before ending.
-4. Let watcher wake Luna after the recorded main session reaches `idle` or
-   `done`. Luna executes only the sealed packet and submits one report.
-5. On `changes-requested`, address only failing criteria and checkpoint the next
-   epoch. On `pass`, let the pinned main reconcile evidence and run `complete`.
-6. Treat timeout, identity loss, blocked/failed verification, exhausted epochs,
-   or unconfirmed delivery as a durable stall, not another automatic attempt.
+## Luna (on wake)
 
-## Hard rules
+- Match the goal ID, epoch, packet path, and digest against protected state. Run the ordered commands exactly. Capture only the requested evidence.
+- No source edits, git mutation, delegation, plan changes, or invented checks. On ambiguity, submit `blocked` with the missing decision.
+- Submit with the sealed `callback_command` prefix plus status, summary, and body file. Never use a PATH command, and never read the capability. Statuses: `pass`, `changes-requested`, `blocked`, `failed`. The JSON spells `changes_requested`; the CLI flag is `--status changes-requested`.
+- There is one callback per epoch. An identical replay is idempotent. A conflicting replay is rejected.
 
-- Launch the verifier explicitly as Codex `gpt-5.6-luna` with effort `max`.
-  Luna executes the exact packet; it never plans, edits source, mutates Git,
-  delegates, or broadens scope.
-- Pin main and verifier by terminal ID, agent kind, and native session. Pane IDs
-  are addresses only; never route by focus, layout order, or a reused name.
-- Never interrupt an agent in `working`, `blocked`, or `unknown`. A goal settle
-  requires the recorded main to transition from working to `idle` or `done`.
-- Never place a callback capability in a packet, prompt, report, or log. Pass
-  only its protected invite-file path to the pinned Luna terminal.
-- A Luna `pass` is necessary but insufficient. Only the pinned main may mark the
-  goal complete after validating accepted evidence.
-- Never reuse an epoch after an ambiguous prompt write, resend an unconfirmed
-  delivery, hand-repair a journal, or weaken bounds to keep a loop alive.
-- Do not cancel or close resources the plugin did not create.
+## States
 
-## Stop conditions
+`active` (work) · `verification_armed`/`waiting_for_callback` (no new epoch; inspect the watcher) · `revision_required` (fix the named findings, checkpoint the next epoch) · `awaiting_main_completion` (Luna passed) · `completed` · `stalled` · `cancelled`.
 
-- Stop if either agent identity is missing, ambiguous, replaced, or no longer
-  matches its pinned native session.
-- Stop if live watcher capabilities or CLI syntax do not match the required
-  protocol, or if a packet has ambiguous steps or forbidden side effects.
-- Stop after the configured epoch/deadline/error boundary. Report the durable
-  stall rather than inventing recovery.
+- A `pass` is necessary but not enough. Only the pinned main runs `complete`, after it checks the accepted report, criterion evidence, digest, and delivery state. Completion latches before any final callback.
+- Stalls: identity/session drift, a settle or verifier timeout, a blocked/failed report, exhausted epochs, a capability or client-key or packet conflict, origin loss, or unconfirmed delivery. Report the last safe journal event, the watcher delivery, the bound reached, and whether a new human-approved epoch is possible. Never auto-retry an ambiguous write.
+- Cancel only when asked. Inspect goal and watcher state first. Cancel only pre-write queued resources the goal owns. Never claim a started delivery was prevented. Close only this goal's verifier pane.
+- Recovery: replay the append-only state and query the watcher by client key. Repeat only idempotent pre-write requests.
 
-## Output
+## Never
 
-Report the goal ID, main and verifier terminal IDs, current epoch/state,
-watcher resource IDs, packet digest, verdict and evidence, delivery state,
-bounds remaining, resources left active, and the exact next action or stall.
+- Interrupt an agent that is `working`, `blocked`, or `unknown`. A settle requires the recorded main to go from working to `idle`/`done`.
+- Route by focus, layout, or a reused name. Pin by terminal ID, agent kind, and native session.
+- Put a callback capability in a packet, prompt, report, or log.
+- Reuse an epoch after an ambiguous write, resend an unconfirmed delivery, hand-repair a journal, replace a sealed packet, or weaken bounds to keep a loop alive.

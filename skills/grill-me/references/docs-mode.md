@@ -1,4 +1,4 @@
-# Docs Mode
+# Docs mode
 
 ## Preflight
 

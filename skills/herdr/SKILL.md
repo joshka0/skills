@@ -1,58 +1,81 @@
 ---
 name: herdr
-description: "Operate Herdr workspaces, panes, and agent transport from its CLI. Use when the user names Herdr or wants to message, read, wait on, or coordinate another local terminal agent or pane; Maestri owns canvas agents."
+description: "Operate Herdr workspaces, panes, and agent transport from its CLI. Use when the user names Herdr or wants to message, read, wait on, or coordinate another local terminal agent or pane."
 ---
 
 # Herdr
 
-Operate Herdr — a terminal multiplexer and runtime for coding agents — through its CLI without guessing live state.
+Herdr is a terminal multiplexer and runtime for coding agents. Drive it only through its CLI.
 
 ## Preflight
 
-1. Confirm this agent runs inside a Herdr-managed pane: `test "${HERDR_ENV:-}" = 1`. If it fails, say you are not running inside Herdr and stop; do not control the focused session from outside.
-2. The caller's stable context is injected: `$HERDR_WORKSPACE_ID`, `$HERDR_TAB_ID`, `$HERDR_PANE_ID`. Target the calling pane with `--pane "$HERDR_PANE_ID"` — `--current` has been observed mis-resolving to another workspace, and omitting a target can act on the user's focused pane.
-3. Discover syntax from the installed binary: `herdr --help`, then print a command group by running it bare (`herdr pane`, `herdr workspace`, `herdr tab`, `herdr wait`, `herdr worktree`). Never run bare `herdr` for discovery — it launches the TUI — and never probe a mutating command by omitting arguments (`herdr workspace create` is valid with defaults and will execute).
+- Require `HERDR_ENV=1`. If it is not set, say so and stop, unless the user names the exact target. Never control the user's focused session from outside Herdr. Never use `--current` or omit a target.
+- Your identity: `$HERDR_WORKSPACE_ID`, `$HERDR_TAB_ID`, `$HERDR_PANE_ID`. Always target with `--pane "$HERDR_PANE_ID"`. `--current` has been seen resolving to a pane in another workspace. Omitting a target can act on the user's focused pane.
+- Discover syntax with `herdr --help` and bare command groups (`herdr pane`, `herdr workspace`, `herdr tab`, `herdr agent`, `herdr worktree`). Never run bare `herdr`: it launches the TUI. Never probe a mutating command by omitting its arguments: `herdr workspace create` runs with defaults.
+- Inspect first: `herdr workspace list`, `herdr pane list --workspace "$HERDR_WORKSPACE_ID"`, `herdr agent list`. Most commands print JSON.
 
-## Route
+## IDs
 
-| Reference | Read when |
-| --- | --- |
-| `references/command-recipes.md` | Splitting panes, launching agents or commands, sending prompts, choosing read sources, or waiting on output |
-| `references/status-semantics.md` | Interpreting or waiting on `agent_status` (idle, done, working, blocked, unknown) |
-| `references/agent-vault-launch.md` | Classifying or launching a task that may need a secret or authenticated external API |
+- IDs (`w1`, `w1:t1`, `w1:p1`, `term_...`) are opaque. Closed IDs are not reused. A moved pane gets a new ID. A live handoff keeps the pane ID but issues a new `term_...` ID.
+- Parse IDs from JSON responses only. Never build one from display order or examples. Re-read after every mutation.
 
-## Workflow
+## Split, label, launch
 
-1. Inspect live state first: `herdr workspace list`, `herdr pane list --workspace "$HERDR_WORKSPACE_ID"`, `herdr agent list`. Most control commands print JSON; read identifiers and state from those responses.
-2. Target with `--pane "$HERDR_PANE_ID"` or an explicit ID parsed from a JSON response. IDs (`w1`, `w1:t1`, `w1:p1`, `term_...`) are opaque strings; closed IDs are not reused, moved panes get new IDs — re-read after every mutation and never construct an ID from display order.
-3. Launch model agents interactively. Start the plain model executable, wait until its TUI is ready, rename the session when supported, and only then send the prompt. Never pass the task as an executable argument. For a credentialed operation, read the Agent Vault launch reference and create a dedicated credential worker.
-4. Act through the pane as the one stable control surface for agents, shells, servers, and logs. `herdr pane run <pane-id> '<text>'` sends the text and Enter together — use it for prompts and follow-ups. `herdr agent send <target> '<text>'` sends literal text to a detected agent; verify submission by reading afterward.
-5. Read before and after acting; wait for the specific state or output you expect (`herdr wait agent-status ...`, `herdr wait output ...`), then re-read.
-6. Keep cross-agent requests self-contained: task, context to read first, allowed scope, prohibitions, and expected return shape.
+```sh
+herdr pane layout --pane "$HERDR_PANE_ID"                                   # wide pane: split right; tall pane: split down
+herdr pane split --pane "$HERDR_PANE_ID" --direction right --no-focus      # read result.pane.pane_id
+herdr pane rename <id> "<role>"                                             # required, before work starts
+herdr pane run <id> "codex"                                                 # or claude, pi, opencode, omp
+herdr agent wait <id> --until idle --timeout 30000
+herdr pane run <id> "/rename <role>"                                        # only if the agent's slash help lists it
+herdr pane run <id> "<self-contained brief>"
+```
 
-## Hard rules
+- Use one pane per task, labeled with its role. Reuse a pane only for follow-ups to its own task.
+- Start the plain interactive TUI, wait until it is ready, and then send the prompt. For a long or interactive task, never pass the task as an argv prompt and never add non-interactive flags unless the user asks. A short one-shot query may use the harness's non-interactive mode.
+- `pane run` sends the text and Enter together. Use `send-text`/`send-keys` only for input that must not submit yet.
+- `agent send <target> '<text>'` writes literal text. Some integrations do not auto-submit, so read afterward and send Enter if needed. Prefer pane IDs when agent names can collide.
+- Default to a sibling split in the current tab and cwd. Create a workspace, tab, or other cwd only when the user asks.
+- Parallel writers on one repo each get `herdr worktree create --cwd <repo> --branch <task> --label <task> --no-focus`.
+- A credential-bearing task gets its own `credential-worker-<vault>` pane. Follow `agent-vault`. Never wrap the model TUI.
 
-- Do not guess targets or IDs. Parse them from JSON responses, never from sidebar order or examples.
-- Use `--no-focus` for background work; keep the user's focus in their pane unless they asked to switch.
-- **One pane per task, always labeled**: each new independent task gets its own split, renamed to its role/task (`herdr pane rename <id> "<role>"`) before work starts. Reuse a pane only for follow-ups to that pane's existing task; never queue an unrelated task into a busy or differently-labeled pane.
-- **Name the agent's session too**: after launching an agent, give its own session the same label where its TUI supports renaming (confirm in its slash help; e.g. Claude Code `/rename <label>`), so resume pickers and history stay legible thread-by-thread.
-- **Clean up what you opened**: close panes and remove worktrees you created once their task is complete and its results are read; never close surfaces you did not create.
-- Default new work to a sibling split in the current tab and cwd; create a workspace, tab, or different cwd only when the user requests that topology.
-- **Parallel writers get isolated checkouts**: when two or more agents will mutate the same repo concurrently, give each its own `herdr worktree create --branch <task> --label <task>` instead of sharing the checkout; file-disjoint sharing is only for explicitly coordinated same-wave edits with a named coordinator.
-- Quote literal messages so the calling shell cannot expand metacharacters. Never send secrets through Herdr.
-- Use a separate, labeled Herdr pane for a credential worker. Do not treat an agent's internal subagent or background mode as a credential boundary.
-- Do not launch a model TUI through Agent Vault by default. The credential worker wraps only the command that needs a brokered credential. Never put a raw credential in the agent process.
-- Do not close workspaces, tabs, panes, or sessions you did not create unless the user explicitly asked.
-- Reads render at the pane's current size: on crowded layouts prefer `recent-unwrapped`, and if output is still clipped, `pane zoom --on`, read, then `--off` — never leave a zoom you set.
-- Never run `herdr server stop` from an active session and never kill the main Herdr process; use named test sessions for isolated experiments.
-- For authorized filesystem cleanup, verify the exact target and command effects. Prefer Trash when practical. Preserve unique work, branches, and history; do not force removal or discard uncommitted changes.
-- Do not ask another agent to run git commands, install packages, or modify broad/generated areas without the user's explicit approval.
+## Wait and read
 
-## Stop conditions
+- Status: `idle` and `done` are the same state (at the prompt). `done` means the result is unseen: the agent finished in a background tab, or while the client was unfocused. Focusing the pane turns `done` into `idle`. A fresh agent reports `idle`.
+- For background work, wait for `working` (the prompt landed), then for `done`. If the user watches that tab, completion shows `idle`. In `pane get`, treat either one as finished.
+- `blocked`: the agent needs input, so read the pane. `unknown`: no agent detected yet, so inspect before you assume failure.
+- A wait timeout exits 1. Then run `pane get` and `pane read` before you decide.
+- `herdr pane wait-output --match "<text>" --timeout <ms> <id>` works for ordinary commands.
+- `herdr agent wait <id>` with no `--until` matches idle, done, or blocked. Without `--timeout` it waits forever.
+- Read sources: `recent-unwrapped` (prefer it for logs and transcripts), `recent`, `visible`, `detection`. Use `--format ansi` only when color is evidence.
+- Reads render at the pane's current size. If output is clipped, run `pane zoom --pane <id> --on`, read, then `--off` immediately.
 
-- Stop and report the observed state when no unambiguous target can be resolved or `HERDR_ENV` is not 1.
-- Stop rather than guessing when installed command-group help disagrees with a needed command or flag.
+## Rendered pages in a pane
 
-## Output
+- Herdr passes Kitty graphics through by default (`terminal.kitty_graphics`), so `terminal-browser` (Homebrew cask) shows real Chromium pixels in a pane.
+- Open: `terminal-browser open <url|port|file.html> --split right`. Drive the open tab: `terminal-browser action -- snapshot|click|fill|eval`.
+- The first `open` symlinks a `terminal-browser` skill into `providers/claude` and `providers/agents` (outside `manifest.json`, pinned to the cask version). Remove the links. Never run `terminal-browser setup`.
+- Text-only viewers (`glow`, `herdr-file-viewer`) show mdxcn ASCII fences but not MDX components.
 
-Report the target resolved, action taken, observed post-action state or output, and any blocker or needed user choice.
+## Completion callback (optional)
+
+To go idle instead of polling, put your pane ID in the child's brief with a final instruction:
+
+```
+herdr pane run <coordinator-pane-id> 'DONE <label>: <one-line summary>'      # or 'BLOCKED <label>: <need>'
+```
+
+- The callback is a wake signal, not the result. Read the child's pane and artifacts.
+- Callbacks can be lost. Keep a backstop: a background `herdr agent wait <id>` or a `pane get` sweep.
+- Keep it one line and single-quoted, with no secrets. Only children inside Herdr can call back.
+
+## Never
+
+- Change the user's focus (use `--no-focus`) or leave a zoom set.
+- Close or remove workspaces, tabs, panes, sessions, or worktrees you did not create. Do close the ones you created, once you have read their results, except a worktree or branch with unmerged or unpushed commits: report it instead of deleting it.
+- Run `herdr server stop` from an active session or kill the main Herdr process. Use named test sessions for experiments.
+- Test `herdr update` or live handoff against real sessions. A named session does not isolate `herdr update`: it targets every session under `XDG_CONFIG_HOME`. For these tests, point `XDG_CONFIG_HOME`, `XDG_RUNTIME_DIR`, and `XDG_STATE_HOME` at a temp base, pass `--session`, and check that `session list` shows only temp sockets.
+- Send secrets through Herdr.
+- Use `herdr notification show` for agent-to-agent transport. It is for user-visible status only.
+- Ask another agent to write git state outside its own assigned worktree, install packages, or edit generated areas without the user's approval. Git inside its own worktree is fine.
+- Continue when the target is ambiguous. Stop and report. If live help disagrees with a read-only command, use the live syntax. If it disagrees with a mutating command, stop and report.

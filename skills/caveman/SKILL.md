@@ -18,7 +18,3 @@ Apply terse, technically exact phrasing only after an explicit Caveman invocatio
 ## Clarity exception
 
 Temporarily use ordinary clear prose for security warnings, irreversible-action confirmation, a sequence where fragments could mislead, or a user request for clarification. Resume this mode after the clear portion unless the user turns it off.
-
-## Output
-
-Respond compactly while preserving all required technical and safety information.

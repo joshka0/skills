@@ -1,27 +1,13 @@
 ---
 name: git-guardrails-claude-code
-description: "Install a Claude Code PreToolUse guard that blocks named destructive Git commands before execution. Use when the user requests Claude Git guardrails, blocked push, or protection from reset/clean."
+description: "Install a Claude Code PreToolUse hook that blocks named destructive Git commands. Use when the user asks for Git guardrails, blocked push, or reset/clean protection."
 ---
 
-# Claude Git Guardrails
+# Claude Git guardrails
 
-Install the packaged blocker only at a user-approved project or user scope, preserving existing Claude settings.
+1. Ask for the scope: project (`.claude/hooks/`) or user (`${CLAUDE_CONFIG_DIR:-$HOME/.claude}`).
+2. Copy `scripts/block-dangerous-git.sh` there and `chmod +x` it. Requires `jq`.
+3. Merge one Bash `PreToolUse` entry into the existing `hooks.PreToolUse` array. Never replace other hooks or settings.
+4. Smoke test: a JSON event with a blocked Git command must exit `2` and print a generic notice. It must not echo the command, which can carry secrets. An ordinary command must exit `0`.
 
-## Workflow
-
-1. Ask whether the target is project-local or the user's Claude configuration.
-2. Inspect the target settings and hook directory; stop if the intended scope is ambiguous.
-3. Copy `scripts/block-dangerous-git.sh`, make the target copy executable, and merge one `PreToolUse` Bash hook without overwriting existing hooks.
-4. Read `references/hook-shape.md` only when selecting the target path or merge shape.
-5. Send a harmless sample command to the copied script and verify the blocked exit status before reporting completion.
-
-## Hard rules
-
-- The hook blocks only the named Git patterns; do not claim it is a complete authorization system.
-- Do not replace settings, alter a project's policy, or add patterns without explicit scope approval.
-- Do not echo the intercepted command in hook output; it can contain secret-bearing arguments.
-- A missing `jq`, settings file ambiguity, or failed smoke test stops installation.
-
-## Output
-
-Report scope, hook path, preserved-settings result, blocked-pattern test status, and any user-selected customization.
+It blocks only the named patterns. Do not call it an authorization system.

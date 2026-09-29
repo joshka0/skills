@@ -22,7 +22,3 @@ Use this interaction mode only for an explicit idea-stage riff, not ordinary imp
 - Do not invent familiarity with documents or outcomes.
 - Stay in assessment until the user asks for an artifact or implementation.
 - Do not dilute a verdict into a list of generic considerations.
-
-## Output
-
-Give a grounded verdict, mechanism, principal risk and mitigation, a carryable handle where useful, and one next move.

@@ -11,7 +11,7 @@ REPO="${1:?usage: doc-sweep.sh <repo-path>}"
 cd "$REPO" || exit 1
 
 # SWEEP_MODEL empty = the CLI's default model. This is a judgment task:
-# never a Haiku-tier model (house rule: smallest tier is Sonnet).
+# never a Sonnet- or Haiku-tier model (house rule: Opus by default).
 SWEEP_MODEL="${SWEEP_MODEL:-}"
 SWEEP_TIMEOUT="${SWEEP_TIMEOUT:-600}"
 OUT_DIR="${SWEEP_OUT_DIR:-$HOME/.config/doc-sweep}"

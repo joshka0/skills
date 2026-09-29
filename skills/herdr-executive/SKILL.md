@@ -1,122 +1,59 @@
 ---
 name: herdr-executive
-description: "Operate the Herdr Executive coordinator, manager attention, durable queues, phone gateway, and Shepr voice client. Use when the user names Executive, Shepr, handsfree replies, or manager blockers/questions."
+description: "Operate the Herdr Executive: drafts, manager attention, clarifications, speech queue, phone gateway, Shepr. Use when the user names Executive, Shepr, or manager blockers."
 ---
 
 # Herdr Executive
 
-Operate the durable executive-assistant layer above Herdr transport. Keep user
-turns, manager attention, Executive review, and phone speech as separate state.
+User turns, manager attention, Executive review, and phone speech are separate state. Pane transport and agent names: `herdr`. End-to-end delivery diagnosis, Swift/gateway changes, live restarts, TestFlight: `references/delivery-and-shepr.md`.
 
-## Boundary
+## Resolve and inspect
 
-- `herdr-executive` owns coordinator state, drafts, manager events,
-  clarifications, outbound delivery, speech, the phone gateway, and Shepr.
-- `herdr` owns workspaces, panes, named-agent resolution, prompt submission, and
-  live agent status. Apply that skill too when diagnosis crosses into a pane.
-- `agent-orchestration` owns choosing or coordinating delegated agents; it does
-  not own Executive queue operations.
+```sh
+EXECUTIVE_BIN="$(command -v herdr-executive || true)"
+[ -z "$EXECUTIVE_BIN" ] && [ -x ./target/release/herdr-executive ] && EXECUTIVE_BIN="$PWD/target/release/herdr-executive"
+"$EXECUTIVE_BIN" --help                  # live help and checked-in source beat this skill
+"$EXECUTIVE_BIN" status
+"$EXECUTIVE_BIN" queue --json | jq '{draft: .pending_draft,
+  attention: [.manager_events[] | select(.status != "resolved")],
+  questions: [.clarifications[] | select(.status == "awaiting_user")],
+  outbound: [.outbound[] | select(.status == "queued" or .status == "delivering")],
+  speech: [.speech[] | select(.status == "queued")]}'
+```
 
-## Preflight
+If neither path resolves, ask the user for the repo. Do not search `$HOME`. The snapshot is the current state. The journal is history.
 
-1. Resolve the current `herdr-executive` executable from `PATH` or from the
-   repository the user placed in scope. Store the validated path in
-   `$EXECUTIVE_BIN`; do not search the whole home directory.
-2. Discover current syntax with `"$EXECUTIVE_BIN" --help` and the selected
-   command's `--help`. Treat checked-in source and live help as newer than this
-   skill.
-3. Read `status` and `queue --json` before mutation. Record the relevant draft,
-   event, clarification, outbound, and speech IDs rather than relying on UI
-   counts alone.
-4. When a named Executive or manager pane matters, verify `$HERDR_ENV` and use
-   the `herdr` skill to resolve the target. Never infer a route from pane focus
-   or a pane label.
+## Commands
 
-## References
+```sh
+draft create '<turn>' | draft revise --id <id> '<text>' | draft commit --id <id> | draft cancel --id <id>
+manager add|remove <unique-agent-name> | manager pause|resume
+manager resolve <event-id>                    # closes, no reply
+manager address <event-id> '<reviewed reply>' # resolves + queues a manager reply
+clarification ask --event <event-id> '<question>' | clarification answer <clar-id> '<answer>'
+speech enqueue --correlation <source-id> '<spoken text>' | speech skip <id> | speech next
+```
 
-| Read | Select when |
-| --- | --- |
-| `references/operations.md` | Inspecting or changing drafts, managers, attention, clarifications, speech, daemon state, or queue state |
-| `references/delivery-and-shepr.md` | Diagnosing end-to-end voice delivery, changing the Swift client or gateway, restarting live service, or shipping TestFlight |
+- There is only one pending draft. Commit sends it to the named Executive, never to a manager.
+- `pause` stops new captures and clears nothing. Answer a clarification by its ID, not its source event.
+- `speech skip` keeps history and does not resolve attention. `speech next` plays on the Mac, so it is not a phone test.
+- Bulk dismiss is Shepr's Dismiss / Dismiss all. Check help before you assume a CLI version exists.
+- `ensure-daemon` runs only when no service owner exists. If launchd owns it, restart that label. Never start a second daemon or gateway.
 
-Read only the selected reference. Read both only when a requested repair crosses
-the coordinator and mobile-client boundary.
+## Rules
 
-## Workflow
+- Never edit, truncate, or hand-repair `coordinator.jsonl`. Every transition goes through the CLI, control socket, or gateway. Never type into a manager pane instead of a journaled action.
+- Never forward raw or partial dictation to a manager. Only an explicit reviewed answer targets a manager.
+- An outbound `completed` means the prompt was submitted, not that the Executive responded. Speech or an observed result proves a response.
+- The agent name, pane label, and agent kind are separate facts. Swapping Claude for Codex in a pane can keep the label but drop the `executive` name. Check `herdr agent get executive`.
+- Do not resolve, dismiss, skip, or bulk-clear items unless the user asked. Stop if the requested meaning differs from the transition (dismissal is not a reply; a skip is not resolution).
+- Never print or put in argv the phone bearer token, Apple credentials, Infisical values, Fish credentials, or secret-bearing URLs.
+- No TestFlight upload, signing change, or Tailscale Serve change without an explicit request.
 
-1. Identify the user's intended object and outcome: a pending draft, attention
-   item, tracked question, manager enrollment, outbound turn, or speech item.
-2. Trace one correlation chain through the snapshot before diagnosing. Separate
-   “submitted to Executive” from “Executive responded” and “phone acknowledged
-   playback.”
-3. Use the narrow coordinator command or authenticated client action that owns
-   the transition. Do not type directly into a manager pane as a substitute for
-   a journaled Executive action.
-4. Re-read the snapshot and, when delivery is involved, verify the uniquely
-   named target and its post-action state through Herdr.
-5. For code changes, validate the affected Rust and Swift surfaces, restart only
-   through the discovered service owner, and prove queue counts survived.
+## Executive speech contract
 
-## Hard rules
-
-- Never edit, truncate, replace, or hand-repair `coordinator.jsonl`. All durable
-  transitions go through the coordinator CLI, control socket, or gateway.
-- Never forward raw or partial dictation to a manager. A phone turn targets the
-  named Executive; only an explicit reviewed answer targets a manager.
-- Do not report an outbound item as a response. `completed` proves prompt
-  submission; speech or an observed Executive result proves a response.
-- Treat the Herdr agent name, pane label, and agent kind as separate facts.
-  Replacing Claude with Codex in one pane requires verifying or restoring the
-  unique `executive` agent name even when the pane label survives.
-- Do not resolve, dismiss, skip, or bulk-clear live items unless the user asked
-  for that state change. Preserve unreachable items unless their disposition is
-  explicit.
-- Never print, log, place in argv, or summarize the phone bearer token, Apple
-  credentials, Infisical values, Fish credentials, or secret-bearing URLs.
-- Do not start a second gateway or daemon when a service owner already exists.
-- Do not upload TestFlight, change signing, or alter Tailscale Serve unless the
-  user explicitly requested that external mutation.
-
-## Stop conditions
-
-- Stop when the executable, state owner, or named target cannot be resolved
-  unambiguously from live state.
-- Stop before a queue transition whose product meaning differs from the user's
-  request, such as treating dismissal as a manager reply or playback skip as
-  blocker resolution.
-- Stop and report when current CLI help or source contradicts a recipe rather
-  than inventing a compatibility path.
-
-## Executive response/output contract
-
-- Every user-facing response from the named Executive MUST be queued as an
-  Executive speech/audio item before the turn is considered complete. The
-  user's primary interaction is a spoken conversation with the Executive;
-  terminal text and UI summaries MAY supplement the audio but MUST NOT replace
-  it.
-- Treat the gateway-provided interaction mode as the speech-cadence contract.
-  While `hands_free` is active, queue short, natural checkpoints at meaningful
-  stage changes or useful waits during longer work without narrating routine
-  churn. While `manual` is active, queue no routine progress speech: speak for
-  the completed turn, blockers, tracked clarification questions, and material
-  changes only.
-- Re-read `status` before optional progress speech because the hands-free lease
-  can change or expire mid-turn. A mode change affects cadence only; it MUST NOT
-  weaken the requirement to queue the completed user-facing response as audio.
-- Spoken Executive content MUST omit opaque machine identifiers. Do not read
-  UUIDs, App Store Connect or build resource IDs, bundle or profile IDs, commit
-  SHAs, correlation or event IDs, ticket IDs, or raw file paths aloud. Use
-  natural labels and human-scale status or version language instead, such as
-  “Shepr build 14 is available to internal testers.”
-- Keep exact identifiers in written reports, CLI commands, durable queue
-  metadata, and correlation fields whenever they are needed for operation,
-  audit, or follow-up. The spoken-layer omission MUST NOT delete or weaken the
-  underlying identifiers or their correlation semantics.
-- Correlate the speech item to the originating draft, manager event, or tracked
-  clarification whenever an ID exists. If speech enqueue fails, the Executive
-  response is incomplete: report the failure and preserve durable state for
-  retry rather than silently returning text only.
-
-For coordinator-operation reports, report the resolved executable and target,
-the correlation IDs inspected, the transition or repair performed, before/after
-queue evidence, verification run, and any live item deliberately left untouched.
+- When the turn came from the phone or hands-free mode, every user-facing Executive response MUST be queued as speech before the turn is complete. Text may supplement it, never replace it. For a typed turn, text is enough unless the user asked for speech. If the enqueue fails, the response is incomplete: report it and keep the state for retry.
+- Correlate speech to its draft, event, or clarification ID.
+- Mode is the cadence contract. `hands_free`: short checkpoints at meaningful stages or waits. `manual`: speak only on completion, blockers, tracked questions, and material changes. Re-read `status` before optional progress speech, because the lease can expire mid-turn. Mode never removes the completion speech.
+- Spoken text omits UUIDs, App Store Connect/build/bundle/profile IDs, SHAs, correlation/event/ticket IDs, and raw paths. Use natural labels ("Shepr build 14 is with internal testers"). Keep the exact IDs in written reports, commands, and queue metadata.
+- Audio transcripts are lossy. Fix obvious mishearings (homophones, product and agent names, broken sentences) from the conversation and project context. Never invent a target, ID, credential, destructive intent, or a materially different instruction. If readings would route work differently, keep the turn and queue one tracked clarification. Mention an inferred wording only when it matters.

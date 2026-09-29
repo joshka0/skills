@@ -1,39 +1,16 @@
 ---
 name: aux
-description: "Provide Agent User Experience (AUX) orientation for repository scope, secrets, tools, and visible-browser readiness. Use when starting in an unfamiliar workspace or before visible-browser automation."
+description: "Orient a zero-context agent: repository scope, vaults, credential names, installed tools, and visible-browser readiness. Use in an unfamiliar workspace or before visible-browser work."
 ---
 
-# Agent User Experience (AUX)
+# AUX
 
-Give a zero-context agent the smallest safe operational context it needs without revealing a credential.
+`aux [context|secrets|tools|browser]` (`scripts/aux`) prints names and status only. It never reads a value. Use `AUX_REPO=<path>` to target another repo. Do not `cd` into this skill directory.
 
-## Workflow
-
-1. Run `aux` from the target repository. Use `AUX_REPO=<path> aux` only when the target is not the current directory. Do not change into this skill directory before discovery.
-2. Treat the reported repository, primary vault, optional shared vault, services, credential names, and installed-tool status as the live orientation result.
-3. Select the credential mode from the result:
-   - Use `none` for local work and public requests.
-   - Use `agent-vault-command` for an authenticated HTTP command. Run only that command through the reported launcher and vault.
-   - Use `infisical-runtime` when an application needs a secret in its environment or a file. Hand off to `local-dev`; Agent Vault proxy mode does not inject application environment variables.
-   - Use `control-plane` for vault, service, grant, Infisical policy, or recovery changes. Hand off to `agent-secret-infrastructure`.
-4. For a Herdr task, keep the model interactive and unwrapped. Give a separate credential worker the reported vault, host, and one bounded command.
-5. For visible browser work, run `aux browser`. On a remote target, make it the first target command after the minimum connection check. Require `ready` status, then use the reported `browser-bridge` client with `local-http-browser-use`; do not retrieve or export its token.
-6. Run `aux secrets` only when tool status is irrelevant. Run `aux tools` only when secret context is irrelevant.
-7. If the same AUX-owned friction repeats, hand it to `wiki` after the main task reaches a safe checkpoint. The wiki skill owns the recurrence threshold, deduplication, and request format.
-
-## Hard rules
-
-- Report names, scopes, hosts, commands, and status only. Never retrieve or print a credential value.
-- One command uses one vault. Do not combine project and shared credentials in one worker.
-- Do not infer that a listed credential is usable. Require a matching service for proxy use or an approved runtime injector for application use.
-- A service mapping proves where Agent Vault may inject a credential. It does not prove that unmatched hosts are denied. Treat unmatched-host policy as unknown until a safe behavior test or control-plane check proves it.
-- Do not pass a token, secret value, Infisical identity, or Agent Vault administrator credential through AUX or Herdr.
-- Keep employer and personal scopes separate. The Foxway workspace does not inherit the personal `shared` vault.
-- Treat a missing mapping, launcher, grant, service, or broker connection as a stop. Do not fall back to `$HOME/.env`.
-- Treat a browser controller without a connected visible-browser extension as a terminal stop. Report the AUX result without inspecting browser processes, desktop sessions, services, ports, configuration, or bridge internals unless the user asks for diagnosis. Do not use a hidden or headless browser fallback.
-- Do not repeat vault discovery or search local memory when the current AUX result already answers the task.
-- Do not run AUX for a routine task when the current context already supplies the required repository, tool, credential mode, and browser context.
-
-## Output
-
-Return the detected repository scope, primary and optional vaults, safe services and credential names, installed-tool status, verified browser controller and extension status, the selected credential mode, exact client command, and any stop condition.
+- Its output (repo, primary vault, optional shared vault, services, credential names, tool status) is the live orientation result. Choose the credential mode from it (modes: `agent-vault`).
+- Visible browser: run `aux browser`. On a remote target, run it first, right after the minimum SSH check. On `ready`, use the reported `browser-bridge` client with `local-http-browser-use`. Any other result stops work that needs the visible or logged-in browser: report it with its one-line reason, and do not inspect processes, ports, config, or bridge internals unless the user asks. Never fall back to hidden or headless browsing for that work. Continue steps that need no browser. A task that needs only public content may use another fetch tool.
+- A stop about a repo mapping, vault, or grant matters only for steps that need a credential. If the task needs none, say so in one line and continue. Never create a mapping or grant just to clear the stop.
+- A listed credential is not proof that it is usable. Proxy use needs a matching service; app use needs an approved injector.
+- Keep the Foxway scope separate: it does not inherit the personal `shared` vault.
+- Do not re-run AUX or re-discover vaults when the current result or context already answers the question.
+- Repeated AUX friction goes to `wiki` (it owns the recurrence threshold).

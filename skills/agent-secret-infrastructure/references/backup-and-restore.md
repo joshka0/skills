@@ -1,100 +1,36 @@
 # Backup and restore
 
-## Current Infisical backup design
+Before you run a backup or restore, verify every name live.
 
-Verify these names live before use.
+## Infisical backup
 
-- `infisical-backup.timer` starts the backup each night.
-- `infisical-backup.service` loads encrypted systemd credentials.
-- `/usr/local/sbin/backup-infisical-to-r2` creates the backup.
-- `/usr/local/sbin/infisical-restic` provides controlled Restic access.
-- The private R2 bucket is the Restic repository.
-- Each complete backup batch has three snapshots: `kind:config`, `kind:environment`, and `kind:database`.
-- All three snapshots share one `batch:<timestamp>` tag.
+- `infisical-backup.timer` runs nightly. `infisical-backup.service` loads encrypted systemd credentials and runs `/usr/local/sbin/backup-infisical-to-r2`.
+- Use `/usr/local/sbin/infisical-restic` for all Restic access. Do not paste multi-line `systemd-run` commands: a broken continuation drops a credential.
+- One recovery point is three snapshots (`kind:config`, `kind:environment`, `kind:database`) that share one `batch:<timestamp>` tag. Use only a batch with all three kinds.
+- Proof: the timer is active with a next run, the last service exit and journal are clean, the snapshots are listed, the Restic check passes, and retention ran. Record the batch tag and snapshot IDs. An upload is not a restore proof.
 
-Do not paste a multi-line `systemd-run` command into an interactive shell unless each continuation is exact. A broken continuation can omit a credential. Prefer the installed wrapper.
+## Agent Vault backup
 
-## Backup proof
+- `agent-vault-backup.timer` starts `agent-vault-backup.service`, which runs `/usr/local/sbin/backup-agent-vault-to-r2` with the same Restic wrapper and lock.
+- It aborts if any Infisical-backed vault's sync is not `ok`. It uses a SQLite online backup, never a copy of the live file.
+- One snapshot holds the broker DB, encrypted CA state, launcher, backup script, and units. Tags: `agent-vault`, `batch:<ts>`, `kind:broker-state`. Host: `agent-vault-vps`.
+- It restores to an isolated directory and requires SQLite `integrity_check` = `ok`. Retention is 7 daily, 5 weekly, and 12 monthly, followed by a Restic check.
+- Host-bound systemd credentials in the backup are unusable elsewhere. Recovery needs off-host copies of the Agent Vault master password, the Infisical machine identity, R2 access, and the Restic password.
 
-Use safe metadata only.
+## Recovery custody
 
-1. Check that the timer is active and has a next run.
-2. Check the last service exit status and journal.
-3. List recent snapshots through `infisical-restic`.
-4. Select a batch only when all three required kinds have the exact same batch tag.
-5. Run the configured Restic integrity check.
-6. Confirm the retention action completed.
-7. Record the batch tag and snapshot IDs. Do not record repository credentials.
+- The Cloudflare token factory (Keychain) can mint a replacement R2 token.
+- The Restic password has a Keychain copy under service `agent-secret-infrastructure-restic-password`. Verify it before an incident.
+- The Agent Vault master and Infisical machine credentials also need named off-host Keychain items. Verify them without printing values.
+- Never keep the only recovery password in Infisical or in VPS systemd credentials.
+- If an R2 key leaks: create a replacement, update the service credential, test a backup, revoke the old key, unlock stale Restic locks, and run a check.
 
-A successful upload is not a restore proof. Run an isolated restore drill after a material configuration change and on a regular schedule.
+## Restore drills (never touch the live host or DB)
 
-## Current Agent Vault backup design
+Agent Vault: use an isolated Tailnet host. Get R2 and Restic from off-host custody. Restore an `agent-vault-vps` snapshot with all three tags to staging. Run the SQLite integrity check. Install the recorded version, a dedicated user, and files with the recorded modes. Recreate the systemd creds via stdin. Bind to the isolated Tailnet address. Require health, sync `ok`, one allowed request, and one deny. Record the snapshot, version, and results.
 
-Verify these names and behaviors live before use.
+Infisical: use a new host or DB. Install the pinned Infisical, Postgres, and Restic. Restore one complete batch: config and env to protected files, and the custom dump into the new DB. Start on a private listener with integrations disabled. Test sign-in, project metadata, secret counts, and one controlled retrieval. Connect an isolated Agent Vault and test one allow and one deny. Keep the recovery host until the user approves cleanup.
 
-- `agent-vault-backup.timer` starts the backup each night.
-- `agent-vault-backup.service` runs `/usr/local/sbin/backup-agent-vault-to-r2`.
-- The job uses the same controlled Restic repository wrapper and lock as the Infisical backup.
-- SQLite creates a consistent database backup. The job does not copy the live database file.
-- The job stops when an Infisical-backed vault has a sync status other than `ok`.
-- One snapshot contains the broker database, encrypted CA state, launcher, backup script, and systemd units.
-- The snapshot uses the `agent-vault`, `batch:<timestamp>`, and `kind:broker-state` tags with host `agent-vault-vps`.
-- The job restores its new snapshot into an isolated directory and requires SQLite integrity status `ok`.
-- Retention keeps 7 daily, 5 weekly, and 12 monthly snapshots. The job then runs a Restic repository check.
+## Disaster cutover (a drill never authorizes one)
 
-The backup does not contain usable host-bound systemd credentials. Recovery still requires off-host copies of the Agent Vault master password, Infisical machine identity, R2 access, and Restic password.
-
-## Isolated Agent Vault restore drill
-
-Do not modify the active broker or point clients at the drill.
-
-1. Provision an isolated host with private Tailnet access.
-2. Obtain R2 access and the Restic password from off-host recovery custody.
-3. Select one snapshot with host `agent-vault-vps` and all three Agent Vault tags.
-4. Restore the snapshot into a protected staging directory.
-5. Run SQLite integrity check on the restored database before installation.
-6. Install the recorded compatible Agent Vault version and a dedicated system user.
-7. Install the restored database, CA state, launcher, and units with the recorded ownership and modes.
-8. Recreate the host-bound systemd credentials from off-host custody through standard input.
-9. Bind the broker to the isolated Tailnet address and start it.
-10. Require health status, successful Infisical sync, one allowed proxy request, and one deny result.
-11. Record the snapshot ID, installed version, checks, and result. Keep the original broker unchanged.
-
-## Isolated Infisical restore drill
-
-Do not modify the active VPS or database.
-
-1. Provision a new isolated host or recovery database.
-2. Obtain the R2 access key and Restic password from off-host recovery custody.
-3. Install the pinned compatible Infisical, PostgreSQL, and Restic versions.
-4. Select one complete batch by its exact batch tag.
-5. Restore the config and environment snapshots into protected files.
-6. Restore the PostgreSQL custom dump into the new database.
-7. Start Infisical on a private listener with outbound integrations disabled.
-8. Test sign-in, project metadata, secret counts, and one controlled secret retrieval.
-9. Connect an isolated Agent Vault instance and test one allowed proxy request plus one deny case.
-10. Record the versions, batch tag, checks, and result. Preserve the recovery host until the user approves cleanup.
-
-## Disaster cutover
-
-A restore drill does not authorize a cutover.
-
-1. Stop writes to the failed or old Infisical instance when possible.
-2. Restore the newest complete batch to a new private host.
-3. Reissue host certificates and update the private service address.
-4. Update Agent Vault upstream configuration without copying credentials to clients.
-5. Test Mac and `dev` through Agent Vault.
-6. Re-enable integrations in controlled groups.
-7. Keep the previous host and local Infisical state unchanged until application stability is confirmed.
-
-## Recovery credential custody
-
-Keep at least two independent recovery paths:
-
-- The Cloudflare token factory in macOS Keychain can mint a replacement bucket token.
-- The current Restic password has a separate protected copy in macOS Keychain under service `agent-secret-infrastructure-restic-password`. Verify it before a recovery event.
-- Agent Vault master and Infisical machine credentials also need off-host recovery custody. Verify their named Keychain items without printing values.
-
-Do not store the only recovery password in Infisical or in host-bound systemd credentials on the VPS. Test the off-host copy by opening the repository from an isolated environment without printing the password.
-
-If any R2 key appears in output, history, a prompt, or a log, treat it as exposed. Create a replacement key, update the encrypted service credential, test a backup, revoke the old key, unlock stale Restic locks, and run an integrity check.
+Stop writes to the old instance. Restore the newest complete batch to a new private host. Reissue certificates and update the service address. Update the Agent Vault upstream without copying creds to clients. Test the Mac and `dev`. Re-enable integrations in groups. Keep the old host until the apps prove stable.

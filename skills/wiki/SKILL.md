@@ -1,43 +1,26 @@
 ---
 name: wiki
-description: "Operate the private agent wiki and route repeated AUX friction into actionable papercuts. Use when searching captured knowledge, logging a durable gotcha or decision, or seeing the same AUX issue recur."
+description: "Search and capture durable agent knowledge in the private wiki via the `wiki` CLI, including repeated AUX friction. Use to look up known facts or log a gotcha, papercut, note, or decision."
 ---
 
 # Wiki
 
-Use the `wiki` CLI as the only read and capture interface. The librarian owns the compiled vault.
-
-## Workflow
-
-1. Run `wiki index` to browse or `wiki search "<terms>"` before re-deriving known facts.
-2. Capture one durable item with the narrowest category:
-   - `wiki gotcha "<symptom, cause, and fix>"`
-   - `wiki papercut "<repeated friction and desired improvement>"`
-   - `wiki note "<durable fact>"`
-   - `wiki decision "<chosen boundary and reason>"`
-3. Keep the item to one line. Add `--source repo|crew|article` only when the live source differs from the default session.
-4. Let the CLI write to the inbox. Never edit the compiled wiki directly.
-
-## AUX feedback
-
-1. Treat AUX friction as repeated after the same avoidable issue occurs twice in one task or the same workaround recurs in separate contexts.
-2. File an AUX request only when AUX can shorten the correct path: repository detection, tool or vault discovery, credential-mode selection, launch commands, safe stops, or owner handoffs.
-3. Do not classify an intentional policy denial, missing service mapping, expired credential, provider outage, or repository defect as AUX friction. Route it to its operational owner.
-4. Search `wiki search "AUX request <keywords>"` before capture. Do not duplicate an existing request unless this run adds a distinct recurrence context.
-5. After the main task reaches a safe checkpoint, capture:
+The `wiki` CLI is the only read/write path. It writes to an inbox. The librarian compiles `~/vaults/wiki`, and you never write there.
 
 ```sh
-wiki papercut "AUX request: <desired behavior>. Repeated friction: <issue and count or contexts>. Owner fit: <why AUX should solve it>."
+wiki index | wiki search "<terms>"                 # before you re-derive something known
+wiki gotcha "<symptom, cause, fix>"
+wiki papercut "<repeated friction, desired fix>"
+wiki note "<durable fact>"
+wiki decision "<boundary chosen, reason>"
 ```
 
-## Hard rules
+- One line per item. Add `--source repo|crew|article` only when the source is not the session. Add `--foxway` for Foxway content when the path does not already show it.
+- Never capture secrets, secret-bearing URLs, sensitive bodies, or env dumps. If the task forbids external writes, report the item instead.
 
-- Do not interrupt the main task for a one-off preference or speculative nice-to-have.
-- Do not capture a credential value, private key, secret-bearing URL, sensitive response body, or broad environment content.
-- If the task forbids external writes, report the candidate request without calling `wiki`.
-- Add `--foxway` when the content is Foxway-related and the current path does not make that ownership clear.
-- Do not write under the compiled wiki directory. The CLI inbox is the only write path.
+## AUX requests
 
-## Output
-
-Report the search terms and matched pages, or the capture category and safe title. For AUX feedback, say whether the request was captured, deduplicated, or only reported because writes were forbidden.
+- File one only after the same avoidable AUX issue happens twice in a task, or the same workaround recurs across contexts. It must be something AUX could shorten: repo detection, tool or vault discovery, credential-mode choice, launch commands, safe stops, owner handoffs.
+- Policy denials, missing mappings, expired creds, outages, and repo defects are not AUX friction. Send those to their owner.
+- Dedupe first with `wiki search "AUX request <keywords>"`. Capture at a safe checkpoint:
+  `wiki papercut "AUX request: <desired behavior>. Repeated friction: <issue, count/contexts>. Owner fit: <why AUX>."`

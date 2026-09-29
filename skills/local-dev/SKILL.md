@@ -1,41 +1,25 @@
 ---
 name: local-dev
-description: "Operate local route/worktree topology and secret-safe credential handoffs. Use when configuring Portless, a development proxy, an isolated worktree route, tailnet-reachable endpoints, or named-secret injection."
+description: "Local routes (Portless, dev proxies, worktree routes, tailnet publishing) and secret ownership (Infisical imports, Keychain issuers, named-secret injection). Use for any of these."
 ---
 
-# Local Development
+# Local development
 
-Operate the local topology or credential boundary that a repository cannot infer without live machine evidence.
+Secret ownership and injection: `references/secrets.md`.
 
-## Route
+## Routes and proxies
 
-Read only the selected reference.
+- Use the URL that the running tool or its status command prints. Never guess a hostname, port, or service name.
+- Concurrent worktrees get distinct task-derived route names. Inspect an existing registration before you replace it. Stop if its owner is unclear.
+- Do not publish an internal service, change trust settings, or store access values without explicit authorization.
+- Browser interaction belongs to `local-http-browser-use`. This skill covers only reachability.
 
-| Mode | Select when | Read |
-| --- | --- | --- |
-| `topology` | starting or resolving a Portless route, worktree-scoped route, development proxy, tailnet-reachable endpoint, or reachability path | `references/topology.md` |
-| `secrets` | handing required credential names to an existing local injector without revealing values | `references/secrets.md` |
+## Tailnet publishing
 
-Select exactly one mode. Combine them only when a topology operation also needs an authorized named credential.
-
-## Do not use when
-
-- A named injector or Agent Vault tool operation is requested; its provider-specific skill owns exact commands.
-- Browser interaction rather than local reachability is requested; `local-http-browser-use` owns the browser operation.
-- The request is only generic sandbox selection or project-context writing with no route or secret boundary.
-
-## Workflow
-
-1. Inspect repository conventions, installed tools, configuration, and live status before selecting a mode.
-2. Read only the selected reference and keep machine-specific values in live configuration rather than canonical prose.
-3. Verify the resulting route, reachability path, or named-credential receipt from its authoritative local source.
-
-## Hard rules
-
-- Do not store, print, summarize, or copy credential values. The `secrets` mode may pass names and inject values only for the user's exact authorized operation.
-- Do not freeze hostnames, ports, URLs, or paths in canonical content; discover them from config/status.
-- Keep filesystem cleanup within the requested scope and prefer Trash when practical. Preserve unrelated files, uncommitted changes, branches, and Git history.
-
-## Output
-
-Report the selected mode, live source of truth, verified route or safe credential identifiers, operation status, and any stop condition.
+- `.localhost` routes are loopback-only on every device, so they cannot cross machines. Keep the local proxy and tailnet naming side by side. Do not chain them.
+- Surfaces, cheapest first (confirm support in the CLI help): a path prefix on the node hostname, a distinct port, or a named service with its own virtual address (needs tenant-side setup, so verify it exists).
+- Tailnet-only and public publishing are different verbs. Never use public publishing for a tailnet reachability problem, and never enable it without explicit authorization.
+- Read the live serve config first. Every existing mount belongs to someone. Add a mount; never reset or replace one. If a path is taken, pick another.
+- Bind the backend to loopback. Binding all interfaces also exposes it to the LAN.
+- Prefix trap: the proxy usually strips the prefix (verify it). A page with relative assets must load from a path that ends in `/`. Without the slash, relative URLs resolve one level up and silently half-load. The proxy answers both spellings. Fix it with a path-normalizing guard that runs before subresources load, not a hard-coded base URL.
+- Verify from the tailnet name, not loopback: the document, one asset, and one API path through the prefix; the no-slash spelling; existing mounts unchanged; a real browser load with no failed subresources. Report the URL the tool printed and the exact command that removes only your mount.
