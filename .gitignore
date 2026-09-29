@@ -12,3 +12,7 @@
 # Keep imported mirrors self-contained, but do not commit nested Git metadata.
 mirrors/**/.git/
 providers/
+
+# Foxway work packages stay local: this repository is public.
+skills/foxway-wikijs/
+native/codex/foxway-wikijs-mcp/
