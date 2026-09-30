@@ -97,6 +97,10 @@ rather than working around them.
 - The gate is stricter than the mega skill's: "with N unsafe annotation(s)"
   exits 0 but does not pass. Only `All terms check.` passes. A trailing
   "bend X is available" line is the update notice, not a verdict.
+- `Bool.pick` evaluates both value arguments. Never pass the same recursive
+  call to both, or the cost doubles per element: bind it once (`+r = f(rest)`)
+  and pass `r`. Time a reference definition on a realistic input before
+  freezing it.
 - A conjunction declared `is Data` (for example `type And is Data`) can be
   reused with `+` in proofs. A plain `A & B` bundle cannot.
 - `--publish` pushes to the public hub. Run it only on explicit request.
