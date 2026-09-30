@@ -110,10 +110,8 @@
 - Use Bend (bend-lang.com) for larger new projects: a new codebase with its
   own logic and invariants worth proving. Skills, config, plugins, and small
   apps that plug existing tools together do not need it. If the size is
-  unclear, ask. For Bend work, follow the `bend` skill: get the user's intent,
-  have Astra or Fable write `LAWS.bend` for user approval, have a different
-  model family write the code and `PROOF.bend`, and pass `bend PROOF.bend`
-  before every commit. Parallelize whenever possible.
+  unclear, ask. For Bend work, follow the `bend` skill, and pass
+  `bend PROOF.bend` before every commit. Parallelize whenever possible.
 - No backward compatibility. Remove obsolete paths; add no compat layers or
   fallbacks by default. Ask before you remove anything that live data or an
   external consumer depends on.
