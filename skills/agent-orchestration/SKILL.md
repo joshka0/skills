@@ -48,11 +48,23 @@ and let the user decide.
   failing case, and a line on what a pass does not prove. A clean verdict names
   what it checked, in proportion to the scope. Agents that share one source or premise
   count as one confirmation.
+- When stakes are real, use two blind reviewers from different families.
+  Keep each verdict and its notes from the other reviewer until both are in.
+  On a split, a third reviewer decides, or you decide from both notes. Never
+  average the verdicts. Give each reviewer its own worktree, and make sure it
+  cannot read the other's notes or session transcripts.
+- Accept the exact commit that was reviewed. If the branch moved after the
+  review, review the new commit.
+- To test whether an artifact conveys its intent without its explanations,
+  use `cold-read`.
 
 ## Delegation
 
 - One level only: each agent owns a complete task and must not sub-delegate.
 - Serialize shared interfaces, migrations, and overlapping writes. Give parallel writers isolated worktrees.
+- Freeze the acceptance check before you dispatch, and name it in the brief.
+  An implementer never writes or changes the check that gates its own work;
+  a separate agent writes it.
 - Keep Git, publishing, and external side effects with the supervisor unless delegated.
 - A wait timeout means keep waiting. Intervene only on a crash, a stall, or a block for input.
 - If a model is unavailable, report it. Astra can fall back to Sol. Moving off one agent's rate limit is fine; cycling models to evade an account-wide quota or a policy denial is not.

@@ -34,6 +34,7 @@ herdr pane run <id> "<self-contained brief>"
 - Use one pane per task, labeled with its role. Reuse a pane only for follow-ups to its own task.
 - Start the plain interactive TUI, wait until it is ready, and then send the prompt. For a long or interactive task, never pass the task as an argv prompt and never add non-interactive flags unless the user asks. A short one-shot query may use the harness's non-interactive mode.
 - `pane run` sends the text and Enter together. Use `send-text`/`send-keys` only for input that must not submit yet.
+- A successful `pane run` does not prove that the brief landed. A fresh agent reports `idle` before its TUI takes input, so a brief sent right after launch can be lost. After you send it, run `herdr agent wait <id> --until working --timeout 30000`. On a timeout, read the pane. If the input box is empty and the agent is idle, send the brief again.
 - `agent send <target> '<text>'` writes literal text. Some integrations do not auto-submit, so read afterward and send Enter if needed. Prefer pane IDs when agent names can collide.
 - Default to a sibling split in the current tab and cwd. Create a workspace, tab, or other cwd only when the user asks.
 - Parallel writers on one repo each get `herdr worktree create --cwd <repo> --branch <task> --label <task> --no-focus`.
