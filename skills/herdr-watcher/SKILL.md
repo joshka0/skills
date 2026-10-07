@@ -24,6 +24,7 @@ Arm the resource from the origin pane, confirm it is durable, and end your turn.
 - The first probe runs at once, then waits a fixed delay after each pending result. Argv runs with no shell. The executable is canonicalized and the cwd is captured, so resolve paths with `command -v`.
 - Exit `0`: match, one callback. Exit `1`: pending (resets errors). Exit `2+`, spawn failure, signal, or timeout: an error that uses the budget.
 - The probe must be read-only. Put the action in the callback message, never in the probe.
+- Start the callback message with `[agent <your pane label>]`, so the fleet memory does not record it as the operator's words.
 - A match, a permanent failure, or the deadline each give one callback. Cancel gives none.
 - After a zero exit, capture the `continuation-...` ID and run `show <id> --json`. Check the origin binding, command, cadence, deadline, and message. If it is `armed`, end your turn and do not poll in parallel. If the first probe already finished it, inspect the delivery. That is not a lost registration.
 
