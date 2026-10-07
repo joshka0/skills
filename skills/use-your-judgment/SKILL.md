@@ -47,5 +47,5 @@ The user's invocation is the go-ahead for all in-remit work. Do not ask inside t
 - Stop when no in-remit ready work remains. An empty `br ready` is not done: separate blocked, stale-claimed, and truly empty.
 - Lead the report with what a user can now see or do. Then list closed beads with evidence, blocked beads with the decision each needs, and what was not verified. Replace "should work" or "robust" with evidence or "unverified".
 - Name the moment you would most want to explain if the user replayed the session.
-- Log a failed approach that a future agent would likely retry, with the condition that would reopen it: `wiki decision "<approach> failed: <why>; retry if <condition>"`.
+- State a failed approach that a future agent would likely retry in your report, with the condition that would reopen it: "<approach> failed: <why>; retry if <condition>". The fleet memory keeps it.
 - Ask the batched out-of-remit decisions in one AskUserQuestion, your recommendation first.

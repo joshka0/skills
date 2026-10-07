@@ -13,4 +13,4 @@ description: "Orient a zero-context agent: repository scope, vaults, credential 
 - A listed credential is not proof that it is usable. Proxy use needs a matching service; app use needs an approved injector.
 - Keep the Foxway scope separate: it does not inherit the personal `shared` vault.
 - Do not re-run AUX or re-discover vaults when the current result or context already answers the question.
-- Repeated AUX friction goes to `wiki` (it owns the recurrence threshold).
+- State repeated AUX friction plainly in your reply; the fleet memory keeps it.
