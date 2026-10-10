@@ -134,9 +134,11 @@ Defender and `fseventsd` then scan) take most of the CPU from other agents.
 - Start the Bend agent in a remote Herdr pane on the dev box (`herdr`
   skill, remote machines). Give it a clone or worktree under
   `~/repos` on the dev box, and move results back through git.
-- The dev box has no `bend` and no `clang` yet. Before the first run, check
-  `command -v bend clang` there. If either is missing, report it to the user
-  and stop the remote step. Never install either one yourself.
+- Before the first remote run, check `bend version` and `command -v clang`
+  on the dev box. A native build (`-o`) needs clang 14 or newer; without it,
+  only the interpreter runs. Use the same Bend version on both hosts. If a
+  tool is missing or a version differs, report it to the user. Never install
+  or update either one yourself.
 - On the Mac, run only a single small check that a task needs right now, and
   check `local-procs load` first.
 - A benchmark is valid only for the machine that ran it. The dev box is
