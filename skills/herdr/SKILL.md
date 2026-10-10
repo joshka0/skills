@@ -43,6 +43,14 @@ herdr pane run <id> "<self-contained brief>"
 - Parallel writers on one repo each get `herdr worktree create --cwd <repo> --branch <task> --label <task> --no-focus`.
 - Launch agents through `av-agent`, as above, so mapped API keys work without the agent seeing them (`agent-vault`). For Foxway work, launch the bare agent.
 
+## Remote machines
+
+- `herdr --machine "<label>" <command>` runs any Herdr command against a saved SSH machine's server. Get the label from `herdr machine list`. The dev box label is `dev box`, not the SSH alias `dev`. An unknown label fails with `unknown machine`.
+- Remote IDs and paths belong to the remote server. Pass `--machine` on every call that targets them, and use absolute remote paths for `--cwd`. Get the remote home with `ssh dev 'echo $HOME'`.
+- When a skill sends work to a remote machine, create a labeled workspace there for it (`workspace create --cwd <path> --label <task> --no-focus`).
+- The dev box has no `av-agent` and no `mem`. Launch the bare agent there, and report a step that needs a vault-injected key.
+- The dev box also holds Foxway repositories. The Foxway model bans apply to every agent you start there.
+
 ## Wait and read
 
 - Status: `idle` and `done` are the same state (at the prompt). `done` means the result is unseen: the agent finished in a background tab, or while the client was unfocused. Focusing the pane turns `done` into `idle`. A fresh agent reports `idle`.

@@ -125,11 +125,29 @@ A change to a law goes back through steps 1–4. A change to definitions only
    prover repairs `PROOF.bend` and `proof/` and runs the gate.
 5. The user approves. Tag `spec-frozen-<n+1>` and `kernel-proven-<n+1>`.
 
+## Where to run
+
+Run Bend proof, review, and fan-out work on the dev box, not on this Mac.
+On the Mac, `bend`, its `clang` builds, and the run-directory churn (which
+Defender and `fseventsd` then scan) take most of the CPU from other agents.
+
+- Start the Bend agent in a remote Herdr pane on the dev box (`herdr`
+  skill, remote machines). Give it a clone or worktree under
+  `~/repos` on the dev box, and move results back through git.
+- The dev box has no `bend` and no `clang` yet. Before the first run, check
+  `command -v bend clang` there. If either is missing, report it to the user
+  and stop the remote step. Never install either one yourself.
+- On the Mac, run only a single small check that a task needs right now, and
+  check `local-procs load` first.
+- A benchmark is valid only for the machine that ran it. The dev box is
+  x86_64 and the Mac is arm64. Record the host with every timing, and never
+  compare timings across hosts.
+
 ## CPU budget
 
-Several agents run Bend on this Mac at the same time, and every `bend` check
-and every built binary competes for the same cores (16 logical: 12 P, 4 E;
-`sysctl hw.perflevel0.logicalcpu hw.perflevel1.logicalcpu`).
+Several agents run Bend on the same machine at the same time, and every
+`bend` check and every built binary competes for the same cores (16 logical
+on the Mac and on the dev box).
 
 - Run at most 4 Bend processes at a time per agent. Set a runner's `--jobs`
   to 4 or less. Never set it to the CPU count.
@@ -138,11 +156,12 @@ and every built binary competes for the same cores (16 logical: 12 P, 4 E;
   more run, use 2 jobs, or wait.
 - Your Bend workers share your budget of 4. Put each worker's `--jobs` and
   `--threads` caps in its brief.
-- Time a benchmark only on a quiet machine: no other `bend` process, and
-  `local-procs load` reports free CPU of at least 200% per benchmark thread
-  (800% for `--threads 4`). Do not use the load average: on this Mac it stays
-  far above the core count even when cores are free. Otherwise record the
-  `load` output with the result and mark it contended.
+- Time a benchmark only on a quiet machine: no other `bend` process, and at
+  least 200% free CPU per benchmark thread (800% for `--threads 4`). On the
+  Mac, read free CPU from `local-procs load`, not the load average: the Mac's
+  load average stays far above the core count even when cores are free. On
+  the dev box, read it from `top -bn1`. Otherwise record the measurement with
+  the result and mark it contended.
 
 ## Writing Bend
 
