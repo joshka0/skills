@@ -3,7 +3,7 @@
 ## Trace one correlation ID
 
 ```text
-phone WAV -> transcript -> pending draft -> committed draft -> outbound to named Executive
+phone WAV -> transcript -> pending draft -> committed draft -> outbound to the bound Executive pane
   -> Executive result -> queued speech -> phone playback -> complete/fail/skip ack
 watched manager -> manager event -> Executive brief -> speech or tracked clarification -> reviewed manager answer
 ```

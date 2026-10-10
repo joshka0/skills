@@ -18,7 +18,7 @@ The main worker seals an exact verification packet each epoch. After the pinned 
 
 - Required inputs: a measurable goal with criterion IDs, the cwd and authoritative files, max epochs, an overall deadline, settle/wake/verifier timeouts, and the allowed verification side effects. If the goal is vague, settle it with the user first.
 - Run `start` inside the main Codex pane with every bound. Capture the goal ID.
-- Verify that it created one no-focus sibling pane in that cwd, with the pane and agent sharing the goal-specific name, running `codex -m gpt-5.6-luna -c model_reasoning_effort=max --no-alt-screen`. Re-read: both identities are pinned, and epoch 1 is active.
+- Verify that it created one no-focus sibling pane in that cwd, with the pane and agent sharing the goal-specific name, running Luna through `codex -m <luna-id> -c model_reasoning_effort=max --no-alt-screen` (the ID that goal pins). Re-read: both identities are pinned, and epoch 1 is active.
 - Goal handles its own `READY` bootstrap (sent when SessionStart has not yet exposed the session) and a bounded `agent_pane_busy` retry. Never reproduce either by hand. Never send Luna a goal prompt; it gets work only through a sealed packet.
 - Let goal derive the verifier label. Agent names are at most 32 bytes, lowercase, from a restricted alphabet.
 - If start fails, report the created resources. Close only a pane this attempt created, and only when live state proves it is safe.

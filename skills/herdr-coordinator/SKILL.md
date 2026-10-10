@@ -119,9 +119,9 @@ hc events subscribe --after '{"journalId":"J","sequence":"N"}'
 - Delivery is pull/wait. The coordinator never types into a pane. It cannot
   wake an idle agent.
 - `hc hook claude` and `hc hook pi` add one mail offer at the start of a turn.
-  They are not installed in the live Claude or Pi settings. `capabilities`
-  reports `turnHooks: false` until they are.
-- Herdr 0.9.1 has no conditional input or native queue. `agent interrupt`
+  To see whether they are installed, check `turnHooks` in `capabilities`.
+- Herdr has no conditional input or native queue; check `herdr agent --help`
+  before you build around that. `agent interrupt`
   sends keys only to the current binding generation. `sent` means Herdr took
   the input, not that the process stopped.
 
@@ -166,8 +166,8 @@ all sequence numbers, so cursors stay valid.
 5. Run ensure-service. Check `status` and consumer lag.
 
 If the socket path is longer than 104 bytes (the macOS limit), `admin compact`
-fails with `connect EINVAL` and does not run. This is a known bug. The live
-path is short enough. For a rehearsal, copy the journal to a short directory
+fails with `connect EINVAL` and does not run. This is a known bug. For a
+rehearsal, copy the journal to a short directory
 such as `/tmp/hcx-XXXX`.
 
 ## Development

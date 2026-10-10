@@ -9,12 +9,14 @@ Everything below is a recorded baseline. Before you change, diagnose, or recover
 
 ## Baseline
 
-- Infisical runs on `ssh vps` and is the only source of truth. The old local Infisical stays intact until the VPS and its clients prove stable.
+- Infisical runs on `ssh vps` and is the only source of truth. Do not remove the old local Infisical without the user's word.
 - One Agent Vault broker runs on `vps` as a system service, bound only to the Tailnet address. The `shared` and `skills` vaults read the Infisical dev environment. Check sync status before use.
+- `shared` uses `unmatched_host_policy=passthrough` so Herdr agent panes can run through it. Its admin UI is `http://<vps-ip>:14321`, where `<vps-ip>` is the output of `ssh vps tailscale ip -4`; the `ts.net` name fails in browsers because `ts.net` is HSTS-preloaded and the broker serves plain HTTP.
+- `shared` syncs only `/shared/agent-vault`: secret references (`${dev.shared.vendors.<vendor>.<KEY>}`) to the real values, which stay in their vendor folders. The broker reads one folder, without subfolders or imports, but expands references. To map a key, publish its reference there, then add the service.
 - Clients: the Mac central launcher, and a client-only install on `ssh dev`. Identities: Mac `local-codex`, dev `dev-herdr`. Both have no instance access and only `proxy` grants for `shared` and `skills`.
-- The old Mac loopback broker is preserved but not a rollback: its sync expired and its DB is malformed. Do not repair or remove it until the user picks a recovery action.
+- The old Mac loopback broker is not a rollback. Do not repair or remove it without the user's word.
 - Encrypted Restic backups of both services go to a private R2 bucket (details: `references/backup-and-restore.md`).
-- No write-only publisher is verified as installed. Secret create/update stops until `infisical-secret-publish` exists and passes its capability checks.
+- The write-only publisher is `$HOME/.local/bin/infisical-secret-publish <path> <KEY>`. It writes to `home-root` `dev` only, under `/shared/*` or `/repos/*` (not the `/shared` root), and it cannot create folders: a missing folder returns HTTP 404. Create the folder first with the logged-in CLI (`infisical secrets folders create`).
 
 ```text
 Infisical (vps) ──┐
@@ -45,7 +47,7 @@ Agent Vault (vps) ┘
 1. Confirm the exact project, env, path, key, and action are authorized, and that the path fits the boundaries above.
 2. Publish via stdin. Check only the result metadata.
 3. Wait for the Agent Vault sync status `ok` (discover the poll interval live).
-4. Run `agent-vault vault discover --json` through the vault. Test one allowed request and one deliberate deny.
+4. Run `agent-vault vault discover --json` through the vault. Call one authenticated endpoint through the proxy and again without it. Expect success, then 401.
 5. A new host, header, or service rule is a separate policy change done by a human admin. A sync never creates a mapping.
 
 Rotation order: new upstream credential, publish, sync, test the consumer, revoke the old one last. Stop before revoke if the test fails.

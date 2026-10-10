@@ -7,6 +7,8 @@ description: "Operate Herdr workspaces, panes, and agent transport from its CLI.
 
 Herdr is a terminal multiplexer and runtime for coding agents. Drive it only through its CLI.
 
+For a daemon that runs as a Herdr plugin (`herdr-plugin.toml`, a service pane, a startup command), use the `herdr-plugin-service` skill.
+
 ## Preflight
 
 - Require `HERDR_ENV=1`. If it is not set, say so and stop, unless the user names the exact target. Never control the user's focused session from outside Herdr. Never use `--current` or omit a target.
@@ -25,20 +27,21 @@ Herdr is a terminal multiplexer and runtime for coding agents. Drive it only thr
 herdr pane layout --pane "$HERDR_PANE_ID"                                   # wide pane: split right; tall pane: split down
 herdr pane split --pane "$HERDR_PANE_ID" --direction right --no-focus      # read result.pane.pane_id
 herdr pane rename <id> "<role>"                                             # required, before work starts
-herdr pane run <id> "codex"                                                 # or claude, pi, opencode, omp
+herdr pane run <id> "av-agent codex"                                        # or claude, pi, opencode, omp
 herdr agent wait <id> --until idle --timeout 30000
 herdr pane run <id> "/rename <role>"                                        # only if the agent's slash help lists it
 herdr pane run <id> "<self-contained brief>"
 ```
 
 - Use one pane per task, labeled with its role. Reuse a pane only for follow-ups to its own task.
-- Start the plain interactive TUI, wait until it is ready, and then send the prompt. For a long or interactive task, never pass the task as an argv prompt and never add non-interactive flags unless the user asks. A short one-shot query may use the harness's non-interactive mode.
+- Never run a child agent headless, even for a short query: no `codex exec`, `claude -p`, `droid exec`, or prompt in argv. The user watches child agents in their panes, and panes run in parallel. Start the plain interactive TUI (a launch flag such as `codex -m <id>` is fine), wait until it is ready, and then send the prompt with `pane run`.
 - `pane run` sends the text and Enter together. Use `send-text`/`send-keys` only for input that must not submit yet.
 - A successful `pane run` does not prove that the brief landed. A fresh agent reports `idle` before its TUI takes input, so a brief sent right after launch can be lost. After you send it, run `herdr agent wait <id> --until working --timeout 30000`. On a timeout, read the pane. If the input box is empty and the agent is idle, send the brief again.
+- Start every message you type into another agent's pane, including callbacks, with `[agent <your pane label>]`. The fleet memory then does not record it as the operator's words.
 - `agent send <target> '<text>'` writes literal text. Some integrations do not auto-submit, so read afterward and send Enter if needed. Prefer pane IDs when agent names can collide.
-- Default to a sibling split in the current tab and cwd. Create a workspace, tab, or other cwd only when the user asks.
+- Put child agents where the user can see them: a sibling split in your tab, or a new tab in your workspace when the tab is full. Create a workspace or use another cwd only when the user asks.
 - Parallel writers on one repo each get `herdr worktree create --cwd <repo> --branch <task> --label <task> --no-focus`.
-- A credential-bearing task gets its own `credential-worker-<vault>` pane. Follow `agent-vault`. Never wrap the model TUI.
+- Launch agents through `av-agent`, as above, so mapped API keys work without the agent seeing them (`agent-vault`). For Foxway work, launch the bare agent.
 
 ## Wait and read
 
@@ -78,5 +81,5 @@ herdr pane run <coordinator-pane-id> 'DONE <label>: <one-line summary>'      # o
 - Test `herdr update` or live handoff against real sessions. A named session does not isolate `herdr update`: it targets every session under `XDG_CONFIG_HOME`. For these tests, point `XDG_CONFIG_HOME`, `XDG_RUNTIME_DIR`, and `XDG_STATE_HOME` at a temp base, pass `--session`, and check that `session list` shows only temp sockets.
 - Send secrets through Herdr.
 - Use `herdr notification show` for agent-to-agent transport. It is for user-visible status only.
-- Ask another agent to write git state outside its own assigned worktree, install packages, or edit generated areas without the user's approval. Git inside its own worktree is fine.
+- Ask another agent to write git state outside its own assigned worktree, install packages, or edit generated areas unless its brief grants that. Git inside its own worktree is fine.
 - Continue when the target is ambiguous. Stop and report. If live help disagrees with a read-only command, use the live syntax. If it disagrees with a mutating command, stop and report.

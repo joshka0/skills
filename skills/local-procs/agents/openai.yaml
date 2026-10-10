@@ -1,0 +1,4 @@
+interface:
+  display_name: "Local processes"
+  short_description: "Find process owners, repo servers, daemons, and CPU load"
+  default_prompt: "Use $local-procs to find who owns this port or process before you stop it."

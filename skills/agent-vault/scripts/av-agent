@@ -1,0 +1,29 @@
+#!/bin/sh
+# Launch an agent through the Agent Vault proxy for the current repo.
+# The vault comes from the nearest agent-vault.json up to the git root;
+# without one, the agent uses `shared`.
+set -eu
+
+[ "$#" -ge 1 ] || { echo "Usage: av-agent <agent> [args...]" >&2; exit 64; }
+
+vault=shared
+dir=$(pwd -P)
+root=$(git rev-parse --show-toplevel 2>/dev/null || printf '%s' "$HOME")
+while :; do
+  if [ -f "$dir/agent-vault.json" ]; then
+    vault=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["vault"])' "$dir/agent-vault.json")
+    break
+  fi
+  [ "$dir" = "$root" ] || [ "$dir" = / ] && break
+  dir=$(dirname "$dir")
+done
+
+# Foxway ban: these vendors never get Foxway credentials.
+case "$vault" in
+  foxway*)
+    case "$(basename "$1")" in
+      droid|grok|devin) echo "av-agent: $1 is banned from Foxway vaults" >&2; exit 77 ;;
+    esac ;;
+esac
+
+exec agent-vault-run "$vault" -- "$@"

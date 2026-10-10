@@ -5,7 +5,7 @@
 - `cloudflare-token-mint` (on `PATH`) owns the one host-wide bootstrap in Keychain: service `com.joshka.cloudflare-token-factory`, account `bootstrap`. Never use or recreate `com.tryshepr.cloudflare-token-factory`.
 - Preflight: `cloudflare-token-mint --check-keychain` (needs local user auth; reports presence only). Stop if the broker is missing, the check fails, or the old service still exists. Never read the Keychain from a shell.
 - Every mint needs device-owner approval. Agents never get Keychain read access or a plaintext child.
-- New bootstrap value in an authorized temp env file: move it into Keychain without printing it, verify it in memory, trash only that entry, and confirm it is gone.
+- New bootstrap value in an authorized temp env file: move it into Keychain without printing it, verify it in memory, delete only that entry, and confirm it is gone.
 
 ```text
 cloudflare-token-mint --name <token-name> --zone <zone> \

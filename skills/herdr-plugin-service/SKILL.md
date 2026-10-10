@@ -101,8 +101,7 @@ pane keeps its old command until you reopen it.
    the daemon's startup log in the pane (`herdr pane read <pane>`), and one
    real request through the socket.
 
-Never kill by pattern. On macOS, `pkill` is BSD: every argument after the
-pattern is another pattern.
+Never kill by pattern (see `local-procs`).
 
 ## Test the start path
 
@@ -117,8 +116,7 @@ pattern is another pattern.
 ## Debug
 
 - If the service pane shows a shell and no daemon runs, close the pane and
-  run ensure-service. On 2026-10-07 the blackboard router was found this way;
-  the cause is unknown.
+  run ensure-service.
 - To see what a plugin command printed, run
   `herdr plugin log list --plugin <id>`.
 - To see the manifest Herdr uses, check `herdr plugin link` output or

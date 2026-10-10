@@ -5,7 +5,7 @@ description: "Operate the Herdr Executive: drafts, manager attention, clarificat
 
 # Herdr Executive
 
-User turns, manager attention, Executive review, and phone speech are separate state. Pane transport and agent names: `herdr`. End-to-end delivery diagnosis, Swift/gateway changes, live restarts, TestFlight: `references/delivery-and-shepr.md`.
+User turns, manager attention, Executive review, and phone speech are separate state. Pane transport: `herdr`. End-to-end delivery diagnosis, Swift/gateway changes, live restarts, TestFlight: `references/delivery-and-shepr.md`.
 
 ## Resolve and inspect
 
@@ -27,14 +27,15 @@ If neither path resolves, ask the user for the repo. Do not search `$HOME`. The 
 
 ```sh
 draft create '<turn>' | draft revise --id <id> '<text>' | draft commit --id <id> | draft cancel --id <id>
-manager add|remove <unique-agent-name> | manager pause|resume
+manager add [pane-id|agent-name] | manager remove [pane-id] | manager pause|resume
 manager resolve <event-id>                    # closes, no reply
 manager address <event-id> '<reviewed reply>' # resolves + queues a manager reply
 clarification ask --event <event-id> '<question>' | clarification answer <clar-id> '<answer>'
 speech enqueue --correlation <source-id> '<spoken text>' | speech skip <id> | speech next
 ```
 
-- There is only one pending draft. Commit sends it to the named Executive, never to a manager.
+- There is only one pending draft. Commit sends it to the Executive, never to a manager.
+- Managers are pane enrollments in the journal, not agent names. `manager add` and `manager remove` default to `$HERDR_PANE_ID`. The headless Executive has no `$HERDR_PANE_ID`, so it always passes the pane ID.
 - `pause` stops new captures and clears nothing. Answer a clarification by its ID, not its source event.
 - `speech skip` keeps history and does not resolve attention. `speech next` plays on the Mac, so it is not a phone test.
 - Bulk dismiss is Shepr's Dismiss / Dismiss all. Check help before you assume a CLI version exists.
@@ -45,7 +46,7 @@ speech enqueue --correlation <source-id> '<spoken text>' | speech skip <id> | sp
 - Never edit, truncate, or hand-repair `coordinator.jsonl`. Every transition goes through the CLI, control socket, or gateway. Never type into a manager pane instead of a journaled action.
 - Never forward raw or partial dictation to a manager. Only an explicit reviewed answer targets a manager.
 - An outbound `completed` means the prompt was submitted, not that the Executive responded. Speech or an observed result proves a response.
-- The agent name, pane label, and agent kind are separate facts. Swapping Claude for Codex in a pane can keep the label but drop the `executive` name. Check `herdr agent get executive`.
+- The Executive runs headless in `executive-host/` (launchd job `dev.herdr.executive-host`), not in a Herdr pane. If Executive outbound waits with "executive host unavailable", check that job and `executive-host.err.log` in the plugin state directory. Managers are pane enrollments; agent names are labels only, and Herdr clears them on agent exit.
 - Do not resolve, dismiss, skip, or bulk-clear items unless the user asked. Stop if the requested meaning differs from the transition (dismissal is not a reply; a skip is not resolution).
 - Never print or put in argv the phone bearer token, Apple credentials, Infisical values, Fish credentials, or secret-bearing URLs.
 - No TestFlight upload, signing change, or Tailscale Serve change without an explicit request.

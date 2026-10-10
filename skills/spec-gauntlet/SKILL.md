@@ -30,6 +30,6 @@ Skip it when no real invariant exists (UI copy, glue, one-off scripts). A decisi
 - The property author's world is a constructed orphan-branch worktree with only the spec, glossary, contract, and harness. Its initial commit is the isolation assertion. If that world cannot be seeded clean, stop.
 - Neither derivation brief mentions the other's report, worktree, or existence. After a spec amendment, re-derive from the amended spec, never from the triage discussion.
 - Every triage outcome appends a ledger entry. The final triage judgment is the human's. If evidence shows a requirement is incomplete, go back to the spec. There is no fixed retry count.
-- Teardown: keep the properties, reports, and unique work. Use Trash or a non-forced `git worktree remove` on a verified-clean tree. Keep the branches.
+- Teardown: keep the properties, reports, and unique work. Use a non-forced `git worktree remove` on a verified-clean tree. Keep the branches.
 - Close: invariants live on as committed properties, grill decisions become ADRs, and glossary terms become module doc comments. Archive `spec.md`, `glossary.md`, and `.reports/` under `docs/archive/<task>-gauntlet-<date>/` (the discipline is in `doc-triage`).
 - Report each stage: verdict line, findings with R/I citations, ledger entries appended, isolation evidence (orphan commit hash, `ls -R`), and the next stage.

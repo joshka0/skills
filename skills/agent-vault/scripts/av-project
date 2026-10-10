@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+"""Onboard a repo to its own Agent Vault vault.
+
+Run by a broker admin. Values never leave Infisical or the broker: the script
+publishes references (pointers) with the write-only publisher, compares
+values only as SHA-256 hashes inside `infisical run`, and reads the admin
+session token from its file without printing it.
+
+Usage:
+  av-project /repos/<owner>/<repo> [--repo-dir DIR] [--vault NAME]
+             [--services a,b] [--admin-home DIR] [--dry-run]
+"""
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+
+PROJECT_ID = "4cf07c20-ea10-4ecc-ae9d-bc5307cb0241"
+ENV = "dev"
+AGENTS = ["local-codex", "dev-herdr"]
+BROKER = Path.home() / ".vault/agent-vault/bin/agent-vault"
+PUBLISHER = Path.home() / ".local/bin/infisical-secret-publish"
+CATALOG = Path(__file__).resolve().parent.parent / "references/services.json"
+
+# Runs inside `infisical run`: prints {name: sha256} for the requested names.
+HASHER = (
+    "import hashlib,json,os,sys;"
+    "print(json.dumps({k: hashlib.sha256(os.environ[k].encode()).hexdigest()"
+    " for k in sys.argv[1:] if os.environ.get(k)}))"
+)
+
+
+def die(msg):
+    sys.exit(f"av-project: {msg}")
+
+
+def infisical_domain():
+    """The domain of the logged-in Infisical CLI session, without `/api`."""
+    cfg = Path.home() / ".infisical/infisical-config.json"
+    try:
+        url = json.loads(cfg.read_text()).get("LoggedInUserDomain") or ""
+    except (OSError, ValueError):
+        url = ""
+    if not url:
+        die(f"no LoggedInUserDomain in {cfg}; run `infisical login` first")
+    return url.removesuffix("/").removesuffix("/api")
+
+
+def run(cmd, env=None, input=None, check=True):
+    r = subprocess.run(cmd, env=env, input=input, capture_output=True, text=True)
+    if check and r.returncode != 0:
+        die(f"{cmd[0]} {cmd[1] if len(cmd) > 1 else ''} failed: {r.stderr.strip()[:300]}")
+    return r
+
+
+def hashes(path, names):
+    """Return {name: sha256} for names present at an exact Infisical path."""
+    r = run(["infisical", "run", "--silent", "--domain", infisical_domain(),
+             "--projectId", PROJECT_ID, "--env", ENV, "--path", path, "--",
+             "python3", "-c", HASHER, *names], check=False)
+    for line in reversed(r.stdout.splitlines()):
+        if line.startswith("{"):
+            return json.loads(line)
+    return {}
+
+
+def ref_path(ref):
+    """'${dev.shared.vendors.openai.KEY}' -> ('/shared/vendors/openai', 'KEY')."""
+    parts = ref.strip("${}").split(".")[1:]
+    return "/" + "/".join(parts[:-1]), parts[-1]
+
+
+def broker(args, admin_home, check=True):
+    env = dict(os.environ, HOME=admin_home, AGENT_VAULT_TELEMETRY="false")
+    return run([str(BROKER), *args], env=env, check=check)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("path", help="Infisical repo folder, e.g. /repos/personal/praze")
+    ap.add_argument("--repo-dir", help="local repo root that gets agent-vault.json")
+    ap.add_argument("--vault", help="vault name (default <owner>-<repo>-dev)")
+    ap.add_argument("--services", help="comma-separated catalog names (default: all with a key)")
+    ap.add_argument("--admin-home", default=os.environ.get("AGENT_VAULT_ADMIN_HOME"),
+                    help="HOME of an `agent-vault auth login` admin session")
+    ap.add_argument("--dry-run", action="store_true")
+    a = ap.parse_args()
+
+    parts = a.path.strip("/").split("/")
+    if len(parts) != 3 or parts[0] != "repos":
+        die("path must be /repos/<owner>/<repo>")
+    if parts[1] == "foxway":
+        die("Foxway repos are out of scope for this tool")
+    vault = a.vault or f"{parts[1]}-{parts[2]}-{ENV}"
+    refs_folder = f"{a.path}/agent-vault"
+    if not a.admin_home or not (Path(a.admin_home) / ".agent-vault/session.json").is_file():
+        die("set --admin-home (or AGENT_VAULT_ADMIN_HOME) to an admin session HOME")
+
+    catalog = json.loads(CATALOG.read_text())["services"]
+    wanted = a.services.split(",") if a.services else list(catalog)
+    unknown = [s for s in wanted if s not in catalog]
+    if unknown:
+        die(f"not in the catalog: {', '.join(unknown)}")
+
+    # Decide each service's reference. A project key that equals the shared
+    # value is a copy, so the shared reference wins (one source of truth).
+    project_names = sorted({k for s in wanted for k in catalog[s]["project_keys"]})
+    project = hashes(a.path, project_names)
+    plan = []
+    for name in wanted:
+        svc = catalog[name]
+        own = next((k for k in svc["project_keys"] if k in project), None)
+        shared_hash = None
+        if svc.get("shared"):
+            sp, sk = ref_path(svc["shared"])
+            shared_hash = hashes(sp, [sk]).get(sk)
+        if own and project[own] != shared_hash:
+            seg = ".".join(a.path.strip("/").split("/"))
+            plan.append((name, svc, "${%s.%s.%s}" % (ENV, seg, own), f"project {own}"))
+        elif shared_hash:
+            plan.append((name, svc, svc["shared"], "shared"))
+        else:
+            print(f"skip {name}: no project or shared key")
+    for name, svc, _, source in plan:
+        print(f"plan {name}: {', '.join(svc['hosts'])} <- {svc['key']} ({source})")
+    if a.dry_run or not plan:
+        return
+
+    # Infisical: the publisher cannot create folders, so the CLI does it.
+    run(["infisical", "secrets", "folders", "create", "--domain", infisical_domain(),
+         "--projectId", PROJECT_ID, "--env", ENV, "--path", a.path,
+         "--name", "agent-vault"], check=False)
+    for name, svc, ref, _ in plan:
+        r = run([str(PUBLISHER), refs_folder, svc["key"]], input=ref)
+        print(r.stdout.splitlines()[0])
+
+    # Broker: vault, grants, services, passthrough policy, sync.
+    existing = broker(["vault", "list"], a.admin_home).stdout
+    if f" {vault} " not in existing:
+        broker(["vault", "create", vault, "--credential-store", "infisical",
+                "--infisical-project-id", PROJECT_ID, "--infisical-environment", ENV,
+                "--infisical-path", refs_folder], a.admin_home)
+        print(f"created vault {vault}")
+    agents = broker(["vault", "agent", "list", "--vault", vault], a.admin_home).stdout
+    for agent in AGENTS:
+        if agent not in agents:
+            broker(["vault", "agent", "add", agent, "--role", "proxy", "--vault", vault],
+                   a.admin_home)
+    for name, svc, _, _ in plan:
+        for i, host in enumerate(svc["hosts"]):
+            sname = name if i == 0 else f"{name}-{i + 1}"
+            auth = (["--auth-type", "api-key", "--api-key-header", svc["header"],
+                     "--api-key-key", svc["key"]] if svc["auth"] == "api-key"
+                    else ["--auth-type", "bearer", "--token-key", svc["key"]])
+            broker(["vault", "service", "add", "--vault", vault, "--name", sname,
+                    "--host", host, *auth], a.admin_home)
+    session = json.loads((Path(a.admin_home) / ".agent-vault/session.json").read_text())
+    req = urllib.request.Request(
+        f"{session['address']}/v1/vaults/{vault}/settings", method="PATCH",
+        data=json.dumps({"unmatched_host_policy": "passthrough"}).encode(),
+        headers={"Authorization": f"Bearer {session['token']}",
+                 "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        print(f"policy passthrough: HTTP {resp.status}")
+    broker(["vault", "credential-store", "sync", vault], a.admin_home)
+    print(f"synced {vault}")
+
+    if a.repo_dir:
+        f = Path(a.repo_dir) / "agent-vault.json"
+        f.write_text(json.dumps({"vault": vault}, indent=2) + "\n")
+        print(f"wrote {f}")
+
+
+if __name__ == "__main__":
+    main()

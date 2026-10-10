@@ -18,8 +18,8 @@ Route each useful part to its owner:
   tracker publication is already authorized.
 - Historical design belongs in a dated archive marked as historical.
 - Superseded duplicates and scratch files can be retired after their useful
-  content is preserved and removal is in scope. Prefer `/usr/bin/trash` for
-  recoverable cleanup; preserve unrelated and uncommitted work.
+  content is preserved and removal is in scope. Preserve unrelated and
+  uncommitted work.
 
 Repair inbound links during conversion. Keep a review read-only and execute
 conversions when requested. Ask only about contested ownership or a consequential

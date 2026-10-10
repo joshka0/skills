@@ -1,26 +1,31 @@
 ---
 name: bend
-description: "Build Bend (bend-lang.com) code law-first: user intent, a spec (definitions + theorems) by Astra/Fable, independent review, proofs by another family. Use for larger new projects, .bend files, or laws."
+description: "Prove code in any language (TS, Rust, …) with Bend (bend-lang.com): a frozen spec, proofs by another family, native code diff-tested against the proven model. Use for logic worth proving."
 ---
 
 # Bend
 
-Bend is the language for larger new projects (not skills, config, or glue).
-It is a proof-checked language that compiles to native code, C, or JS and
-parallelizes across CPU cores and GPUs. It is early-stage: report real bugs
-rather than working around them.
+Bend proves a reference model of logic you ship in another language (TS,
+Rust, …). The model also runs, so it is the oracle: the native code passes
+differential tests against it. Model only decision logic worth proving
+(state machines, invariants, parsers, schedulers). Leave IO, UI, and glue
+native.
+
+Bend is early-stage: report real bugs rather than working around them.
 
 ## Workflow
 
 1. **Get the user's intent.** Ask one question at a time until every rule is
    explicit: inputs, outputs, edge cases, what must never happen. Record the
-   agreed rules, dated, in `INTENT.md`. Later answers go in new sections, and
-   the newest section wins. For a large spec, use `grill-me` spec mode. Do
+   agreed rules, dated, in `INTENT.md`. Also record the native module that
+   the model covers and its public interface. Later answers go in new
+   sections, and the newest section wins. For a large spec, use `grill-me` spec mode. Do
    not write code or laws yet.
-2. **Write the spec with a high-level agent.** Astra (`gpt-6-astra`) or Fable
-   writes three files from `INTENT.md`, after running `bend guide`:
+2. **Write the spec with a high-level agent.** The spec model from
+   `agent-orchestration` (`models.md`) writes three files from `INTENT.md`,
+   after running `bend guide`:
    - `Kernel.bend`: reference definitions, real Bend code written for
-     clarity.
+     clarity, with the same inputs and outputs as the native interface.
    - `LAWS.bend`: theorems about those definitions (open claims).
    - `LAWS-READING.md`: a plain reading of each definition and law, a map
      from each intent rule to what enforces it, and a "Questions" section.
@@ -42,13 +47,26 @@ rather than working around them.
 4. **Approve and freeze.** The user approves the definitions and laws
    together, from the readings. Commit them, tag `spec-frozen-<n>`, and keep
    the closed-law evaluator in the repo (`scripts/`).
-5. **Prove with a different family.** If Astra wrote the spec, a Claude model
-   proves it. If Fable wrote it, an OpenAI model proves it. The prover writes
+5. **Prove with a different family.** A model from a different family than
+   the spec author proves it. The prover writes
    `PROOF.bend` and helper files in `proof/`, and never edits a frozen file.
    Cast and brief agents with `agent-orchestration`, which also applies the
    Foxway bans.
-6. **Gate.** `bend PROOF.bend` must print `All terms check.` before every
+6. **Gate the proof.** Pass the gate in "Laws and proofs" before every
    commit. Do not commit a partial proof.
+7. **Bind the native code.** Write or change the native code against the
+   frozen interface. A differential harness feeds the same cases to the
+   native code and to the frozen `Kernel.bend` and requires equal outputs.
+   Use generated cases plus recorded real ones. A separate agent writes the
+   case generator, never the native implementer (`delegated-roles`). This
+   gate runs in the native project's CI.
+   - A mismatch is a native bug. If the counterexample shows that the spec
+     is wrong instead, go back through steps 1–4. Never change the oracle
+     to match the native code.
+   - Run the oracle from JS as `bend2-mega-skill` archetype F describes.
+     An `Array` argument is updated in place, so pass a copy.
+   - For a non-JS host, the harness calls the native code through its
+     public API, CLI, or bindings, with the same serialized cases.
 
 ## Spec design
 
@@ -76,7 +94,10 @@ rather than working around them.
 - The definitions and laws are frozen after approval. A change goes back
   through steps 1–4. A prover that finds a law false or unprovable stops and
   reports a concrete counterexample. It never edits or weakens the law.
-- A failing gate means fix the proof, never the spec.
+- The gate: `bend PROOF.bend` prints `All terms check.`. Output "with N
+  unsafe annotation(s)" exits 0 but fails. A trailing "bend X is available"
+  line is the update notice, not a verdict. A failing gate means fix the
+  proof, never the spec.
 - For a long proof, the prover keeps `proof/PROGRESS.md`, stops at a clean
   checkpoint (open TODOs only, no errors), and a fresh agent continues from
   it. The TODO count only goes down.
@@ -85,22 +106,59 @@ rather than working around them.
   the git blob of `LAWS.bend` equals the frozen tag's; no `@unsafe`, `?TODO`,
   `?hole`, or `trust` in `PROOF.bend` or `proof/`; no `law` in proof files.
   Then commit and tag `kernel-proven-<n>`.
+- Each `def Laws.*` takes its type from the frozen `LAWS.bend`, and the
+  checker checks every helper. New lemmas in `proof/` therefore cannot change
+  what is proven, and need no statement review.
+
+## Patching a frozen kernel
+
+A change to a law goes back through steps 1–4. A change to definitions only
+(for example, a speed fix) takes this shorter path:
+
+1. The user unfreezes the named definitions.
+2. The patch changes only those definitions. `LAWS.bend` stays
+   byte-identical to the frozen tag.
+3. An independent reviewer compares old and new definitions on concrete
+   states (empty, no match, first and last match, duplicates), and the old
+   and new built binaries on real inputs, byte for byte.
+4. The proofs break, because they unfold definitions by their exact text. A
+   prover repairs `PROOF.bend` and `proof/` and runs the gate.
+5. The user approves. Tag `spec-frozen-<n+1>` and `kernel-proven-<n+1>`.
+
+## CPU budget
+
+Several agents run Bend on this Mac at the same time, and every `bend` check
+and every built binary competes for the same cores (16 logical: 12 P, 4 E;
+`sysctl hw.perflevel0.logicalcpu hw.perflevel1.logicalcpu`).
+
+- Run at most 4 Bend processes at a time per agent. Set a runner's `--jobs`
+  to 4 or less. Never set it to the CPU count.
+- Pass `--threads 4` to a built binary. The default takes every logical CPU.
+- Before a fan-out, count the live checks: `pgrep -x bend | wc -l`. If 8 or
+  more run, use 2 jobs, or wait.
+- Your Bend workers share your budget of 4. Put each worker's `--jobs` and
+  `--threads` caps in its brief.
+- Time a benchmark only on a quiet machine: no other `bend` process, and
+  `local-procs load` reports free CPU of at least 200% per benchmark thread
+  (800% for `--threads 4`). Do not use the load average: on this Mac it stays
+  far above the core count even when cores are free. Otherwise record the
+  `load` output with the result and mark it contended.
 
 ## Writing Bend
 
 - Language, proofs, parallelism, and CLI: `bend2-mega-skill` (jsm). It was
   checked against an older Bend. Run `bend guide` first, and follow the guide
   when the two differ. Never write Bend from memory.
-- Porting an existing app so its output stays identical: `porting-to-bend2`
-  (jsm). Adding a Bend core to a JS/TS app instead: `bend2-mega-skill`,
-  archetype F (Bend as a JavaScript library).
-- The gate is stricter than the mega skill's: "with N unsafe annotation(s)"
-  exits 0 but does not pass. Only `All terms check.` passes. A trailing
-  "bend X is available" line is the update notice, not a verdict.
-- `Bool.pick` evaluates both value arguments. Never pass the same recursive
-  call to both, or the cost doubles per element: bind it once (`+r = f(rest)`)
-  and pass `r`. Time a reference definition on a realistic input before
-  freezing it.
+- Modeling an existing native module from its current behavior (goldens,
+  spec twins): `porting-to-bend2` (jsm). Calling Bend from JS/TS:
+  `bend2-mega-skill`, archetype F (Bend as a JavaScript library).
+- `Bool.pick` evaluates both value arguments. A lookup written
+  `pick(found, x, find(rest))` scans the whole list after a match. Thunk the
+  branches to stop early: `Bool.pick(Unit -> T, c, u => a, u => b)(Unit{})`.
+  Never pass the same recursive call to both: bind it once (`+r = f(rest)`).
+- Time a reference definition on a realistic input before freezing it, with
+  a built binary (`bend X.bend -o x`). The interpreter (`bend X.bend`) runs
+  eager and lazy forms at the same speed and hides the difference.
 - A conjunction declared `is Data` (for example `type And is Data`) can be
   reused with `+` in proofs. A plain `A & B` bundle cannot.
 - `--publish` pushes to the public hub. Run it only on explicit request.

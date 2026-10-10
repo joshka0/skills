@@ -21,4 +21,4 @@ disable-model-invocation: true
 6. Host at a public URL and verify it without credentials. Metricool copies the file at create time, so the link can be revoked afterward.
 7. Choose slots per network from `getBestTimeToPostByNetwork`.
 8. Present the formats, drop table, and captions. **Wait for approval.**
-9. Create the posts, grouping only networks that share text and time. Every response must show `PENDING`. Verify with `getScheduledPosts` over the range and count the posts. Trash scratch renders.
+9. Create the posts, grouping only networks that share text and time. Every response must show `PENDING`. Verify with `getScheduledPosts` over the range and count the posts. Delete scratch renders.

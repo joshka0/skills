@@ -1,0 +1,19 @@
+{
+  "_comment": "Agent Vault service catalog. key: the name used in <path>/agent-vault. shared: the Infisical reference used when the project has no key of its own. project_keys: names a repo folder may hold for this service, checked in order.",
+  "services": {
+    "github": {"hosts": ["api.github.com"], "auth": "bearer", "key": "GITHUB_PAT", "shared": "${dev.shared.GITHUB_PAT}", "project_keys": ["GITHUB_PAT", "GITHUB_TOKEN"]},
+    "openai": {"hosts": ["api.openai.com"], "auth": "bearer", "key": "OPENAI_API_TOKEN", "shared": "${dev.shared.vendors.openai.OPENAI_API_TOKEN}", "project_keys": ["OPENAI_API_KEY", "OPENAI_API_TOKEN"]},
+    "openrouter": {"hosts": ["openrouter.ai"], "auth": "bearer", "key": "OPENROUTER_API_KEY", "shared": "${dev.shared.vendors.openrouter.OPENROUTER_API_KEY}", "project_keys": ["OPENROUTER_API_KEY"]},
+    "resend": {"hosts": ["api.resend.com"], "auth": "bearer", "key": "RESEND_API_KEY", "shared": "${dev.shared.vendors.resend.RESEND_API_KEY}", "project_keys": ["RESEND_API_KEY"]},
+    "firecrawl": {"hosts": ["api.firecrawl.dev"], "auth": "bearer", "key": "FIRECRAWL_API_KEY", "shared": "${dev.shared.vendors.firecrawl.FIRECRAWL_API_KEY}", "project_keys": ["FIRECRAWL_API_KEY"]},
+    "elevenlabs": {"hosts": ["api.elevenlabs.io"], "auth": "api-key", "header": "xi-api-key", "key": "ELEVENLABS_API_KEY", "shared": "${dev.shared.vendors.elevenlabs.ELEVENLABS_ADMIN_API_KEY}", "project_keys": ["ELEVENLABS_API_KEY"]},
+    "huggingface": {"hosts": ["huggingface.co", "router.huggingface.co"], "auth": "bearer", "key": "HUGGING_FACE_TOKEN", "shared": "${dev.shared.vendors.huggingface.HUGGING_FACE_TOKEN}", "project_keys": ["HUGGING_FACE_TOKEN", "HF_TOKEN"]},
+    "fish-audio": {"hosts": ["api.fish.audio"], "auth": "bearer", "key": "FISH_AUDIO_API_KEY", "shared": "${dev.shared.vendors.fish-audio.FISH_AUDIO_API_KEY}", "project_keys": ["FISH_AUDIO_API_KEY"]},
+    "echo": {"hosts": ["echo.fulcrum.inc"], "auth": "bearer", "key": "ECHO_KEY", "shared": "${dev.shared.vendors.echo.ECHO_KEY}", "project_keys": ["ECHO_KEY", "ECHO_API_KEY"]},
+    "context7": {"hosts": ["mcp.context7.com"], "auth": "bearer", "key": "CONTEXT7_API_KEY", "shared": "${dev.shared.vendors.context7.CONTEXT7_API_KEY}", "project_keys": ["CONTEXT7_API_KEY"]},
+    "sentry": {"hosts": ["sentry.io", "*.sentry.io"], "auth": "bearer", "key": "SENTRY_AUTH_TOKEN", "project_keys": ["SENTRY_AUTH_TOKEN"]},
+    "revenuecat": {"hosts": ["api.revenuecat.com"], "auth": "bearer", "key": "REVENUECAT_API_KEY", "project_keys": ["REVENUECAT_API_KEY", "PRAZE_REVENUE_CAT_API_KEY"]},
+    "expo": {"hosts": ["api.expo.dev"], "auth": "bearer", "key": "EXPO_TOKEN", "project_keys": ["EXPO_TOKEN"]},
+    "cloudflare": {"hosts": ["api.cloudflare.com"], "auth": "bearer", "key": "CLOUDFLARE_API_TOKEN", "project_keys": ["CLOUDFLARE_API_TOKEN"]}
+  }
+}

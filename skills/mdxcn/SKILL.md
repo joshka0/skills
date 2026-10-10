@@ -20,7 +20,7 @@ mdxcn draws figures as characters in a dashed frame with a `[ TITLE ]` label. Pr
 
 ## Delegate conversions
 
-- Converting a finished write-up into figures is mechanical. Delegate it to a Sonnet 5.5 subagent or Luna. Never Haiku.
+- Converting a finished write-up into figures is mechanical. Delegate it to a `sonnet` subagent or Luna.
 - You pick the content and the figures first. The brief names each figure, its component or fence, and the source text for it. The small model only converts and reports gaps.
 - Check its output with a screenshot before you show it to the user.
 

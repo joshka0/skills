@@ -14,3 +14,4 @@ description: "Orient a zero-context agent: repository scope, vaults, credential 
 - Keep the Foxway scope separate: it does not inherit the personal `shared` vault.
 - Do not re-run AUX or re-discover vaults when the current result or context already answers the question.
 - State repeated AUX friction plainly in your reply; the fleet memory keeps it.
+- Processes, ports, daemons, and CPU load belong to `local-procs`.

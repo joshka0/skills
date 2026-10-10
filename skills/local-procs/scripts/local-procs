@@ -1,0 +1,314 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: local-procs who <port|pid>...
+       local-procs mine [path]
+       local-procs daemons
+       local-procs load
+
+who      Owner and stop verdict for each process on a TCP port or with a PID.
+         A number with a TCP listener is read as a port, otherwise as a PID.
+mine     Processes whose working directory is in the repository at path
+         (default: the current repository), with their listening ports.
+daemons  User launchd jobs: state, schedule, log, restart command.
+load     CPU capacity, current use, and the heaviest command groups.
+
+This command reads process metadata only. From process environments it reads
+only HERDR_* names. It never stops a process.
+EOF
+}
+
+uid="$(id -u)"
+my_pane="${HERDR_PANE_ID:-}"
+
+# PID of the agent that called us: the parent of our parent shell. Processes
+# below it are the caller's own.
+caller_root="$(ps -o ppid= -p "$PPID" 2>/dev/null | tr -d ' ' || true)"
+
+proc_field() {
+  ps -o "$1=" -p "$2" 2>/dev/null | sed 's/^ *//' || true
+}
+
+proc_cwd() {
+  lsof -a -p "$1" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | head -1 || true
+}
+
+repo_of() {
+  [[ -n "$1" && -d "$1" ]] || return 0
+  git -C "$1" rev-parse --show-toplevel 2>/dev/null || true
+}
+
+# Ancestor PIDs of $1, nearest first, excluding PID 1.
+ancestors() {
+  local pid="$1" parent=''
+  while :; do
+    parent="$(proc_field ppid "$pid")"
+    [[ -z "$parent" || "$parent" == 0 || "$parent" == 1 ]] && return 0
+    printf '%s\n' "$parent"
+    pid="$parent"
+  done
+}
+
+# HERDR_PANE_ID from the environment of $1 or its nearest ancestor that has one.
+pane_of() {
+  local pid=''
+  for pid in "$1" $(ancestors "$1"); do
+    local value=''
+    value="$(ps -E -o command= -p "$pid" 2>/dev/null \
+      | tr ' ' '\n' | sed -n 's/^HERDR_PANE_ID=//p' | head -1 || true)"
+    if [[ -n "$value" ]]; then
+      printf '%s\n' "$value"
+      return 0
+    fi
+  done
+}
+
+launchd_listing=''
+
+launchd_label_of() {
+  local pid='' label=''
+  [[ -n "$launchd_listing" ]] || launchd_listing="$(launchctl list 2>/dev/null)"
+  for pid in "$1" $(ancestors "$1"); do
+    label="$(awk -v p="$pid" '$1 == p { print $3; exit }' <<<"$launchd_listing")"
+    if [[ -n "$label" ]]; then
+      printf '%s\n' "$label"
+      return 0
+    fi
+  done
+}
+
+is_caller_own() {
+  local pid=''
+  [[ -n "$caller_root" ]] || return 1
+  for pid in "$1" $(ancestors "$1"); do
+    [[ "$pid" == "$caller_root" ]] && return 0
+  done
+  return 1
+}
+
+pids_on_port() {
+  lsof -nP -t -iTCP:"$1" -sTCP:LISTEN 2>/dev/null | sort -u || true
+}
+
+ports_of() {
+  lsof -nP -a -p "$1" -iTCP -sTCP:LISTEN -Fn 2>/dev/null \
+    | sed -n 's/^n//p' | sort -u | paste -sd ' ' - || true
+}
+
+describe_pane() {
+  local pane="$1" json=''
+  if ! json="$(herdr pane get "$pane" 2>/dev/null)"; then
+    printf '  herdr pane: %s (closed or not in this Herdr session)\n' "$pane"
+    return 1
+  fi
+  printf '%s' "$json" | jq -r '.result.pane // .result
+    | "  herdr pane: \(.pane_id)\(if .label then " label=\(.label)" else "" end)\(if .agent then " agent=\(.agent) status=\(.agent_status)" else "" end) workspace=\(.workspace_id)"'
+}
+
+describe_port_extras() {
+  local port="$1" containers='' routes=''
+  if command -v docker >/dev/null 2>&1; then
+    containers="$(docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null \
+      | grep -E "[:.]${port}->" | awk '{print $1}' | paste -sd ' ' - || true)"
+    [[ -n "$containers" ]] && printf '  container: %s (docker ps; OrbStack)\n' "$containers"
+  fi
+  if command -v portless >/dev/null 2>&1; then
+    routes="$(portless list 2>/dev/null | grep -E "localhost:${port}( |$)" \
+      | awk '{print $1}' | paste -sd ' ' - || true)"
+    [[ -n "$routes" ]] && printf '  portless route: %s\n' "$routes"
+  fi
+  return 0
+}
+
+who_pid() {
+  local pid="$1" command='' cwd='' repo='' pane='' label='' ports='' verdict=''
+  command="$(proc_field command "$pid")"
+  if [[ -z "$command" ]]; then
+    printf 'pid %s: not running\n' "$pid"
+    return 1
+  fi
+  cwd="$(proc_cwd "$pid")"
+  repo="$(repo_of "$cwd")"
+  ports="$(ports_of "$pid")"
+
+  printf 'pid %s  user=%s  ppid=%s  elapsed=%s\n' "$pid" \
+    "$(proc_field user "$pid")" "$(proc_field ppid "$pid")" "$(proc_field etime "$pid")"
+  printf '  command: %.200s\n' "$command"
+  [[ -n "$cwd" ]] && printf '  cwd: %s\n' "$cwd"
+  [[ -n "$repo" && "$repo" != "$cwd" ]] && printf '  repo: %s\n' "$repo"
+  [[ -n "$ports" ]] && printf '  listening: %s\n' "$ports"
+
+  case "$command" in
+    *kubectl*port-forward*)
+      printf '  port-forward: %s\n' "$(printf '%s' "$command" | sed 's/.*port-forward //')" ;;
+  esac
+
+  pane="$(pane_of "$pid")"
+  label="$(launchd_label_of "$pid")"
+  [[ -n "$pane" ]] && { describe_pane "$pane" || true; }
+  [[ -n "$label" ]] && printf '  launchd: %s\n' "$label"
+
+  if [[ "$(proc_field user "$pid")" != "$(id -un)" ]]; then
+    verdict='never stop: another user or the system owns it'
+  elif [[ "$label" == com.apple.* || "$command" == /System/* || "$command" == /usr/libexec/* ]]; then
+    verdict='never stop: macOS owns it'
+  elif [[ "$command" =~ ^/Applications/(Microsoft|FortiClient|OrbStack|Tailscale) ]]; then
+    verdict='never stop: a managed or infrastructure app owns it; ask the user'
+  elif is_caller_own "$pid"; then
+    verdict='yours: started by this agent; stop it with kill <pid>'
+  elif [[ -n "$pane" && "$pane" == "$my_pane" ]]; then
+    verdict='your pane: you or an earlier run in this pane started it; kill <pid> if you started it'
+  elif [[ -n "$label" ]]; then
+    verdict="managed: ask the user, then launchctl kickstart -k gui/$uid/$label"
+  elif [[ -n "$pane" ]]; then
+    verdict="another agent's: do not stop; ask its pane ($pane) or the user"
+  elif [[ "$(proc_field ppid "$pid")" == 1 ]]; then
+    verdict='detached, owner unknown: ask the user before you stop it'
+  else
+    verdict='owner unknown: ask the user before you stop it'
+  fi
+  printf '  verdict: %s\n' "$verdict"
+}
+
+cmd_who() {
+  local target='' pid='' pids='' status=0
+  [[ $# -gt 0 ]] || { usage >&2; exit 64; }
+  for target in "$@"; do
+    if [[ ! "$target" =~ ^[0-9]+$ ]]; then
+      printf 'local-procs: not a port or PID: %s\n' "$target" >&2
+      status=64
+      continue
+    fi
+    pids="$(pids_on_port "$target")"
+    if [[ -n "$pids" ]]; then
+      printf 'port %s\n' "$target"
+      describe_port_extras "$target"
+      for pid in $pids; do
+        who_pid "$pid" || status=1
+      done
+    elif [[ "$target" -le 65535 ]] && ! kill -0 "$target" 2>/dev/null; then
+      printf 'port %s: no listener; pid %s: not running\n' "$target" "$target"
+      status=1
+    else
+      who_pid "$target" || status=1
+    fi
+    printf '\n'
+  done
+  return "$status"
+}
+
+cmd_mine() {
+  local base="${1:-$PWD}" root='' pid='' cwd='' ports='' cpu='' command=''
+  local listeners='' busy='' idle=0
+  root="$(repo_of "$base")"
+  [[ -n "$root" ]] || root="$(cd "$base" && pwd -P)"
+  while IFS=$'\t' read -r pid cwd; do
+    case "$cwd" in
+      "$root"|"$root"/*) ;;
+      *) continue ;;
+    esac
+    [[ "$pid" == "$$" ]] && continue
+    command="$(proc_field command "$pid" | cut -c1-140)"
+    [[ -n "$command" ]] || continue
+    ports="$(ports_of "$pid")"
+    cpu="$(proc_field pcpu "$pid")"
+    if [[ -n "$ports" ]]; then
+      listeners+="  $pid  $command"$'\n'"    listening: $ports  cwd: $cwd"$'\n'
+    elif awk -v c="$cpu" 'BEGIN { exit !(c >= 1) }'; then
+      busy+="  $pid  ${cpu}%  $command"$'\n'"    cwd: $cwd"$'\n'
+    else
+      idle=$((idle + 1))
+    fi
+  done < <(lsof -a -d cwd -u "$(id -un)" -Fpn 2>/dev/null \
+    | awk '/^p/ { pid = substr($0, 2) } /^n/ { print pid "\t" substr($0, 2) }' | sort -u)
+  printf 'Processes with a working directory in %s\n' "$root"
+  printf 'Listening:\n%s' "${listeners:-  none$'\n'}"
+  printf 'Using CPU now (builds, tests, servers starting):\n%s' "${busy:-  none$'\n'}"
+  printf 'Idle, not listening: %s (shells, agents, MCP servers)\n' "$idle"
+  if command -v portless >/dev/null 2>&1; then
+    printf 'Portless routes (all repositories):\n'
+    portless list 2>/dev/null | grep -E '://' | sed 's/^ */  /' || printf '  none\n'
+  fi
+  printf 'Run local-procs who <pid> before you stop any of them.\n'
+}
+
+cmd_daemons() {
+  local plist='' info='' label='' row='' pid='' last='' state=''
+  local listing
+  listing="$(launchctl list 2>/dev/null)"
+  printf 'User launchd jobs (~/Library/LaunchAgents)\n'
+  for plist in "$HOME"/Library/LaunchAgents/*.plist; do
+    # Read only the fields below. Never print EnvironmentVariables.
+    info="$(plutil -convert json -o - "$plist" 2>/dev/null | jq -c '{
+      label: .Label,
+      program: ((.ProgramArguments // [.Program]) | map(tostring) | join(" ")),
+      keepalive: (.KeepAlive != null and .KeepAlive != false),
+      interval: .StartInterval,
+      calendar: .StartCalendarInterval,
+      log: (.StandardOutPath // .StandardErrorPath)
+    }')" || continue
+    label="$(jq -r '.label' <<<"$info")"
+    [[ "$label" != null ]] || continue
+    row="$(awk -v l="$label" '$3 == l { print $1 " " $2; exit }' <<<"$listing")"
+    pid="${row%% *}"
+    last="${row##* }"
+    if [[ -z "$row" ]]; then
+      state='not loaded'
+    elif [[ "$pid" != '-' ]]; then
+      state="running pid $pid"
+    else
+      state="idle, last exit $last"
+    fi
+    printf '%s  [%s]\n' "$label" "$state"
+    jq -r '
+      "  kind: " + (if .keepalive then "keepalive service"
+        elif .interval then "every \(.interval)s"
+        elif .calendar then "scheduled \(.calendar | tojson)"
+        else "on demand" end),
+      "  program: " + (.program | .[0:160]),
+      (if .log then "  log: " + .log else empty end)' <<<"$info"
+    printf '  restart: launchctl kickstart -k gui/%s/%s\n' "$uid" "$label"
+  done
+  printf 'Ask the user before you restart, stop, or unload any of these.\n'
+}
+
+cmd_load() {
+  local ncpu='' load='' total=''
+  ncpu="$(sysctl -n hw.ncpu)"
+  load="$(sysctl -n vm.loadavg | awk '{print $2}')"
+  total="$(ps -Ao pcpu= | awk '{s += $1} END {printf "%.0f", s}')"
+  printf 'CPU: %s logical (%s P, %s E)\n' "$ncpu" \
+    "$(sysctl -n hw.perflevel0.logicalcpu 2>/dev/null || echo '?')" \
+    "$(sysctl -n hw.perflevel1.logicalcpu 2>/dev/null || echo '?')"
+  printf 'In use: %s%% of %s%%; free: %s%%; 1-minute load %s\n' "$total" "$((ncpu * 100))" "$((ncpu * 100 - total))" "$load"
+  printf 'Heaviest command groups (%%CPU, process count):\n'
+  ps -Ao pcpu=,comm= | awk '{
+      name = $2; for (i = 3; i <= NF; i++) name = name " " $i
+      n = split(name, parts, "/"); name = parts[n]
+      cpu[name] += $1; count[name]++
+    } END { for (k in cpu) if (cpu[k] >= 10) printf "  %6.0f  %3d  %s\n", cpu[k], count[k], k }' \
+    | sort -rn | head -12
+  printf 'Agent build and check processes: bend %s, cargo/rustc %s, mix/beam %s\n' \
+    "$(pgrep -x bend | wc -l | tr -d ' ')" \
+    "$(pgrep -x 'cargo|rustc' | wc -l | tr -d ' ')" \
+    "$(pgrep -x beam.smp | wc -l | tr -d ' ')"
+  if [[ "$total" -ge $((ncpu * 75)) ]]; then
+    printf 'Verdict: busy. Do not start a parallel CPU fan-out; run one job at a time or wait.\n'
+  else
+    printf 'Verdict: capacity available.\n'
+  fi
+}
+
+command_name="${1:-}"
+[[ $# -gt 0 ]] && shift
+case "$command_name" in
+  who) cmd_who "$@" ;;
+  mine) cmd_mine "$@" ;;
+  daemons) cmd_daemons ;;
+  load) cmd_load ;;
+  -h|--help) usage ;;
+  *) usage >&2; exit 64 ;;
+esac
