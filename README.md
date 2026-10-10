@@ -40,7 +40,7 @@ catalog, mirrors, archives, and reports live on the `attic` branch.
   Follow `AGENTS.md` and run `bin/validate-skill.sh skills/<name>`.
 - **Add a skill**: create `skills/<name>/SKILL.md`, run `bin/link`.
 - **Retire a skill**: repair its callers, preserve its original, remove the
-  directory (prefer Trash), update any native manifest entry, then run `bin/link`.
+  directory, update any native manifest entry, then run `bin/link`.
   Use the `dormant` group only when retaining a canonical package for later use.
 - **Change exposure**: edit `manifest.json`, run `bin/link`.
 

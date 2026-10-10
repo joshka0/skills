@@ -8,8 +8,7 @@
   Never touch consumer-owned `.system` entries.
 - `home/` files are live user config (installed by symlink; see `README.md`).
   Change them only when asked.
-- Preserve unrelated and uncommitted work. Never rewrite Git history. Prefer
-  `/usr/bin/trash` for removal.
+- Preserve unrelated and uncommitted work. Never rewrite Git history.
 - Use repo-relative paths, `$HOME`, or tool home variables. Never commit
   credentials, private keys, or secret-bearing URLs.
 

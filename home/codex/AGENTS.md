@@ -4,7 +4,13 @@
 
 - Preserve unrelated files, uncommitted changes, and Git history. Before any
   cleanup, inspect the exact target and who owns it.
-- Removal inside the authorized scope is allowed. Prefer `/usr/bin/trash`.
+- macOS has BSD `pkill`/`pgrep`/`killall`: no GNU long options, and every
+  argument after the pattern is another pattern. On 2026-10-04 a
+  `pkill -f '<pat>' -u $USER --signal 0` sent SIGTERM to every process
+  matching the username or `0`, including browsers and agents. Check
+  existence with `pgrep -f`. Before you kill by pattern, list the matches
+  with `pgrep -lf`. Prefer `kill <pid>` with a PID you recorded.
+- Removal inside the authorized scope is allowed.
   The target and effect decide permission, not the command name. If the
   ownership or scope is unclear, ask about that target, and ask only once.
 - Building a data-deletion or Forget feature is normal work. It does not
@@ -23,17 +29,26 @@
   `~/.codex/logs/mutation-audit.log`. It is an audit trail, not an approval.
   If a task needs a prohibited Git operation, report the conflict.
 
+## Pull requests
+
+- CI pipelines are a bottleneck. If work would open several PRs in one repo,
+  stack the related commits on one integration branch and open one PR. If
+  related PRs are already open, `git merge` their branches into one
+  integration branch, resolve the conflicts there, and run CI once on the
+  result instead of rerunning each PR. Link the original PRs to it. Split out
+  a PR only when that change must ship or roll back alone. Push when a batch
+  is ready, not after each commit: each push can start a pipeline.
+
 ## Models and delegation
 
-- Honor the selected model. The default for open-ended work is `gpt-6-astra`.
-  `gpt-5.6-sol` is an alternative. Use `gpt-5.6-luna` at `max` only with an
-  exact plan from a stronger model. Never use Terra. Use `ultra` only with
-  approval. Report the model and effort that actually ran. The
-  `agent-orchestration` skill has the full rules and the Foxway vendor bans.
-- Work directly by default. Delegate to other agents or models only when the
-  user asks, names them, or mentions a rate limit; otherwise suggest it and
-  let the user decide. Delegate only a complete, independent task, one level
-  deep: every brief forbids sub-delegation.
+- Honor the selected model. Otherwise pick model lines and routes from the
+  `agent-orchestration` registry (`models.md`), and resolve versions from the
+  live catalog. That skill also has the Foxway vendor bans. Report the model and
+  effort that actually ran.
+- Delegate to other agents or models without asking when it clearly helps:
+  independent parallel tasks, a cross-family review, or a rate limit. Report
+  what ran. Delegate only a complete, independent task, one level deep: every
+  brief forbids sub-delegation.
 - Let agents finish. A wait timeout means read again and keep waiting.
   Intervene only after no progress across repeated reads, a crash, or a block
   that needs your input.
@@ -72,12 +87,61 @@
 
 ## Local tooling
 
-- Wiki: when a future session would otherwise re-derive a fact, log it with
-  `wiki gotcha|papercut|note|decision "…"`, and URLs with `wiki article <url>`.
-  Skip one-off errors and session-local facts.
-  Search with `wiki search` before you re-derive a fact. Never write under
-  `~/vaults/wiki/wiki/`. For Foxway content outside a Foxway path, add
-  `--foxway`.
+- Memory: the fleet memory logs every agent's replies. End a reply with one
+  memo line of at most 400 bytes when the turn settled a decision (also
+  your restatement of an operator's answer), verified a result, found a
+  failure and its cause, or opened or closed an item someone must return
+  to. Other turns get no memo line. Put the memo as the last paragraph of
+  the reply:
+  `memo: decided <what> because <why>; done <what> (verified by <check>);
+  failed <what>: <cause>; open <what>; ids <commit, branch <name>, /absolute/path, key, adr-NNNN>
+  [[topic]]`
+  Use only the labels that apply. Write `done` only for verified work;
+  otherwise write `running`, `planned` or `blocked`. When a topic is
+  superseded, write `retired <why>` with a link to that topic only. When
+  your decision replaces an earlier memo item, add `supersedes <id>+1
+  because <why>`, where `<id>+1` is the earlier memo's message address; when
+  an item no longer applies, add `stale <id>+1: <why>`. Either one drops
+  every decided and open item of that memo, so restate any that still
+  hold. Add one to three
+  `[[topic]]` links. Name a topic after the lasting thing the work
+  changes (a component, feature, contract or decision area) as
+  `<scope>-<thing>` in lowercase kebab. The scope is the project
+  (`[[yada-room-kernel]]`, `[[praze-terms-consent]]`), or `fleet` for a
+  thing that reaches outside one repository: the operator's preferences
+  (`[[fleet-operator-preferences]]`; split into
+  `fleet-operator-<area>` only when it grows), agent rules
+  (`[[fleet-agent-rules]]`) or shared tools (`[[fleet-tooling]]`). Link
+  a fleet topic beside the project topic when a project turn settles
+  something general. Session indexes show only their own repository, so
+  read a fleet topic with `mem topic fleet-<thing> --scope ~/repos`, and
+  put a standing rule into this file, not only into memory. Never use a
+  date, ticket number, branch name or activity word
+  (`readiness-2026-10`, `fix-login`). Before you
+  make a new topic, run `mem topics --like <two or three words>`
+  (add `--scope ~/repos` for `fleet-*`); reuse a listed topic about the
+  same thing, else extend the closest parent's name by one part
+  (`fleet-operator` to `fleet-operator-git`), else start a new
+  `<scope>-<thing>`. `mem topics --tree` shows the families. Keep
+  one subject per memo: when a turn settles two, link the main one and
+  write the other in its own memo. When a thing is finished or replaced,
+  write `retired <why>` linking only that topic. To rename a topic,
+  write `retired renamed to <new>` linking only the old name, then use
+  the new name. When the operator answers a
+  question prompt, restate the choice: "Operator chose <X> (reason:
+  <why>)". When a decision changes a contract, schema, architecture or
+  cost model, also record it as an ADR (`docs/adr/NNNN-<title>.md`:
+  context, options, choice, consequences) that names its topic, and cite
+  it in the memo as `adr-NNNN`. Skip one-off errors and session-local
+  facts. To find prior work, use `agent-memory` (`mem topics`,
+  `mem topic <name>`, `mem find <words>`, `mem zoom <id>+1`).
+- Pane messages: when you type into another agent's pane (a brief, a
+  follow-up or a callback such as DONE), start the text with
+  `[agent <your pane label>]`. The fleet memory then does not record it as
+  the operator's words.
+- Do not write harness-private memory (Claude Code `MEMORY.md` files,
+  Codex memories). Other harnesses cannot read it. Put standing rules in
+  this file instead.
 - Secrets: use the `local-dev` skill. Never dump values. `~/.env` is migration
   input only.
 - In an unfamiliar repo, or for secret or tool discovery, run `aux`. A stop
@@ -89,6 +153,7 @@
   step: no diagnosis unless asked, and no headless fallback. Continue steps
   that need no browser. If the task needs only public content, say so in one
   line and use a fetch tool.
+- Fleet memory: if your context has no `<fleet-memory>` block, run `mem view` before you start. Run `mem topics`, `mem topic <name>` or `mem find <words>` for prior work, and `mem zoom <id>+1` to read a message.
 
 ## Design
 
@@ -96,22 +161,26 @@
   problem outranks literal wording.
 - If a case does not fit, a spec contradicts itself, or an assumption fails
   and the mismatch changes a public interface, schema, or module boundary, or
-  needs a rewrite of working code: stop, diagnose where the design and reality
-  diverge, and propose a redesign. Wait for approval before any structural
-  change. Fix a local mismatch in place and mention it in the report.
+  needs a rewrite of working code: diagnose where the design and reality
+  diverge, and propose a redesign. Make no structural change without
+  approval, but do not stop the run: park the decision with your
+  recommendation, continue all work that does not depend on it, and ask the
+  parked decisions in one batch at the end. Fix a local mismatch in place and
+  mention it in the report.
 - When the user invokes `use-your-judgment`, act without asking inside its
-  remit (open beads, the approved plan, reality-check gaps). Its out-of-remit
-  list still needs approval.
+  remit (open beads, the approved plan, reality-check gaps). Park its
+  out-of-remit items the same way.
 - If the user asks for something that contradicts a rule in this file, name
   the rule and ask if they waive it for this case. If they say yes, do the
   task. The waiver lasts only for this session, and the rule stays unchanged.
 - Never work around a broken design with wording-justified flags, shims,
   parallel paths, or weakened tests. Domain-justified special cases are fine.
-- Use Bend (bend-lang.com) for larger new projects: a new codebase with its
-  own logic and invariants worth proving. Skills, config, plugins, and small
-  apps that plug existing tools together do not need it. If the size is
-  unclear, ask. For Bend work, follow the `bend` skill, and pass
-  `bend PROOF.bend` before every commit. Parallelize whenever possible.
+- Use Bend (bend-lang.com) to prove logic worth proving in code of any
+  language (TS, Rust, and others), as Lean for code. The proven Bend model is
+  the oracle, and the native code passes differential tests against it.
+  Skills, config, plugins, IO, and glue do not need it. If the value is
+  unclear, ask. For Bend work, follow the `bend` skill, including its proof
+  gate and CPU budget: other agents run Bend on the same cores.
 - No backward compatibility. Remove obsolete paths; add no compat layers or
   fallbacks by default. Ask before you remove anything that live data or an
   external consumer depends on.
