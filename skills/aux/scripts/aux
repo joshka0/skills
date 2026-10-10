@@ -255,12 +255,13 @@ print_browser_bridge() {
 
 print_tools() {
   printf 'AUX tool context\n'
-  for tool_name in herdr agent-vault infisical tofu az aws gh jq rg; do
+  for tool_name in herdr local-procs agent-vault infisical tofu az aws gh jq rg; do
     print_tool "$tool_name"
   done
 
   detect_browser_bridge || true
   printf '  - local HTTP browser bridge: %s; run aux browser\n' "$browser_summary"
+  printf 'Processes, ports, daemons, CPU load: run local-procs who|mine|daemons|load\n'
 }
 
 case "$command_name" in
