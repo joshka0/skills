@@ -94,10 +94,18 @@ Bend is early-stage: report real bugs rather than working around them.
 - The definitions and laws are frozen after approval. A change goes back
   through steps 1–4. A prover that finds a law false or unprovable stops and
   reports a concrete counterexample. It never edits or weakens the law.
-- The gate: `bend PROOF.bend` prints `All terms check.`. Output "with N
-  unsafe annotation(s)" exits 0 but fails. A trailing "bend X is available"
-  line is the update notice, not a verdict. A failing gate means fix the
-  proof, never the spec.
+- The gate (Bend 2.0.36): `bend PROOF.bend` exits 0 and prints exactly
+  `ALL PROOFS CHECK` and the line "Use --verdict for mathematical validity.".
+  An open law or an `@unsafe` def prints `SOME PROOFS FAIL` and exits 1.
+  `--verdict` rechecks with the Lean-proven BendTT kernel and is the stronger
+  gate. Use it when it passes. On 2026-10-11 it failed on a valid proof with
+  "a mismatch between the TypeScript implementation, and the formalized
+  BendTT kernel": that is a Bend defect, so report it and gate on the plain
+  check. A trailing "bend X is available" line is the update notice, not a
+  verdict. A failing gate means fix the proof, never the spec.
+- A Bend upgrade can rename base-library names that a proof uses. Repair
+  the proof only. The frozen files stay byte-identical, and the user
+  approves the next `kernel-proven-<n>` tag.
 - For a long proof, the prover keeps `proof/PROGRESS.md`, stops at a clean
   checkpoint (open TODOs only, no errors), and a fresh agent continues from
   it. The TODO count only goes down.
