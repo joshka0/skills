@@ -134,8 +134,8 @@ hc status --credential <state>/operator.credential --json
 `status` shows source health, inboxes, tasks, leases, consumers, and their
 `lag`. Lag is a journal distance, not a count of matching events.
 
-Known consumers: `memoryd-glue` (fleet memory) and `blackboard-runtime-1`
-(Blackboard). Tell their owners before you stop the daemon.
+Known consumer: `memoryd-glue` (fleet memory). Tell its owner before you
+stop the daemon.
 
 ### Restart and stop
 

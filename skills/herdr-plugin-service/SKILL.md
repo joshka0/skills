@@ -17,7 +17,6 @@ Read one of these before you write a new service. Copy its shape.
 | --- | --- | --- |
 | `joshka.coordinator` | `~/repos/personal/herdr-coordinator/herdr-plugin.toml` | `herdr-coordinator/src/service.ts`: `ensureService` and `superviseService` (restart with backoff) |
 | `joshka.fleet-memory` | `~/repos/personal/memoryd/herdr-plugin.toml` | `memoryd/bin/fleet-memory-service ensure-service` and `supervise` |
-| `joshka.blackboard` | `~/repos/personal/herdr-blackboard/herdr-plugin.toml` | `herdr-blackboard/scripts/ensure-service.sh` (POSIX sh, no supervisor) |
 
 ## Manifest
 
