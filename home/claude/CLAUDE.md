@@ -62,6 +62,18 @@ unambiguous dates (2026-08-18). Put code in code font and UI names in bold.
 In docs, describe only what exists. Plans, backlog items, `Parked` sections,
 and ADR consequences may state future work if labeled as such.
 
+## Reports
+
+Trial since 2026-10-13. When a reply would carry an investigation result, a
+review, a design, a comparison of options, or more than about 15 lines of
+findings, write it as a summary with the `summarize` skill. End the reply
+with the answer in two to four lines and the summary's short link on its own
+line. Do not repeat the summary in the chat. When I must choose between
+options that need that context, ask in the summary's `Needs you` callout;
+my answers come back as a prompt that starts with `Answers from summary`.
+Keep short answers, progress notes, and quick yes-or-no questions in the
+chat.
+
 ## Orchestration
 
 - Do the work yourself or with native subagents by default. Use
