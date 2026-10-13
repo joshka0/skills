@@ -1,0 +1,9 @@
+Platform: X, short post, 280 characters or fewer. Spoken register, like my videos.
+
+Premise: In Praize, the prayer app I'm building, you can type a prayer request, but you can't type a prayer. You have to record it out loud, in your own voice. That makes the app harder to use, on purpose.
+
+Facts you may use: I'm building it from Tallinn, Estonia. Anyone can type "praying 🙏" in three seconds. A recorded prayer proves someone stopped and said your name.
+
+Limits: no hashtags, at most one emoji, no invented numbers or users, no call to download.
+
+Effect: a reader who scrolls past "praying 🙏" every day feels the difference in one read.

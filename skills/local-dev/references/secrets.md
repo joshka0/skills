@@ -21,6 +21,15 @@ Scope: the boundary between a secret source, Infisical, macOS Keychain, and a co
 - Store a shared value once. Add a Secret Import in each consumer repo folder. Run the consumer from its exact repo path with imports enabled. Never copy the value, and never use recursive injection as inheritance.
 - A direct repo secret shadows an imported one with the same key. Check direct keys before you call a shared rotation done. If the values differ, stop and classify it: separate identity, intentional override, or stale copy. Remove a stale direct secret only after the import works and with explicit authorization.
 
+## Two Infisical instances (gotcha)
+
+- The CLI's default domain is the VPS instance (`LoggedInUserDomain` in `~/.infisical/infisical-config.json`). It is the source of truth.
+- An old local instance still answers at `http://127.0.0.1:18080`. `~/.vault/AGENTS.md` still names it. Do not pass `--domain http://127.0.0.1:18080`.
+- The CLI has no command for Secret Imports. Use the REST API (`/api/v1/secret-imports`) against the CLI's default domain, with `infisical user get token --plain --domain <that domain>` kept out of output.
+- Publish a value with `infisical-secret-publish <path> <KEY>` on stdin. `infisical secrets set --file` can leave a secret that a direct read sees but an import does not carry.
+- Verify an import on the server: `GET /api/v3/secrets/raw?...&include_imports=true` must list the key under the imported path. Then run the consumer from its repo path.
+- Never print `~/.infisical/infisical-config.json`. It holds `vaultBackendPassphrase`, which a key-name filter for "token" or "secret" misses.
+
 ## Keychain issuers
 
 Long-lived local bootstrap/issuer credentials live in Keychain. The scoped runtime tokens they mint live in Infisical. Never copy an issuer into Infisical or dotenv. Verify each provider's current issuer mechanism in its docs:

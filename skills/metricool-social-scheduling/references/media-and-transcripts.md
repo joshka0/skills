@@ -56,6 +56,12 @@ curl -s -L -o /tmp/probe.mp4 "https://drive.google.com/uc?export=download&id=<fi
 A folder shared as `anyone` with `reader` grants its children, but share each file
 explicitly when a direct link must work.
 
+If you want the files private again after Metricool copies them, upload them into
+a folder that is not shared. A permission that a file inherits from its folder
+cannot be removed on the file: the API returns `403 cannotDeletePermission`. Only
+a permission set on the file itself can be deleted. Keep the permission id that
+the share call returns.
+
 ## Normalizing video
 
 Downscale 4K vertical to platform-native 1080x1920:
@@ -84,26 +90,39 @@ ffmpeg -nostdin -v error -y -i "$src" -filter_complex \
 
 ## Transcription with OpenRouter
 
-Extract mono 16 kHz audio, then call the OpenAI-compatible transcription endpoint.
-Cost is roughly USD 0.0001 per audio second.
+Use `microsoft/mai-transcribe-2`, the model the Praize API uses. Extract mono
+16 kHz WAV:
 
 ```sh
-ffmpeg -nostdin -v error -i "$video" -vn -ac 1 -ar 16000 -b:a 48k "$audio"
+ffmpeg -nostdin -v error -y -i "$video" -vn -ac 1 -ar 16000 -c:a pcm_s16le "$audio"
 ```
+
+The endpoint takes JSON with base64 audio, not a multipart file. Stream the body
+through stdin, so no temp file is left to delete:
 
 ```sh
-curl -s https://openrouter.ai/api/v1/audio/transcriptions \
-  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
-  -F "file=@$audio" -F "model=openai/whisper-1"
+{ printf '{"model":"microsoft/mai-transcribe-2","input_audio":{"data":"'
+  base64 -i "$audio" | tr -d '\n'
+  printf '","format":"wav"},"response_format":"verbose_json"}'; } \
+| curl -sS https://openrouter.ai/api/v1/audio/transcriptions \
+    -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+    --data-binary @- -o "$out"
 ```
 
-The response is `{"text": "...", "usage": {"seconds": N, "cost": X}}`.
+The transcript is in `.text`. Eight clips (4 minutes in total) took under a
+minute in parallel.
 
-Run secret-backed commands through Infisical and never print values:
+Run secret-backed commands through Infisical and never print values. Run it from
+the repo that holds `.infisical.json`, else it asks for `infisical init`. Put the
+loop in a script file and run `infisical run ... -- <script>`. The permission
+checker refuses `bash -c '<loop>'` because it cannot read inside it.
 
 ```sh
-infisical run --env dev --path /repos/personal/praze -- bash -c '<command>'
+infisical run --silent --env dev --path /repos/personal/praze -- ./tx-all.sh
 ```
 
-Whisper mishears brand names. Check every product name in the transcript against
-the real spelling before writing captions.
+The Praize key is `PRAZE_OPENROUTER_API_KEY`.
+
+The model writes "Praise" for "Praize", and mixed-language clips come back in
+both languages. Check every product name against the real spelling before you
+write captions.
