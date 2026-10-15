@@ -14,8 +14,10 @@ if git diff --cached --name-only | grep -Eq '^(skills/|native/|manifest\.json$)'
   node bin/link >/dev/null
 fi
 
+# The Infisical EU project ID is an identifier, not a credential; skills cite it.
 exec kingfisher scan \
   --staged \
+  --skip-word 92b6f336-b5cb-495b-bc03-845b2d2c81b6 \
   --redact \
   --no-validate \
   --confidence medium \
