@@ -15,6 +15,8 @@ description: "Get a Touch ID-approved credential: scoped Cloudflare, PlanetScale
 | Fly.io | `mint fly`; `exec fly --org <org> -- <command>` | App-scoped child (30 days or less, not revocable alone) in Infisical; or one command with the org token in `FLY_API_TOKEN` |
 | Tailscale | `mint tailscale` / `revoke tailscale` | Tagged auth key (90 days or less) in Infisical |
 | OpenRouter | `mint openrouter` / `revoke openrouter` | API key with a USD credit limit and reset, in Infisical |
+| GitLab.com | `mint gitlab-deploy` / `revoke gitlab-deploy`; `exec gitlab --account personal -- <command>` | Project deploy token (repo/registry scopes) in Infisical; or one command with the PAT in `GITLAB_TOKEN` |
+| GitHub | `exec github --app agents --owner <login> --repo <r> --permission contents:write -- <command>` | One command with a 1-hour installation token in `GH_TOKEN`, limited to those repos and permissions; never stored |
 
 ## Run it
 
@@ -37,6 +39,8 @@ description: "Get a Touch ID-approved credential: scoped Cloudflare, PlanetScale
 
 - Fly: `mint fly` attenuates the org token to one existing app; the rest of the org is read-only. Keep `--expires-in` short: a child cannot be revoked alone. `--org` is the slug (`personal`), not the display name. Creating an app needs `exec fly`, which hands the command the org token.
 - Tailscale: a key must carry tags the OAuth client owns. Prefer `--with ephemeral --with preauthorized` for short-lived machines.
+- GitLab.com Free cannot mint scoped access tokens from a PAT (they need Premium). Use deploy tokens for repo and registry access; use `exec gitlab` for API work.
+- GitHub: the App's installation and its permissions cap every token; `--permission` can only narrow them.
 - Hetzner tokens cannot be minted. `exec hetzner` and `exec fly` hand the command a parent: show the user the exact command, and never pass a command that prints or stores `HCLOUD_TOKEN` or `FLY_API_TOKEN`.
 - CI (GitLab): mint the CI child into Infisical. The pipeline reads it through an Infisical OIDC machine identity.
 - R2 for one bucket: `--r2-bucket <bucket> --bucket-permission "Workers R2 Storage Bucket Item Write" --r2-s3-secret-prefix <PREFIX>`. The factory stores `<PREFIX>_ACCESS_KEY_ID` and `<PREFIX>_SECRET_ACCESS_KEY`; never derive them yourself.
