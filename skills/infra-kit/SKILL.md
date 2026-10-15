@@ -10,7 +10,7 @@ description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 stora
 | Import | Piece | Deploy side | Runtime side |
 | --- | --- | --- | --- |
 | `infra-kit/object-store` | R2 storage | `ObjectStoreBucket` (CORS from origins, per-prefix expiry, multipart abort) | `ObjectStore.layerS3("<PREFIX>")`: put, get, delete, presignPut, presignGet |
-| `infra-kit/postgres-backup` | Postgres backups | `PostgresBackupContainer` beside the database | `pg_dump` on a cron to `<BACKUP_PREFIX>/<db>/<UTC>.dump`; retention is the bucket's lifecycle rule |
+| `infra-kit/postgres-backup` | Postgres backups | `PostgresBackupContainer` beside the database server | `pg_dump` of each database in `PGDATABASES` (comma list) on a cron to `<BACKUP_PREFIX>/<db>/<UTC>.dump`; one failure alerts and the rest still run; retention is the bucket's lifecycle rule |
 | `infra-kit/app-host` | App container | `AppContainer`: build on the engine, start, restart, loopback-only ports, healthcheck | none |
 | `infra-kit/tailnet` | Tailnet join | `JoinTailnet` action, `installTailscale` cloud-init lines | none |
 | `infra-kit/llm` | LLM calls | none | `Llm.layerOpenRouter("<PREFIX>")` with typed errors |
