@@ -15,16 +15,7 @@ description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 stora
 | `infra-kit/tailnet` | Tailnet join | `JoinTailnet` action, `installTailscale` cloud-init lines | none |
 | `infra-kit/llm` | LLM calls | none | `Llm.layerOpenRouter("<PREFIX>")` with typed errors |
 | `infra-kit/alerts` | Alerts | none | `Alerts.layerNtfy("<KEY>")` |
-| `infra-kit/auth` | Better Auth on a Worker | D1 database; schema migrates on each deploy; signing secret made once | `AppAuth({ appScheme, webOrigins, ... })` at `/api/auth`, with `Effect.provide(AuthD1(db))` |
-
-## Auth
-
-- Each app owns its own auth and users. `AppAuth` sets `basePath` and `trustedOrigins`; it trusts only `appScheme` (it also adds the Expo plugin) and `webOrigins`.
-- Set `baseURL` to the app's public origin. Without it, Better Auth takes the origin from each request and warns.
-- Deploy token: `mint cloudflare --account-permission "Workers Scripts Write" --account-permission "D1 Write"`.
-- For less than a minute after the first deploy, workers.dev answers some requests with edge errors 1042 and 1104. Wait for that to pass before you run the proof.
-- D1 has no interactive transactions, so plugins that need them (SCIM) fail. Deploy migrations only add schema; you move data by hand.
-- An app that keeps its stack uses `Cloudflare.state()`, not `Alchemy.localState()`.
+| `infra-kit/auth` | Better Auth on a Worker | D1 database; schema migrates on each deploy; signing secret made once | `AppAuth({ appScheme, webOrigins, ... })` at `/api/auth`; rules in the `app-auth` skill |
 
 ## Credentials
 
