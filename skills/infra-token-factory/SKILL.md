@@ -10,7 +10,7 @@ description: "Get a Touch ID-approved credential: scoped Cloudflare, PlanetScale
 | Provider | Command | Result |
 | --- | --- | --- |
 | Cloudflare | `mint cloudflare` / `revoke cloudflare` | Account-owned child token in Infisical |
-| PlanetScale | `mint planetscale` / `revoke planetscale` | Child service token: `<prefix>_SERVICE_TOKEN_ID` and `<prefix>_SERVICE_TOKEN` in Infisical |
+| PlanetScale | `exec planetscale --org joshua-katigbak [--org-access <a>] [--database <db> --database-access <a>] --expires-in 1h -- pscale …`; `mint planetscale` / `revoke planetscale` only for a service that needs a standing token | `exec`: one command with a child token, deleted on exit (no standing praze token exists). For data, run `pscale role create` with a short TTL inside it. `mint`: `<prefix>_SERVICE_TOKEN_ID` and `<prefix>_SERVICE_TOKEN` in Infisical |
 | Hetzner Cloud | `exec hetzner --project <env> -- <command>` | One command runs with `HCLOUD_TOKEN`, an admin token for that environment |
 | Fly.io | `mint fly`; `exec fly --org <org> -- <command>` | App-scoped child (30 days or less, not revocable alone) in Infisical; or one command with the org token in `FLY_API_TOKEN` |
 | Tailscale | `mint tailscale` / `revoke tailscale` | Tagged auth key (90 days or less) in Infisical |
