@@ -109,7 +109,18 @@ chat.
   because <why>`, where `<id>+1` is the earlier memo's message address; when
   an item no longer applies, add `stale <id>+1: <why>`. Either one drops
   every decided and open item of that memo, so restate any that still
-  hold. Add one to three
+  hold. Close a finished item with `done` or `failed` and the same words,
+  or with `done <id>+1`. When your turn settles an item that another
+  session opened, close it too: find it with `mem topic <name>`, and write
+  `done <id>+1` only if you settled every open item of that message, else
+  `done` and its words. A memo here does not close an item of another
+  repository; name that item in your reply. To keep the still-open items of an earlier message
+  without restating them, write `open <id>+1`. A keep cannot reopen a
+  closed item: restate that item in words. End your items with
+  `closed rest` to close every other open item of this session, on every
+  topic. A subagent report never holds `closed rest`. Write the memo in
+  your final reply, after your last tool call. When the turn-end hook
+  lists unsettled items, write the memo again that way. Add one to three
   `[[topic]]` links. Name a topic after the lasting thing the work
   changes (a component, feature, contract or decision area) as
   `<scope>-<thing>` in lowercase kebab. The scope is the project
