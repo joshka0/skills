@@ -14,9 +14,15 @@ description: "Get a Touch ID-approved credential: scoped Cloudflare, PlanetScale
 | Hetzner Cloud | `exec hetzner --project <env> -- <command>` | One command runs with `HCLOUD_TOKEN`, an admin token for that environment |
 | Fly.io | `mint fly`; `exec fly --org <org> -- <command>` | App-scoped child (30 days or less, not revocable alone) in Infisical; or one command with the org token in `FLY_API_TOKEN` |
 | Tailscale | `mint tailscale` / `revoke tailscale` | Tagged auth key (90 days or less) in Infisical |
-| OpenRouter | `mint openrouter` / `revoke openrouter` | API key with a USD credit limit and reset, in Infisical |
+| OpenRouter | `mint openrouter --workspace <repo>` / `revoke openrouter`; `list openrouter`; `create openrouter-workspace --monthly-budget-usd <N>` | API key with a USD credit limit and reset, in the repo's workspace, written to the repo's Infisical folder |
 | GitLab.com | `mint gitlab-deploy` / `revoke gitlab-deploy`; `exec gitlab --account personal -- <command>` | Project deploy token (repo/registry scopes) in Infisical; or one command with the PAT in `GITLAB_TOKEN` |
 | GitHub | `exec github --app agents --owner <login> --repo <r> --permission contents:write -- <command>` | One command with a 1-hour installation token in `GH_TOKEN`, limited to those repos and permissions; never stored |
+
+## OpenRouter spend tiers
+
+- The plan allows 5 workspaces: `praize` (prod and dev), `apps` (app and tool dev keys), `agents` (dreamd, memoryd, harnesses), `default`. One key per repo, named `<repo>-<env>`, written to that repo's Infisical folder. Never a shared key in `/shared/common`.
+- Tests and CI: limit under $1, reset daily. Trials and dev work: $5 monthly. Production: $20 monthly with `--expires-in never` (praize; allowed only with a resetting limit). A workspace's monthly budget is the sum of its keys' limits.
+- Auto top-up is account-wide in the OpenRouter dashboard; never rely on it for one workspace.
 
 ## Run it
 
