@@ -1,4 +1,4 @@
 interface:
   display_name: "Cloudflare Operations"
-  short_description: "Manage Cloudflare tokens and email routing"
-  default_prompt: "Use $cloudflare-operations to manage a Cloudflare token or Email Routing change safely."
+  short_description: "Cloudflare Email Routing cutovers with rollback"
+  default_prompt: "Use $cloudflare-operations to make an Email Routing change safely."

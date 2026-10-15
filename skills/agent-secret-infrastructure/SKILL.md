@@ -5,7 +5,7 @@ description: "Control plane for the private Infisical + Agent Vault deployment: 
 
 # Agent secret infrastructure
 
-Everything below is a recorded baseline. Before you change, diagnose, or recover, verify it live. To explain it, state the baseline and say it was not checked live. Ordinary proxied calls go to `agent-vault`. One-key imports and Keychain handoffs go to `local-dev`. Cloudflare tokens and R2 changes go to `cloudflare-operations`.
+Everything below is a recorded baseline. Before you change, diagnose, or recover, verify it live. To explain it, state the baseline and say it was not checked live. Ordinary proxied calls go to `agent-vault`. One-key imports and Keychain handoffs go to `local-dev`. Cloud credentials for Cloudflare, PlanetScale, and Hetzner go to `infra-token-factory`.
 
 ## Baseline
 

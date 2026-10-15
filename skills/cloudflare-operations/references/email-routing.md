@@ -1,5 +1,7 @@
 # Email Routing
 
+Credential: an `infra-token-factory` Cloudflare child scoped to one account and one zone. Resolve the current names: Account Email Routing Addresses Write; Zone Email Routing Rules Write, Zone Settings Write, DNS Write.
+
 Inputs to confirm: the exact zone, the literal receiving address, and the exact forwarding inbox from the user. Catch-all is off unless the user asks. Never take an inbox from an unrelated app, reviewer, or test-account secret.
 
 ## Destination

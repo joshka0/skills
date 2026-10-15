@@ -34,7 +34,7 @@ Scope: the boundary between a secret source, Infisical, macOS Keychain, and a co
 
 Long-lived local bootstrap/issuer credentials live in Keychain. The scoped runtime tokens they mint live in Infisical. Never copy an issuer into Infisical or dotenv. Verify each provider's current issuer mechanism in its docs:
 
-- Cloudflare: a token with token-write permission mints scoped tokens (`cloudflare-operations`).
+- Cloudflare and PlanetScale: `infra-token-factory` mints scoped tokens. Hetzner: it runs one approved command.
 - GitHub: a GitHub App mints installation tokens. A PAT is not the default issuer.
 - Azure DevOps: PAT lifecycle calls need an Entra user or on-behalf-of token. A PAT is a runtime credential, not an issuer. Prefer Entra auth.
 - GitLab: prefer group/project access tokens and their rotation. Keep a broad PAT in Keychain only when the API requires it.

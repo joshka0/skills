@@ -1,0 +1,4 @@
+interface:
+  display_name: "Infra Kit"
+  short_description: "Composable Alchemy v2 Layers for app infrastructure"
+  default_prompt: "Use $infra-kit to add storage, backups, hosting, a tailnet join, or an LLM client to an app."

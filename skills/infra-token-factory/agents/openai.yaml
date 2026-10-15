@@ -1,0 +1,4 @@
+interface:
+  display_name: "Infra Token Factory"
+  short_description: "Touch ID-approved Cloudflare, PlanetScale, Fly, Tailscale, and Hetzner credentials"
+  default_prompt: "Use $infra-token-factory to get a scoped cloud credential approved by the user."

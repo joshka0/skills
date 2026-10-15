@@ -19,7 +19,7 @@ Before you run a backup or restore, verify every name live.
 
 ## Recovery custody
 
-- The Cloudflare token factory (Keychain) can mint a replacement R2 token.
+- `infra-token-factory` (Keychain) can mint a replacement R2 token.
 - The Restic password has a Keychain copy under service `agent-secret-infrastructure-restic-password`. Verify it before an incident.
 - The Agent Vault master and Infisical machine credentials also need named off-host Keychain items. Verify them without printing values.
 - Never keep the only recovery password in Infisical or in VPS systemd credentials.
