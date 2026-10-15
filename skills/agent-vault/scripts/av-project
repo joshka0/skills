@@ -19,7 +19,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-PROJECT_ID = "4cf07c20-ea10-4ecc-ae9d-bc5307cb0241"
+PROJECT_ID = "92b6f336-b5cb-495b-bc03-845b2d2c81b6"
 ENV = "dev"
 AGENTS = ["local-codex", "dev-herdr"]
 BROKER = Path.home() / ".vault/agent-vault/bin/agent-vault"

@@ -1,0 +1,249 @@
+#!/usr/bin/env -S python3 -I
+"""isec: Infisical for agents. Finds the repo folder, prints names only, never values.
+
+  isec run [--env E] [--path P] -- <cmd...>   run <cmd> with the folder's secrets and imports
+  isec ls [--env E] [path]                     key names, imports, subfolders
+  isec where <KEY> [--env E]                   folders that define KEY, and who imports them
+  isec need <KEY> [--path P] [--from F]       import KEY's owner folder into this repo folder (dev only)
+  isec set <KEY> [--path P]                    publish a value read from stdin (dev only)
+
+Auth uses the `agent-secret-publisher` machine identity from Keychain, so the active
+`infisical` CLI profile does not matter. `/repos/foxway` is usable only from a directory
+under ~/repos/foxway, and a Foxway directory reaches only `/repos/foxway`. `--env prod`
+must be explicit: use it only for a deploy or release step.
+"""
+import json, os, ssl, subprocess, sys, urllib.error, urllib.parse, urllib.request
+from pathlib import Path
+
+HOME = Path.home()
+REPOS = HOME / "repos"
+UA = "isec/1.0"  # Infisical Cloud's Cloudflare rejects the default urllib agent (error 1010).
+EU = {"name": "eu", "url": "https://eu.infisical.com", "project": "92b6f336-b5cb-495b-bc03-845b2d2c81b6",
+      "account": "agent-secret-publisher", "service": "infisical-agent-publisher"}
+PUBLISH = HOME / ".local/bin/infisical-secret-publish"
+
+# Inside `agent-vault run`, SSL_CERT_FILE names only the broker CA, and Infisical bypasses the
+# broker. Trust the system CAs as well.
+TLS = ssl.create_default_context()
+_defaults = ssl.get_default_verify_paths()
+if _defaults.openssl_cafile and os.path.exists(_defaults.openssl_cafile):
+    TLS.load_verify_locations(cafile=_defaults.openssl_cafile)
+
+
+def die(msg, hint=None):
+    print(f"isec: {msg}", file=sys.stderr)
+    if hint:
+        print(f"  next: {hint}", file=sys.stderr)
+    sys.exit(1)
+
+
+def repo_root():
+    """The main checkout of the current Git repo, also from a linked worktree."""
+    r = subprocess.run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
+                       capture_output=True, text=True)
+    if r.returncode == 0:
+        return Path(r.stdout.strip()).parent
+    # Not a Git checkout: the nearest folder with an Infisical binding.
+    for d in [Path.cwd(), *Path.cwd().parents]:
+        if (d / ".infisical.json").exists():
+            return d
+    return None
+
+
+def in_foxway():
+    root = repo_root()
+    return Path.cwd().is_relative_to(REPOS / "foxway") or bool(root and root.is_relative_to(REPOS / "foxway"))
+
+
+def guard(path):
+    """Foxway secrets stay with Foxway work, and Foxway work stays with Foxway secrets."""
+    fox_path = path == "/repos/foxway" or path.startswith("/repos/foxway/")
+    if fox_path and not in_foxway():
+        die(f"{path} is Foxway's; it is usable only from a directory under ~/repos/foxway")
+    if in_foxway() and not fox_path:
+        die(f"a Foxway directory reaches only /repos/foxway, not {path}")
+    return path
+
+
+def target(path_arg):
+    root = repo_root()
+    if path_arg:
+        return EU, guard(path_arg)
+    if not root or not root.is_relative_to(REPOS):
+        die("not inside a repo under ~/repos", "pass --path /repos/<scope>/<repo> or /shared/...")
+    return EU, guard("/" + str(Path("repos") / root.relative_to(REPOS)))
+
+
+def keychain(account, service):
+    r = subprocess.run(["security", "find-generic-password", "-a", account, "-s", service, "-w"],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        die(f"Keychain item {service} for {account} is missing", "ask the operator to store it")
+    return r.stdout.strip()
+
+
+def login(inst):
+    body = {"clientId": keychain(inst["account"], inst["service"] + "-client-id"),
+            "clientSecret": keychain(inst["account"], inst["service"] + "-client-secret")}
+    return request(inst, None, "POST", "/api/v1/auth/universal-auth/login", body)["accessToken"]
+
+
+def request(inst, token, method, path, body=None):
+    headers = {"User-Agent": UA, "Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(inst["url"] + path, method=method, headers=headers,
+                                 data=None if body is None else json.dumps(body).encode())
+    try:
+        return json.load(urllib.request.urlopen(req, context=TLS))
+    except urllib.error.HTTPError as e:
+        die(f"{method} {path.split('?')[0]} -> HTTP {e.code} on {inst['name']}")
+
+
+def query(**kw):
+    return urllib.parse.urlencode(kw)
+
+
+def check_env(env):
+    if env not in ("dev", "staging", "prod"):
+        die(f"unknown environment {env}", "use dev, staging, or prod")
+    if env == "prod":
+        print("isec: using prod secrets; only for a deploy or release step", file=sys.stderr)
+
+
+def list_folder(inst, token, env, path):
+    q = query(workspaceId=inst["project"], environment=env, secretPath=path, include_imports="true",
+              expandSecretReferences="false")
+    data = request(inst, token, "GET", f"/api/v3/secrets/raw?{q}")
+    own = sorted(s["secretKey"] for s in data.get("secrets", []))
+    imports = [(i.get("secretPath"), sorted(s["secretKey"] for s in i.get("secrets", [])))
+               for i in data.get("imports", [])]
+    return own, imports
+
+
+def all_secret_paths(inst, token, env):
+    q = query(workspaceId=inst["project"], environment=env, secretPath="/", recursive="true",
+              include_imports="false", expandSecretReferences="false")
+    return [(s["secretPath"].rstrip("/") or "/", s["secretKey"])
+            for s in request(inst, token, "GET", f"/api/v3/secrets/raw?{q}").get("secrets", [])]
+
+
+def importers(inst, token, env, folders):
+    out = {}
+    for f in folders:
+        q = query(workspaceId=inst["project"], environment=env, path=f)
+        for i in request(inst, token, "GET", f"/api/v1/secret-imports?{q}").get("secretImports", []):
+            out.setdefault(i["importPath"], []).append(f)
+    return out
+
+
+def parse(args, flags=("--env", "--path", "--from")):
+    opts, rest = {}, []
+    it = iter(args)
+    for a in it:
+        if a == "--":
+            rest.extend(it)
+            break
+        if a in flags:
+            opts[a[2:]] = next(it, None) or die(f"{a} needs a value")
+        else:
+            rest.append(a)
+    return opts, rest
+
+
+def cmd_run(args):
+    opts, cmd = parse(args)
+    if not cmd:
+        die("nothing to run", "isec run -- <command>")
+    env = opts.get("env", "dev")
+    check_env(env)
+    inst, path = target(opts.get("path"))
+    token = login(inst)
+    child = os.environ.copy()
+    child["INFISICAL_TOKEN"] = token
+    # The token authenticates the CLI only; the command itself never sees it.
+    os.execvpe("infisical", ["infisical", "run", f"--domain={inst['url']}/api", f"--projectId={inst['project']}",
+                             f"--env={env}", f"--path={path}", "--silent", "--",
+                             "env", "-u", "INFISICAL_TOKEN", *cmd], child)
+
+
+def cmd_ls(args):
+    opts, rest = parse(args)
+    env = opts.get("env", "dev")
+    check_env(env)
+    inst, path = target(rest[0] if rest else opts.get("path"))
+    token = login(inst)
+    own, imports = list_folder(inst, token, env, path)
+    q = query(workspaceId=inst["project"], environment=env, path=path)
+    sub = sorted(f["name"] for f in request(inst, token, "GET", f"/api/v1/folders?{q}").get("folders", []))
+    print(f"{inst['name']} {env}:{path}")
+    print(f"  keys ({len(own)}): {' '.join(own) or '-'}")
+    for src, keys in imports:
+        print(f"  import {src} ({len(keys)}): {' '.join(keys)}")
+    if sub:
+        print(f"  folders: {' '.join(sub)}")
+
+
+def cmd_where(args):
+    opts, rest = parse(args)
+    if len(rest) != 1:
+        die("usage: isec where <KEY>")
+    key, env = rest[0], opts.get("env", "dev")
+    check_env(env)
+    inst = EU
+    token = login(inst)
+    pairs = all_secret_paths(inst, token, env)
+    fox = in_foxway()
+    owners = sorted({p for p, k in pairs if k == key and (p.startswith("/repos/foxway") == fox)})
+    if not owners:
+        die(f"{key} is not stored in {env}", "ask the operator to add it, or publish it with `isec set`")
+    imp = importers(inst, token, env, sorted({p for p, _ in pairs} | {"/repos"}))
+    for o in owners:
+        users = imp.get(o, [])
+        print(f"{env}:{o} {key}" + (f"  imported by: {' '.join(sorted(users))}" if users else ""))
+
+
+def cmd_need(args):
+    opts, rest = parse(args)
+    if len(rest) != 1:
+        die("usage: isec need <KEY>")
+    key = rest[0]
+    inst, path = target(opts.get("path"))
+    token = login(inst)
+    own, imports = list_folder(inst, token, "dev", path)
+    if key in own or any(key in keys for _, keys in imports):
+        print(f"{key} already reaches dev:{path}")
+        return
+    # /shared/agent-vault is Agent Vault's input folder, not an owner to import from.
+    owners = [opts["from"]] if "from" in opts else sorted(
+        {p for p, k in all_secret_paths(inst, token, "dev")
+         if k == key and p != "/shared/agent-vault"
+         and (p.startswith("/repos/foxway/tooling/") if in_foxway() else p.startswith("/shared/"))})
+    if not owners:
+        die(f"no shared owner folder holds {key}", f"`isec where {key}`; a repo-owned key is not shared by import")
+    if len(owners) > 1:
+        die(f"{key} is in several shared folders: {' '.join(owners)}", f"isec need {key} --from <folder>")
+    request(inst, token, "POST", "/api/v1/secret-imports",
+            {"workspaceId": inst["project"], "environment": "dev", "path": path,
+             "import": {"environment": "dev", "path": owners[0]}})
+    print(f"imported dev:{owners[0]} into dev:{path}")
+
+
+def cmd_set(args):
+    opts, rest = parse(args)
+    if len(rest) != 1:
+        die("usage: isec set <KEY> < value")
+    inst, path = target(opts.get("path"))
+    os.execv(str(PUBLISH), [str(PUBLISH), path, rest[0]])
+
+
+def main():
+    cmds = {"run": cmd_run, "ls": cmd_ls, "where": cmd_where, "need": cmd_need, "set": cmd_set}
+    if len(sys.argv) < 2 or sys.argv[1] not in cmds:
+        print(__doc__.strip())
+        sys.exit(0 if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help") else 1)
+    cmds[sys.argv[1]](sys.argv[2:])
+
+
+if __name__ == "__main__":
+    main()
