@@ -34,3 +34,12 @@ Use `isec` for every Infisical read, run, import, and publish. It finds the repo
 - Bind the backend to loopback. Binding all interfaces also exposes it to the LAN.
 - Prefix trap: the proxy usually strips the prefix (verify it). A page with relative assets must load from a path that ends in `/`. Without the slash, relative URLs resolve one level up and silently half-load. The proxy answers both spellings. Fix it with a path-normalizing guard that runs before subresources load, not a hard-coded base URL.
 - Verify from the tailnet name, not loopback: the document, one asset, and one API path through the prefix; the no-slash spelling; existing mounts unchanged; a real browser load with no failed subresources. Report the URL the tool printed and the exact command that removes only your mount.
+
+## POC apps on the VPS
+
+- `ssh vps` logs in as `admin` (sudo, docker). `ssh vps-dev` is the plain `dev` user that Hermes runs as; it has no sudo or docker.
+- A POC app's database goes in the shared Postgres, never a new Postgres service: container `shared-pg` (pgvector, Postgres 17). Compose apps join the external network `shared-pg` and use host `shared-pg`; k3s pods use `10.42.0.1:5432`.
+- Per app: one login role and one database with the app's name, owned by that role, `REVOKE CONNECT ... FROM PUBLIC`. Store the role password in the app's Infisical `prod` folder; the superuser password is in `prod:/shared/tooling/shared-pg`. Pass passwords to `psql` through the container environment and `\getenv`, never argv.
+- Moving an existing database: dump, restore with `--no-owner --role=<app>`, compare exact row counts per table, repoint only the host, keep the old server stopped for 7 days.
+- `shared-pg` has no shared backup job yet. Back up a database that matters with `infra-kit/postgres-backup`.
+

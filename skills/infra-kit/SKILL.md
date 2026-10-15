@@ -37,3 +37,4 @@ description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 stora
 
 - A new piece ships with an `examples/<piece>` stack and an `e2e/<piece>` proof that a separate agent writes from a spec, run against real infrastructure.
 - Name proof resources `infra-kit-proof-*`; on the shared VPS touch no other container.
+- A POC database on the VPS uses the shared Postgres `shared-pg`, not a new Postgres container: see `local-dev`, "POC apps on the VPS".
