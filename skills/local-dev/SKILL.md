@@ -14,7 +14,7 @@ Use `isec` for every Infisical read, run, import, and publish. It finds the repo
 - `isec run -- <cmd>`: run with the folder's secrets and imports. `--env prod` only for a deploy or release step.
 - `isec ls [path]`, `isec where <KEY>`: key names, imports, owners.
 - `isec need <KEY>`: import a `/shared/` owner folder into this repo folder. Never copy a value instead.
-- `isec set <KEY>` reads the value from stdin.
+- `isec set <KEY> [--env staging|prod]` reads the value from stdin; without `--env` it writes `dev`.
 - Foxway secrets live under `/repos/foxway` (repos, and `tooling/jira`, `tooling/azure-devops`). Only an agent working under `~/repos/foxway` may read or write them, and that agent uses only `/repos/foxway`. Never pass a `/repos/foxway` path from elsewhere; `isec` refuses both directions.
 - Never use `infisical run` directly: its result depends on the active CLI profile.
 

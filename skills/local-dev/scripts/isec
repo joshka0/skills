@@ -5,7 +5,7 @@
   isec ls [--env E] [path]                     key names, imports, subfolders
   isec where <KEY> [--env E]                   folders that define KEY, and who imports them
   isec need <KEY> [--path P] [--from F]       import KEY's owner folder into this repo folder (dev only)
-  isec set <KEY> [--path P]                    publish a value read from stdin (dev only)
+  isec set <KEY> [--path P] [--env E]          publish a value read from stdin (dev unless --env)
 
 Auth uses the `agent-secret-publisher` machine identity from Keychain, so the active
 `infisical` CLI profile does not matter. `/repos/foxway` is usable only from a directory
@@ -233,8 +233,10 @@ def cmd_set(args):
     opts, rest = parse(args)
     if len(rest) != 1:
         die("usage: isec set <KEY> < value")
+    env = opts.get("env", "dev")
+    check_env(env)
     inst, path = target(opts.get("path"))
-    os.execv(str(PUBLISH), [str(PUBLISH), path, rest[0]])
+    os.execve(str(PUBLISH), [str(PUBLISH), path, rest[0]], {**os.environ, "INFISICAL_PUBLISH_ENV": env})
 
 
 def main():
