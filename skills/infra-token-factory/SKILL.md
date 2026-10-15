@@ -21,6 +21,7 @@ description: "Get a Touch ID-approved credential: scoped Cloudflare, PlanetScale
 ## Run it
 
 - Run on the user's Mac, outside a sandbox that blocks Keychain or LocalAuthentication. Run in the background or with a timeout of 10 minutes or more, and tell the user a Touch ID prompt waits.
+- Give `mint`, `revoke` and `exec` a `--reason "<why, for which task>"` before any `--`. The Touch ID dialog shows it with the requesting agent, pane and folder.
 - Preflight: `infra-token-factory check <provider> [--org <org> | --project <env> | --tailnet <label>]`. It reports presence and API reachability only.
 - Missing parent: the user runs `infra-token-factory import <provider> ...` in their own terminal. Never pipe a secret into it.
 - After an install, the first use of each Keychain item asks for the login password: the user clicks **Always Allow**.
