@@ -30,6 +30,13 @@ description: "Rules for spreading work across other models and harnesses (Codex,
   share one OpenAI account, so a Codex limit is also a pi limit. Each Claude
   session reports its quota through the statusline (`router observe-claude`);
   an account with no recent session shows old data or `unknown`.
+- To move a rate-limited Claude pane to another account without losing its
+  context: exit it, copy its transcript
+  `~/.claude/projects/<cwd-slug>/<session>.jsonl` into the same path under
+  the new config dir, then run
+  `CLAUDE_CONFIG_DIR="$HOME/<dir>" claude --resume <session>` in the pane.
+  A bare `claude` (also the Herdr `dispatch_task` default) uses
+  `~/.claude`; launch with the picked account instead.
 
 ## Model choice
 
