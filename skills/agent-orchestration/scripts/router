@@ -1,0 +1,519 @@
+#!/usr/bin/env python3
+"""Last-seen model catalog and account quota tracker for agent routing.
+
+State lives in the fleet-memory vault, which syncs between machines: each machine writes only
+machines/<host>.json; notes.json is shared; Router.md is a rendered view. Never prints credentials
+and stores account keys as hashes, never email addresses.
+"""
+import argparse, datetime as dt, fcntl, glob, hashlib, json, os, re, socket, subprocess, sys, time
+from contextlib import contextmanager
+
+HOME = os.path.expanduser("~")
+ROOT = os.path.join(HOME, "vaults/fleet-memory/router")
+HOST = socket.gethostname().split(".")[0]
+MINE = os.path.join(ROOT, "machines", f"{HOST}.json")
+NOTES = os.path.join(ROOT, "notes.json")
+LOCK = os.path.join(HOME, ".local/state/agent-router.lock")
+QUIET = 600  # seconds between statusline writes when nothing changed
+IDLE_DAYS = 30
+MODELS_MD = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "models.md")
+# Agent CLIs to look for, with the folders whose newest file shows the last use. Agents add other
+# harnesses they find with `router harness add`; those are shared through notes.json.
+HARNESSES = {
+    "claude": ["~/.claude*/projects"], "codex": ["~/.codex/sessions"], "pi": ["~/.pi/agent/sessions"],
+    "opencode": ["sqlite:~/.local/share/opencode/opencode.db:select max(time_updated) / 1000 from session"], "devin": ["~/.devin"], "droid": ["~/.factory/sessions"],
+    "cursor-agent": ["~/.cursor/projects"], "grok": ["~/.grok/sessions"], "gemini": ["~/.gemini/tmp"],
+    "kimi": ["~/.kimi/sessions"], "hermes": [], "claudex": [], "pi-vm-agent": [], "amp": [], "agy": [],
+    "qwen": ["~/.qwen"], "aider": [], "goose": [], "crush": [], "kiro-cli": [], "copilot": [],
+    "auggie": [], "openhands": [], "kilocode": [], "cline": [], "prime": [],
+}
+BLOCKED_PCT = 95  # a window at or above this counts as rate-limited
+WINDOWS = {300: "five_hour", 10080: "seven_day"}  # Codex window_minutes -> name
+
+
+def now(): return int(time.time())
+
+
+def fmt(ts):
+    return dt.datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M") if ts else "-"
+
+
+def load(path):
+    try:
+        with open(path) as f: return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+
+def save(path, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = f"{path}.{os.getpid()}.tmp"
+    with open(tmp, "w") as f: json.dump(data, f, indent=1, sort_keys=True)
+    os.replace(tmp, path)
+
+
+@contextmanager
+def state(write=True):
+    """Yields this machine's state. s["notes"] is the shared notes file; s["others"] the other machines."""
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)
+    with open(LOCK, "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        s = load(MINE)
+        for k in ("models", "accounts", "probes"): s.setdefault(k, {})
+        notes = load(NOTES)
+        for k in ("models", "harnesses"): notes.setdefault(k, {})
+        before = json.dumps(s, sort_keys=True), json.dumps(notes, sort_keys=True)
+        others = {os.path.basename(p)[:-5]: load(p) for p in glob.glob(os.path.join(ROOT, "machines/*.json"))
+                  if p != MINE}
+        s["notes"], s["others"] = notes, others
+        yield s
+        s.pop("others"), s.pop("notes")
+        if write and json.dumps(s, sort_keys=True) != before[0]: save(MINE, s)
+        if write and json.dumps(notes, sort_keys=True) != before[1]: save(NOTES, notes)
+
+
+def see(s, harness, mid, desc="", source="catalog", t=None):
+    t = t or now()
+    m = s["models"].setdefault(f"{harness}/{mid}", {
+        "harness": harness, "id": mid, "first_seen": t, "source": source})
+    if source != "note" and (source == "catalog" or t - (m.get("last_seen") or 0) > QUIET):
+        m["last_seen"] = t
+        m["gone_since"] = None
+        if m.get("source") == "note": m["source"] = source
+    if desc: m["desc"] = desc
+    return m
+
+
+# ---------- catalog probes: each returns [(id, desc)] or raises ----------
+
+def run(*cmd):
+    p = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+    out = p.stdout + p.stderr
+    if re.search(r"authenticat|login required|not logged in", out, re.I) and p.returncode != 0:
+        raise RuntimeError(out.strip().splitlines()[0][:120])
+    return out
+
+
+def probe_codex():
+    data = json.loads(run("codex", "debug", "models"))
+    found = []
+    def walk(o):
+        if isinstance(o, dict):
+            if "slug" in o and o.get("visibility") == "list":
+                found.append((o.get("priority", 99), o["slug"], o.get("description", "")))
+            for v in o.values(): walk(v)
+        elif isinstance(o, list):
+            for v in o: walk(v)
+    walk(data)
+    return [(slug, f"[{pri}] {d}") for pri, slug, d in sorted(found)]
+
+
+def probe_pi():
+    lines = run("pi", "--list-models").splitlines()[1:]
+    return [(f"{p[0]}/{p[1]}", "") for p in (l.split() for l in lines) if len(p) >= 2]
+
+
+def probe_opencode():
+    return [(l.strip(), "") for l in run("opencode", "models").splitlines()
+            if "/" in l and not l.startswith("openrouter/")]
+
+
+def probe_devin():
+    return [(m.group(2), m.group(1)) for l in run("devin", "models", "list").splitlines()
+            if (m := re.match(r"^(\S.*) \(([^()\s]+)\)$", l))]
+
+
+def probe_grok():
+    return [(m.group(1), "") for l in run("grok", "models").splitlines()
+            if (m := re.match(r"^\s*-\s+(\S+)", l))]
+
+
+def probe_cursor():
+    out = run("cursor-agent", "--list-models")
+    if re.search(r"Authentication required", out): raise RuntimeError("needs agent login")
+    return [(m.group(1), m.group(2)) for l in out.splitlines()
+            if (m := re.match(r"^(\S+) - (.+)$", l.strip()))]
+
+
+def probe_droid():
+    with open(os.path.join(HOME, ".factory/settings.json")) as f:
+        cfg = json.load(f)
+    return [(m["id"], f'{m.get("model", "")} {m.get("displayName", "")}'.strip())
+            for m in cfg.get("customModels") or []]
+
+
+PROBES = {"codex": probe_codex, "pi": probe_pi, "opencode": probe_opencode, "devin": probe_devin,
+          "grok": probe_grok, "cursor-agent": probe_cursor, "droid": probe_droid}
+
+
+# ---------- harnesses ----------
+
+INDEX = re.compile(r"\.(sqlite|db)(-wal|-shm|-journal)?$|\.log$")  # a catalog probe touches these
+
+
+def last_used(sources):
+    """Newest session file along the newest-child path of each folder (session trees are date-nested).
+    Folder and index times do not count: `router refresh` itself changes them."""
+    best = 0
+    for src in sources:
+        if src.startswith("sqlite:"):
+            import sqlite3
+            db, query = src[7:].split(":", 1)
+            try:
+                with sqlite3.connect(f"file:{os.path.expanduser(db)}?mode=ro", uri=True) as c:
+                    best = max(best, c.execute(query).fetchone()[0] or 0)
+            except sqlite3.Error:
+                pass
+            continue
+        for path in glob.glob(os.path.expanduser(src)):
+            for _ in range(5):
+                if not os.path.isdir(path):
+                    try: best = max(best, os.stat(path).st_mtime)
+                    except OSError: pass
+                    break
+                try: entries = [e for e in os.scandir(path) if not e.name.startswith(".") and not INDEX.search(e.name)]
+                except OSError: break
+                if not entries: break
+                path = max(entries, key=lambda e: e.stat(follow_symlinks=False).st_mtime).path
+    return int(best) or None
+
+
+def classes():
+    """Harness classes from the Harnesses table of models.md: {name: class}."""
+    out, inside = {}, False
+    with open(MODELS_MD) as f:
+        for line in f:
+            if line.startswith("## "): inside = line.strip() == "## Harnesses"
+            elif inside and line.startswith("| `"):
+                cells = [c.strip() for c in line.strip().strip("|").split("|")]
+                for name in re.findall(r"`([^`]+)`", cells[0]): out[name] = cells[1]
+    return out
+
+
+def scan_harnesses(s, t):
+    wanted = dict(HARNESSES)
+    for name, notes in s["notes"]["harnesses"].items():
+        wanted.setdefault(name, [n["sessions"] for n in notes if n.get("sessions")])
+    found = []
+    for name, dirs in wanted.items():
+        path = subprocess.run(["sh", "-c", f'command -v "{name}"'], capture_output=True, text=True).stdout.strip()
+        h = s.setdefault("harnesses", {}).get(name)
+        if not path:
+            if h and not h.get("gone_since"): h["gone_since"] = t
+            continue
+        if not h: h = s["harnesses"][name] = {"first_seen": t}; found.append(name)
+        real = os.path.realpath(path)
+        h.update(path=path, updated=int(os.stat(real).st_mtime), last_seen=t, gone_since=None,
+                 last_used=last_used(dirs))
+    return found
+
+
+def all_harnesses(s):
+    rows = []
+    for host, st in [(HOST, s)] + sorted(s["others"].items()):
+        for name, h in st.get("harnesses", {}).items(): rows.append(dict(h, name=name, host=host))
+    return rows
+
+
+def cmd_harnesses(a):
+    with state() as s:
+        new = scan_harnesses(s, now())
+        cls, t = classes(), now()
+        rows = sorted(all_harnesses(s), key=lambda h: (bool(h.get("gone_since")), h["name"] not in cls,
+                                                       -(h.get("last_used") or 0), h["name"]))
+        for h in rows:
+            c = cls.get(h["name"], "NEW: unclassified")
+            used = h.get("last_used")
+            idle = " IDLE" if used and t - used > IDLE_DAYS * 86400 else ""
+            gone = f' GONE since {fmt(h["gone_since"])}' if h.get("gone_since") else ""
+            print(f'{h["name"]:<13} {c:<20} {h["host"]:<8} last used {fmt(used)}{idle}  updated {fmt(h.get("updated"))}{gone}')
+            for n in s["notes"]["harnesses"].get(h["name"], []): print(f'{"":14}note {n["at"]}: {n["text"]}')
+        unclassified = sorted({h["name"] for h in rows if h["name"] not in cls and not h.get("gone_since")})
+        if unclassified:
+            print(f"\nunclassified: {', '.join(unclassified)}. Do not route work to them. "
+                  "Propose a class for each to the operator (models.md, Harnesses).")
+        render(s)
+
+
+def cmd_harness_add(a):
+    with state() as s:
+        note = {"at": dt.date.today().isoformat(), "host": HOST, "text": a.text}
+        if a.sessions: note["sessions"] = a.sessions
+        s["notes"]["harnesses"].setdefault(a.name, []).append(note)
+        scan_harnesses(s, now())
+        render(s)
+    print(f"recorded harness {a.name}; every machine now looks for it")
+
+
+def cmd_refresh(a):
+    from concurrent.futures import ThreadPoolExecutor
+    names = [h for h in (a.harness or PROBES) if subprocess.run(
+        ["sh", "-c", f"command -v {h}"], capture_output=True).returncode == 0]
+    def go(h):
+        try: return h, PROBES[h](), None
+        except Exception as e: return h, None, str(e)[:160] or type(e).__name__
+    with ThreadPoolExecutor(len(names) or 1) as ex: results = list(ex.map(go, names))
+    t = now()
+    with state() as s:
+        observe_codex(s)
+        new_h = scan_harnesses(s, t)
+        if new_h: print(f"new harnesses on {HOST}: {', '.join(new_h)} (run `router harnesses`)")
+        for h, models, err in results:
+            s["probes"][h] = {"at": t, "ok": err is None, "error": err}
+            if err:
+                print(f"{h}: probe failed ({err}); catalog kept as last seen"); continue
+            seen = {mid for mid, _ in models}
+            new = [mid for mid, d in models if f"{h}/{mid}" not in s["models"]
+                   or s["models"][f"{h}/{mid}"].get("source") == "note"]
+            for mid, d in models: see(s, h, mid, d, t=t)
+            gone = []
+            for m in s["models"].values():
+                if m["harness"] == h and m["id"] not in seen and m.get("source") != "note" \
+                        and not m.get("gone_since") and m.get("source") == "catalog":
+                    m["gone_since"] = t; gone.append(m["id"])
+            print(f"{h}: {len(models)} listed" + (f"; new: {', '.join(new)}" if new and len(new) < 40
+                  else f"; {len(new)} new" if new else "") + (f"; gone: {', '.join(gone)}" if gone else ""))
+        render(s)
+
+
+# ---------- search ----------
+
+def tokens(text): return re.findall(r"[a-z]+|\d+(?:\.\d+)*", text.lower())
+
+
+def matches(q, m):
+    hay = " ".join([m["harness"], m["id"], m.get("desc", "")] + [n["text"] for n in m.get("notes", [])])
+    ht = tokens(hay)
+    return all(any(t == h or (not t[0].isdigit() and h.startswith(t)) for h in ht) for t in tokens(q))
+
+
+def all_models(s):
+    """Every machine's catalog, with the machine and the shared notes attached."""
+    rows = []
+    for host, st in [(HOST, s)] + sorted(s["others"].items()):
+        for key, m in st.get("models", {}).items():
+            rows.append(dict(m, host=host, notes=s["notes"]["models"].get(key, [])))
+    for key, notes in s["notes"]["models"].items():  # noted models that no catalog lists
+        if not any(f'{r["harness"]}/{r["id"]}' == key for r in rows):
+            h, _, mid = key.partition("/")
+            rows.append({"harness": h, "id": mid, "host": "-", "source": "note", "notes": notes})
+    return rows
+
+
+def show_models(rows, verbose=False):
+    hosts = len({m["host"] for m in rows if m["host"] != "-"}) > 1
+    for m in sorted(rows, key=lambda m: (m["harness"], -(m.get("last_seen") or 0), m["id"], m["host"])):
+        flag = " GONE since " + fmt(m["gone_since"]) if m.get("gone_since") else \
+            " (noted, never listed)" if m.get("source") == "note" else ""
+        where = f' on {m["host"]}' if hosts else ""
+        print(f'{m["harness"]:<13} {m["id"]:<44} last seen {fmt(m.get("last_seen"))}{where}{flag}')
+        if verbose and m.get("desc"): print(f'{"":14}{m["desc"]}')
+        for n in m["notes"]: print(f'{"":14}note {n["at"]} ({n.get("host", "?")}): {n["text"]}')
+
+
+def cmd_models(a):
+    with state(write=False) as s:
+        rows = [m for m in all_models(s) if (not a.harness or m["harness"] == a.harness)
+                and (a.gone or not m.get("gone_since"))]
+        if a.words: rows = [m for m in rows if matches(" ".join(a.words), m)]
+        show_models(rows, verbose=bool(a.words))
+        if not rows: print("no match; run `router refresh`, then `router note` if the name is still unknown")
+        stale = [h for h, p in s["probes"].items() if now() - p["at"] > 86400 or not p["ok"]]
+        if stale: print(f"\nstale or failed probes: {', '.join(sorted(stale))} (run `router refresh`)")
+
+
+def cmd_note(a):
+    harness, _, mid = a.model.partition("/")
+    if not mid: sys.exit("model must be <harness>/<id>, as `router models` prints it")
+    with state() as s:
+        s["notes"]["models"].setdefault(f"{harness}/{mid}", []).append(
+            {"at": dt.date.today().isoformat(), "host": HOST, "text": a.text})
+        render(s)
+    print(f"noted on {harness}/{mid}; shared with every machine through {NOTES}")
+
+
+# ---------- quotas ----------
+
+def claude_account(cfg_dir):
+    path = os.path.join(cfg_dir, ".claude.json")
+    if os.path.realpath(cfg_dir) == os.path.join(HOME, ".claude"): path = os.path.join(HOME, ".claude.json")
+    try:
+        with open(path) as f: return (json.load(f).get("oauthAccount") or {}).get("emailAddress")
+    except (OSError, ValueError):
+        return None
+
+
+def account(s, key, family, label):
+    if "@" in key:
+        scope = "foxway" if key.endswith("@foxway.com") else "personal"
+        key = hashlib.sha256(key.encode()).hexdigest()[:12]
+    acct = s["accounts"].setdefault(key, {"family": family, "dirs": [], "windows": {}})
+    if label not in acct["dirs"]: acct["dirs"].append(label)
+    if family == "claude": acct["scope"] = scope
+    return acct
+
+
+def cmd_observe_claude(a):
+    """Statusline hook: reads the statusline JSON on stdin. Silent and quick."""
+    try: data = json.load(sys.stdin)
+    except ValueError: return
+    cfg = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(HOME, ".claude")
+    email = claude_account(cfg)
+    rl = data.get("rate_limits") or {}
+    model = (data.get("model") or {}).get("id")
+    if not email or not (rl or model): return
+    with state() as s:
+        acct = account(s, email, "claude", os.path.basename(cfg.rstrip("/")))
+        windows = {w: {"used": rl[w].get("used_percentage", 0), "resets_at": rl[w]["resets_at"]}
+                   for w in ("five_hour", "seven_day") if (rl.get(w) or {}).get("resets_at")}
+        if windows and (windows != acct["windows"] or now() - acct.get("observed_at", 0) > QUIET):
+            acct["windows"], acct["observed_at"] = windows, now()
+        if model: see(s, "claude", model, (data.get("model") or {}).get("display_name", ""), source="observed")
+
+
+def observe_codex(s):
+    """The OpenAI account (Codex and pi share it). Codex rollouts log rate_limits; pi logs none."""
+    files = sorted(glob.glob(os.path.join(HOME, ".codex/sessions/*/*/*/*.jsonl")), key=os.path.getmtime)[-3:]
+    best = None
+    for path in files:
+        with open(path, errors="replace") as f:
+            for line in f:
+                if '"rate_limits"' not in line and '"turn_context"' not in line: continue
+                try: ev = json.loads(line)
+                except ValueError: continue
+                p = ev.get("payload") or {}
+                if ev.get("type") == "turn_context" and p.get("model"):
+                    see(s, "codex", p["model"], source="observed")
+                rl = p.get("rate_limits")
+                if rl and rl.get("limit_id") == "codex":
+                    best = (os.path.getmtime(path), rl)
+    if not best: return
+    t, rl = best
+    acct = account(s, "openai", "openai", "codex+pi")
+    for slot in ("primary", "secondary"):
+        w = rl.get(slot) or {}
+        name = WINDOWS.get(w.get("window_minutes"), f'{w.get("window_minutes")}m')
+        if w.get("resets_at"): acct["windows"][name] = {"used": w.get("used_percent", 0), "resets_at": w["resets_at"]}
+    acct["observed_at"] = int(t)
+    acct["plan"] = rl.get("plan_type")
+    acct["limit_reached"] = rl.get("rate_limit_reached_type")
+
+
+def effective(acct, t):
+    """Windows with expired resets counted as unused."""
+    return {n: (0 if w["resets_at"] <= t else w["used"], w["resets_at"]) for n, w in acct["windows"].items()}
+
+
+def rank(acct, t):
+    """Lower sorts first. Blocked last; then the account whose weekly quota must burn fastest to be used
+    before it resets (use-it-or-lose-it pacing); unobserved accounts between."""
+    w = effective(acct, t)
+    if any(used >= BLOCKED_PCT for used, _ in w.values()) or acct.get("limit_reached"):
+        return (2, min((r for u, r in w.values() if u >= BLOCKED_PCT), default=0))
+    if "seven_day" not in w: return (1, 0)
+    used, reset = w["seven_day"]
+    burn = (100 - used) / max((reset - t) / 3600, 0.5)  # percent per hour needed to spend it all
+    hot = w.get("five_hour", (0, 0))[0] >= 80
+    return (0, int(hot), -burn)
+
+
+def describe(acct, t):
+    parts = [f"{n} {u:.0f}% resets {fmt(r)}" for n, (u, r) in sorted(effective(acct, t).items())]
+    age = f'observed {fmt(acct.get("observed_at"))}' if acct.get("observed_at") else "never observed"
+    return f'{", ".join(parts) or "no windows"}; {age}'
+
+
+def accounts(s):
+    """Each account's newest observation across machines. Quotas are account-wide."""
+    merged = {}
+    for host, st in [(HOST, s)] + list(s["others"].items()):
+        for key, acct in st.get("accounts", {}).items():
+            cur = merged.get(key)
+            dirs = sorted(set(acct["dirs"]) | set(cur["dirs"] if cur else []))
+            if not cur or acct.get("observed_at", 0) > cur.get("observed_at", 0):
+                merged[key] = dict(acct, host=host)
+            merged[key]["dirs"] = dirs
+    return merged
+
+
+def status(r): return "LIMITED" if r[0] == 2 else "ok" if r[0] == 0 else "unknown"
+
+
+def cmd_quota(a):
+    with state() as s:
+        observe_codex(s)
+        t = now()
+        for acct in sorted(accounts(s).values(), key=lambda x: (x["family"], rank(x, t))):
+            print(f'{acct["family"]:<7} {acct.get("scope", ""):<9} {",".join(acct["dirs"]):<32} '
+                  f'{status(rank(acct, t)):<8} {describe(acct, t)} on {acct["host"]}')
+        render(s)
+
+
+def render(s):
+    """Router.md: the view the operator reads in Obsidian. Agents use the CLI."""
+    t = now()
+    out = ["# Agent router", "",
+           f"Generated by `router` (agent-orchestration skill) on {HOST} at {fmt(t)}. Do not edit this page.",
+           "To add a note, run `router note <harness>/<id> \"<text>\"`.", "",
+           "## Quotas", "", "| Family | Scope | Config dirs | Status | Windows and observation |", "| --- | --- | --- | --- | --- |"]
+    for acct in sorted(accounts(s).values(), key=lambda x: (x["family"], rank(x, t))):
+        out.append(f'| {acct["family"]} | {acct.get("scope", "")} | {", ".join(acct["dirs"])} | '
+                   f'{status(rank(acct, t))} | {describe(acct, t)} on {acct["host"]} |')
+    out += ["", "## Model notes", "", "| Model | Date | Machine | Note |", "| --- | --- | --- | --- |"]
+    for key, notes in sorted(s["notes"]["models"].items()):
+        for n in notes: out.append(f'| `{key}` | {n["at"]} | {n.get("host", "")} | {n["text"]} |')
+    cls = classes()
+    out += ["", "## Harnesses", "", "| Harness | Class | Machine | Last used | Binary updated |", "| --- | --- | --- | --- | --- |"]
+    for h in sorted(all_harnesses(s), key=lambda h: (h["name"] not in cls, -(h.get("last_used") or 0))):
+        if h.get("gone_since"): continue
+        out.append(f'| `{h["name"]}` | {cls.get(h["name"], "**NEW: unclassified**")} | {h["host"]} | '
+                   f'{fmt(h.get("last_used"))} | {fmt(h.get("updated"))} |')
+    out += ["", "## Catalogs", "", "| Machine | Harness | Models | Last probe |", "| --- | --- | --- | --- |"]
+    for host, st in [(HOST, s)] + sorted(s["others"].items()):
+        for h, p in sorted(st.get("probes", {}).items()):
+            n = sum(1 for m in st["models"].values() if m["harness"] == h and not m.get("gone_since"))
+            out.append(f'| {host} | {h} | {n} | {fmt(p["at"])} {"ok" if p["ok"] else "failed: " + p["error"]} |')
+    path = os.path.join(ROOT, "Router.md")
+    with open(path + ".tmp", "w") as f: f.write("\n".join(out) + "\n")
+    os.replace(path + ".tmp", path)
+
+
+def cmd_pick(a):
+    with state() as s:
+        observe_codex(s)
+        t = now()
+        accts = [x for x in accounts(s).values() if x["family"] == a.family
+                 and (a.family != "claude" or x.get("scope") == ("foxway" if a.foxway else "personal"))]
+        if not accts: sys.exit(f"no {a.family} account observed yet; run a session in each account first")
+        best = min(accts, key=lambda x: rank(x, t))
+        r = rank(best, t)
+        if r[0] == 2:
+            sys.exit(f'all limited; first reset {fmt(r[1])}: {",".join(best["dirs"])}; move to another family')
+        d = best["dirs"][-1]
+        print(f'CLAUDE_CONFIG_DIR="$HOME/{d}"' if a.family == "claude" else ",".join(best["dirs"]))
+        print(f"  why: {describe(best, t)}", file=sys.stderr)
+
+
+def main():
+    p = argparse.ArgumentParser(prog="router", description=__doc__)
+    sub = p.add_subparsers(dest="cmd", required=True)
+    r = sub.add_parser("refresh", help="probe live catalogs; update last seen"); r.add_argument("harness", nargs="*")
+    m = sub.add_parser("models", help="list or search the catalog, e.g. `router models gpt 6.1 sol`")
+    m.add_argument("words", nargs="*"); m.add_argument("--harness"); m.add_argument("--gone", action="store_true")
+    n = sub.add_parser("note", help="attach a note (a spoken name, a role) to <harness>/<id>")
+    n.add_argument("model"); n.add_argument("text")
+    sub.add_parser("harnesses", help="scan this machine; list harnesses with class, last use, and NEW ones")
+    ha = sub.add_parser("harness", help="record a harness the scan does not know").add_subparsers(dest="hcmd", required=True)
+    hadd = ha.add_parser("add"); hadd.add_argument("name", help="its command name"); hadd.add_argument("text")
+    hadd.add_argument("--sessions", help="folder whose newest file shows its last use")
+    sub.add_parser("observe-claude", help="statusline hook: record quota of $CLAUDE_CONFIG_DIR's account")
+    sub.add_parser("quota", help="show each account's windows and resets")
+    k = sub.add_parser("pick", help="choose an account by quota pacing"); k.add_argument("family", choices=["claude", "openai"])
+    k.add_argument("--foxway", action="store_true", help="choose among Foxway accounts only")
+    a = p.parse_args()
+    {"harnesses": cmd_harnesses, "harness": cmd_harness_add, "refresh": cmd_refresh, "models": cmd_models, "note": cmd_note, "observe-claude": cmd_observe_claude,
+     "quota": cmd_quota, "pick": cmd_pick}[a.cmd](a)
+
+
+if __name__ == "__main__":
+    main()

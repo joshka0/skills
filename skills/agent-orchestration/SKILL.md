@@ -23,14 +23,35 @@ description: "Rules for spreading work across other models and harnesses (pi, Co
 - Rate limits differ per harness and account. Distinguish a rate limit from an
   auth or entitlement failure first. If one route is rate-limited, move the
   task to another permitted route with the same capability.
+- Choose a Claude account with `scripts/router pick claude` (add `--foxway`
+  for Foxway work). It skips accounts at 95% or more of a window and prefers
+  the account that must spend its weekly quota fastest before its reset.
+  `scripts/router quota` shows every account, Claude and OpenAI. Codex and pi
+  share one OpenAI account, so a Codex limit is also a pi limit. Each Claude
+  session reports its quota through the statusline (`router observe-claude`);
+  an account with no recent session shows old data or `unknown`.
 
 ## Model choice
 
 - Pick the model line and route from `models.md`. It names lines (Sol, Luna,
   Kimi), never versions.
-- Before you launch, run `scripts/list-models`. It is read-only and prints each
-  installed harness's live catalog. Pick the newest ID of the chosen line, and
-  verify the ID and effort in the live CLI.
+- `scripts/router` is the source of truth for the models seen on each machine.
+  It keeps each harness's catalog with first and last seen dates in the
+  fleet-memory vault (`~/vaults/fleet-memory/router/`), which syncs to the dev
+  box: one file per machine, shared `notes.json`, and the rendered
+  `Router.md` that the operator reads in Obsidian. Never edit these files by
+  hand. Before you launch, run
+  `scripts/router refresh` if a probe is older than one day, then pick the
+  newest ID of the line from `scripts/router models <line>`. Verify the ID and
+  effort in the live CLI.
+- If the user names a model you do not know (for example `gpt 6.1-sol`), run
+  `scripts/router models <words>` before you search the web or ask. If you
+  must find it some other way, record it with
+  `scripts/router note <harness>/<id> "<the user's name for it; its role>"`.
+  A model that a refresh no longer lists shows `GONE since <date>`.
+- On a new machine, or before you use a harness, run `scripts/router
+  harnesses`. It shows which harnesses are installed, when each was last
+  used, and its class from `models.md` ("Harnesses").
 - Never write a model version into a skill, a brief template, or a home config.
   Use a line name, a Claude alias (`sonnet`, `opus`), or the CLI default.
 - If a new line appears in a catalog, or a role has no good fit, rank the
