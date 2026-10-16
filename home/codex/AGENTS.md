@@ -4,6 +4,19 @@
 
 - Preserve unrelated files, uncommitted changes, and Git history. Before any
   cleanup, inspect the exact target and who owns it.
+- Keep the machine clean, and leave it cleaner than you found it. The disk
+  is nearly full.
+  - "Done" includes cleanup. Close the panes, watches, and scratch files you
+    created. Remove your worktrees with `wt done` (`worktrees` skill). Keep
+    a worktree or branch with unmerged or unpushed commits and report it.
+    Keep anything I asked for.
+  - Rebuild a Docker image, app build, or dependency tree only when its
+    inputs changed. Reuse caches and incremental builds. Remove the images,
+    containers, build outputs, and logs you made and no longer need.
+  - You may remove another agent's leftovers only when a tool proves them
+    safe: `wt sweep <repo> --apply` for merged worktrees in your repository,
+    `docker image prune` for dangling images. Report any other leftovers you
+    find; do not delete them.
 - macOS has BSD `pkill`/`pgrep`/`killall`: no GNU long options, and every
   argument after the pattern is another pattern. On 2026-10-04 a
   `pkill -f '<pat>' -u $USER --signal 0` sent SIGTERM to every process
@@ -84,6 +97,10 @@
   can fail, then write the code. That failure list is the contract: a
   separate fresh-context agent turns it into tests. Never write the tests that
   gate your own code.
+- Before you report a performance number, run `benchmark-checklist`.
+- If a repo has no scripted way to prove behavior in the real app, create
+  one with `verification-skill`.
+- For a small diff you do not trust, run `blast-radius`.
 
 ## Local tooling
 
@@ -155,6 +172,12 @@
   it in the memo as `adr-NNNN`. Skip one-off errors and session-local
   facts. To find prior work, use `agent-memory` (`mem topics`,
   `mem topic <name>`, `mem find <words>`, `mem zoom <id>+1`).
+- Feature notes: track multi-session work in
+  `~/vaults/fleet-memory/features/<topic> feature.md` (format and rules:
+  `agent-memory` skill). Before you start a step, tag it
+  `@<your pane label>`; when you finish or get blocked, update the note in
+  the same turn. Subagents never edit feature notes; they report to their
+  parent.
 - Pane messages: when you type into another agent's pane (a brief, a
   follow-up or a callback such as DONE), start the text with
   `[agent <your pane label>]`. The fleet memory then does not record it as
@@ -211,6 +234,10 @@
 - Keep concerns modular. Use existing dependencies and established libraries
   first, and check their docs and types before you decide a capability is
   missing.
+- When two fixes that share one premise fail the same check, write the
+  premise down and test it before you write a third fix.
+- Before you change code whose reason you do not know, run `why`.
+- When the user corrects the same mistake a second time, run `mistake-proofing`.
 
 ## Writing
 
@@ -220,7 +247,8 @@ no work. Address the reader as "you". Put the condition before the instruction.
 Use sentence-case headings, numbered lists only for sequences, descriptive link
 text, and unambiguous dates (2026-08-18). Put code in code font. In docs, describe only
 what exists. Plans, backlog items, `Parked` sections, and ADR consequences may
-state future work if labeled as such.
+state future work if labeled as such. For prose that a person reads, also apply
+`unslop`.
 
 ## Reports
 

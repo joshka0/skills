@@ -40,7 +40,7 @@ herdr pane run <id> "<self-contained brief>"
 - Start every message you type into another agent's pane, including callbacks, with `[agent <your pane label>]`. The fleet memory then does not record it as the operator's words.
 - `agent send <target> '<text>'` writes literal text. Some integrations do not auto-submit, so read afterward and send Enter if needed. Prefer pane IDs when agent names can collide.
 - Put child agents where the user can see them: a sibling split in your tab, or a new tab in your workspace when the tab is full. Create a workspace or use another cwd only when the user asks.
-- Parallel writers on one repo each get `herdr worktree create --cwd <repo> --branch <task> --label <task> --no-focus`.
+- Parallel writers on one repo each get a worktree from `wt new` (`worktrees` skill), which also tracks cleanup.
 - Launch agents through `av-agent`, as above, so mapped API keys work without the agent seeing them (`agent-vault`). For Foxway work, launch the bare agent.
 
 ## Remote machines

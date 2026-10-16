@@ -30,7 +30,10 @@
         "jsm"
       ],
       "native": [
-        "native/agents/hunk-review"
+        "native/agents/hunk-review",
+        "native/agents/design-taste-frontend",
+        "native/agents/tesseract-video",
+        "native/agents/tesseract-motion"
       ]
     },
     "agents": {
@@ -45,7 +48,8 @@
         "native/agents/firecrawl-monitor",
         "native/agents/firecrawl-developer-index",
         "native/agents/firecrawl-research-index",
-        "native/agents/hunk-review"
+        "native/agents/hunk-review",
+        "native/agents/design-taste-frontend"
       ]
     },
     "codex": {
@@ -55,7 +59,8 @@
       ],
       "preserve": [
         ".system",
-        "jsm"
+        "jsm",
+        "jira"
       ]
     },
     "gemini": {

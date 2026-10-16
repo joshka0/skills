@@ -102,6 +102,29 @@ description: "Find prior work and preserve useful session context. Use for proje
   (`docs/adr/NNNN-<title>.md`) that names its topic, and cite it as
   `ids adr-NNNN`. Keep temporary
   process and pane state in the handoff.
+- Track multi-session work in feature notes:
+  `~/vaults/fleet-memory/features/<topic> feature.md`, one per feature,
+  copied from `features/_template.md`. `<topic>` is the feature's memo
+  topic. Frontmatter: `type: feature`, `project`, `status`
+  (planned|active|blocked|review|done), `owner` (pane label), `machine`
+  (mac|dev), `topic: "[[topics/<topic>]]"`, `blocked_by` (other feature
+  notes), `updated`. Body: Now, Next, Blocked, Done, Decisions, Board.
+  - Before you start a step, move it to Now and end it with
+    `@<your pane label>`. That tag is your claim. Never take a step that
+    carries another agent's tag; ask that agent or the operator.
+  - When you finish a step, tick it and move it to Done with its evidence
+    (commit, check, or artifact). When you are blocked, move it to Blocked
+    with the reason and who must act. Set `status` and `updated` each time.
+  - Put notes for the next agent in `## Board` as one new dated line
+    (`- 2026-10-11 @label: ...`). Never edit or delete another agent's
+    lines. List ADRs and key decisions under `## Decisions`.
+  - Subagents never edit feature notes. They report to their parent, and
+    the parent records.
+  - The memo line stays the decision log; the note holds the steps. The
+    operator sees all features on `features/Features.base`. The mem mirror
+    owns `topics/` and `Fleet memory.md`; never write there. Never put
+    Foxway work in this vault. The vault syncs to the dev box at the same
+    path.
 - When you type into another agent's pane, start the text with
   `[agent <your pane label>]`, so the memory does not record it as the
   operator's words.

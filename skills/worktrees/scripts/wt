@@ -1,0 +1,304 @@
+#!/usr/bin/env python3
+"""Create, audit, and remove Git worktrees for Herdr agents.
+
+  wt new <repo> <branch> [--base REF] [--label TEXT]
+      Create a worktree and its Herdr workspace (no focus); register your pane
+      as its owner. Prints JSON with path and workspace.
+  wt mine [--safe]    Worktrees your pane owns, with their state. --safe lists
+                      only the ones you can remove now; exit 1 if any.
+  wt done <path>      Close its Herdr workspace if no agent works there, remove
+                      the worktree if safe, and delete a merged branch.
+  wt audit [root]     Classify every linked worktree under root (default ~/repos).
+  wt sweep [root] [--apply]
+      Remove every safe worktree under root. Without --apply, print only.
+
+States: missing (directory gone), merged (in the base branch, also by squash),
+pushed (equal to its upstream, not merged), unpushed, dirty (tracked changes),
+in-use (a process has its cwd inside, or a Herdr workspace is open on it).
+Only missing and merged are safe. `git worktree remove` without --force also
+refuses untracked files, so untracked work is kept. Sweep also keeps a safe
+worktree with Git activity in the last 24 hours, or whose owner pane is alive.
+"""
+import concurrent.futures, datetime, json, os, subprocess, sys, time
+
+HOME = os.path.expanduser("~")
+RECENT = 24 * 3600  # sweep keeps worktrees with Git activity this recent
+REGISTRY = os.path.join(os.environ.get("XDG_STATE_HOME", HOME + "/.local/state"), "wt", "owners.tsv")
+
+
+def git(repo, *args, check=False):
+    # No optional locks: a read-only audit must not rewrite another agent's index.
+    r = subprocess.run(["git", "--no-optional-locks", "-C", repo, *args],
+                       capture_output=True, text=True)
+    if check and r.returncode:
+        sys.exit(r.stderr.strip() or "git %s failed" % args[0])
+    return r.returncode, r.stdout.strip()
+
+
+def herdr(*args):
+    r = subprocess.run(["herdr", *args], capture_output=True, text=True)
+    try:
+        return json.loads(r.stdout)
+    except ValueError:
+        return {"error": r.stderr.strip() or r.stdout.strip()}
+
+
+def registry():
+    try:
+        return [l.rstrip("\n").split("\t") for l in open(REGISTRY) if l.strip()]
+    except FileNotFoundError:
+        return []
+
+
+def write_registry(rows):
+    os.makedirs(os.path.dirname(REGISTRY), exist_ok=True)
+    tmp = REGISTRY + ".tmp"
+    with open(tmp, "w") as f:
+        f.writelines("\t".join(r) + "\n" for r in rows)
+    os.replace(tmp, REGISTRY)
+
+
+def owners():
+    return {r[3]: r[0] for r in registry() if len(r) >= 4}  # path -> pane
+
+
+def repos_under(root):
+    out = subprocess.run(["find", root, "-maxdepth", "4", "-name", ".git", "-type", "d",
+                          "-prune"], capture_output=True, text=True).stdout.split("\n")
+    return [os.path.dirname(p) for p in out if p]
+
+
+def worktrees(repo):
+    _, out = git(repo, "worktree", "list", "--porcelain")
+    items, cur = [], {}
+    for line in out.split("\n") + [""]:
+        if not line:
+            if cur:
+                items.append(cur)
+            cur = {}
+            continue
+        k, _, v = line.partition(" ")
+        cur[k] = v or True
+    return [w for w in items[1:] if "bare" not in w]  # first entry is the main checkout
+
+
+def repo_of(path):
+    _, common = git(path, "rev-parse", "--path-format=absolute", "--git-common-dir", check=True)
+    return os.path.dirname(common)
+
+
+def base_ref(repo):
+    rc, out = git(repo, "symbolic-ref", "--short", "refs/remotes/origin/HEAD")
+    if rc == 0:
+        return out
+    for b in ("main", "master"):
+        if git(repo, "rev-parse", "--verify", "-q", b)[0] == 0:
+            return b
+    return None
+
+
+def process_cwds(skip_self=False):
+    out = subprocess.run(["lsof", "-a", "-d", "cwd", "-u", str(os.getuid()), "-Fpn"],
+                         capture_output=True, text=True).stdout
+    cwds, pid, mine = [], None, {os.getpid(), os.getppid()}
+    for l in out.split("\n"):
+        if l.startswith("p"):
+            pid = int(l[1:])
+        elif l.startswith("n") and not (skip_self and pid in mine):
+            cwds.append(l[1:])
+    return cwds
+
+
+def herdr_open(repo):
+    data = herdr("worktree", "list", "--cwd", repo)
+    return {w["path"]: w.get("open_workspace_id")
+            for w in data.get("result", {}).get("worktrees", []) if w.get("open_workspace_id")}
+
+
+def classify(repo, w, cwds, opened, own):
+    path = w["worktree"]
+    branch = w.get("branch", "").removeprefix("refs/heads/")
+    info = {"repo": repo, "path": path, "branch": branch or "(detached)",
+            "owner": own.get(path, ""), "workspace": opened.get(path, "")}
+    if not os.path.isdir(path):
+        info["state"] = "missing"
+        return info
+    if info["workspace"] or any(c == path or c.startswith(path + "/") for c in cwds):
+        info["state"] = "in-use"
+        return info
+    # Activity clock: HEAD and its reflog change on create, commit, and checkout.
+    # Uncommitted work shows as dirty, or git refuses its untracked files.
+    _, admin = git(path, "rev-parse", "--absolute-git-dir")
+    touched = [os.path.getmtime(os.path.join(admin, f)) for f in ("HEAD", "logs/HEAD")
+               if os.path.exists(os.path.join(admin, f))]
+    info["recent"] = bool(touched) and time.time() - max(touched) < RECENT
+    # Tracked changes only: an untracked scan takes ~30 s per worktree here.
+    if git(path, "status", "--porcelain", "--untracked-files=no")[1]:
+        info["state"] = "dirty"
+        return info
+    info["last"] = git(path, "log", "-1", "--format=%cs")[1]
+    base = base_ref(repo)
+    if base:
+        if git(path, "merge-base", "--is-ancestor", "HEAD", base)[0] == 0:
+            info["state"] = "merged"
+            return info
+        # Squash merge: merging the branch into base changes nothing.
+        rc, tree = git(path, "merge-tree", "--write-tree", base, "HEAD")
+        if rc == 0 and tree.split("\n")[0] == git(repo, "rev-parse", base + "^{tree}")[1]:
+            info["state"] = "merged"
+            return info
+    if branch and git(path, "rev-parse", "-q", "--verify", "@{u}")[0] == 0:
+        if git(path, "rev-list", "--count", "@{u}..HEAD")[1] == "0":
+            info["state"] = "pushed"
+            return info
+    info["state"] = "unpushed"
+    return info
+
+
+def classify_all(pairs, cwds):
+    """pairs: [(repo, [worktree dicts])]"""
+    own, rows = owners(), []
+    with concurrent.futures.ThreadPoolExecutor(8) as pool:
+        for repo, ws in pairs:
+            opened = herdr_open(repo)
+            rows += pool.map(lambda w: classify(repo, w, cwds, opened, own), ws)
+    return rows
+
+
+def safe(r):
+    return r["state"] in ("missing", "merged")
+
+
+def remove(r):
+    repo, path, branch = r["repo"], r["path"], r["branch"]
+    if r["state"] == "missing":
+        git(repo, "worktree", "prune")
+    else:
+        rc, _ = git(repo, "worktree", "remove", path)
+        if rc:
+            return False, "kept (untracked files): %s" % path
+    write_registry([x for x in registry() if len(x) < 4 or x[3] != path])
+    if branch != "(detached)" and r["state"] == "merged":
+        git(repo, "branch", "-D", branch)
+        return True, "removed %s, deleted merged branch %s" % (path, branch)
+    return True, "removed %s" % path
+
+
+def print_rows(rows):
+    for r in sorted(rows, key=lambda r: (r["state"], r["repo"], r["path"])):
+        extra = " ".join(x for x in (r.get("last", ""), r["workspace"], r["owner"]) if x)
+        print("%-8s %-36s %s  %s" % (r["state"], r["branch"][:36], r["path"].replace(HOME, "~"), extra))
+
+
+def opt(args, name):
+    return args[args.index(name) + 1] if name in args else None
+
+
+def cmd_new(args):
+    if len(args) < 2:
+        sys.exit("usage: wt new <repo> <branch> [--base REF] [--label TEXT]")
+    repo, branch = os.path.abspath(args[0]), args[1]
+    pane = os.environ.get("HERDR_PANE_ID")
+    if not pane:
+        sys.exit("wt new needs HERDR_PANE_ID: run it inside Herdr.")
+    label = opt(args, "--label") or branch.split("/")[-1]
+    call = ["worktree", "create", "--cwd", repo, "--branch", branch, "--label", label, "--no-focus"]
+    if opt(args, "--base"):
+        call += ["--base", opt(args, "--base")]
+    res = herdr(*call)
+    if "error" in res:
+        sys.exit(json.dumps(res["error"]))
+    listed = herdr("worktree", "list", "--cwd", repo).get("result", {}).get("worktrees", [])
+    w = next(w for w in listed if w.get("branch") == branch)
+    rows = registry()
+    rows.append([pane, w.get("open_workspace_id") or "", repo, w["path"], branch,
+                 datetime.date.today().isoformat()])
+    write_registry(rows)
+    print(json.dumps({"path": w["path"], "branch": branch, "workspace": w.get("open_workspace_id")}))
+
+
+def cmd_mine(args):
+    pane = os.environ.get("HERDR_PANE_ID", "-")
+    paths = {r[3] for r in registry() if len(r) >= 4 and r[0] == pane}
+    pairs = {}
+    for p in paths:
+        repo = next((r[2] for r in registry() if len(r) >= 4 and r[3] == p), None)
+        ws = [w for w in worktrees(repo) if w["worktree"] == p] if repo and os.path.isdir(repo) else []
+        if ws:
+            pairs.setdefault(repo, []).extend(ws)
+        else:  # removed by other means: drop it from the registry
+            write_registry([x for x in registry() if len(x) < 4 or x[3] != p])
+    rows = classify_all(pairs.items(), process_cwds(skip_self=True))
+    if "--safe" in args:
+        rows = [r for r in rows if safe(r)]
+    print_rows(rows)
+    if "--safe" in args and rows:
+        sys.exit(1)
+
+
+def cmd_done(args):
+    if not args:
+        sys.exit("usage: wt done <path>")
+    path = os.path.abspath(args[0])
+    repo = repo_of(path)
+    w = next((w for w in worktrees(repo) if w["worktree"] == path), None)
+    if not w:
+        sys.exit("%s is not a linked worktree" % path)
+    ws = herdr_open(repo).get(path)
+    # Judge the content first; the workspace's own shell keeps a cwd inside.
+    r = classify(repo, w, [], {}, owners())
+    if not safe(r):
+        sys.exit("kept: %s. Merge or push it, then run wt done again, or report it." % r["state"])
+    if r["state"] == "merged" and git(path, "ls-files", "--others", "--exclude-standard")[1]:
+        sys.exit("kept: untracked files. Commit them, move them out, or report them.")
+    if ws:
+        panes = herdr("pane", "list", "--workspace", ws).get("result", {}).get("panes", [])
+        busy = [p["pane_id"] for p in panes if p.get("agent_status") in ("working", "blocked")]
+        if busy:
+            sys.exit("kept: agents still work in workspace %s (%s)." % (ws, ", ".join(busy)))
+        herdr("workspace", "close", ws)
+        time.sleep(1)
+    inside = [c for c in process_cwds(skip_self=True) if c == path or c.startswith(path + "/")]
+    if inside:
+        sys.exit("kept: a process still has its cwd inside (see local-procs mine %s)." % path)
+    ok, msg = remove(r)
+    print(msg)
+    sys.exit(0 if ok else 1)
+
+
+def cmd_audit(cmd, args):
+    root = os.path.abspath(os.path.expanduser(next((a for a in args if not a.startswith("--")),
+                                                   HOME + "/repos")))
+    pairs = [(repo, worktrees(repo)) for repo in repos_under(root)]
+    rows = classify_all([p for p in pairs if p[1]], process_cwds())
+    if cmd == "audit":
+        print_rows(rows)
+    else:
+        live = {p for p in {r["owner"] for r in rows if r["owner"]}
+                if "error" not in herdr("pane", "get", p)}
+        # A fresh branch with no commits counts as merged, and an agent that
+        # edits by absolute path has no cwd inside: keep recent or owned ones.
+        for r in (r for r in rows if safe(r) and not r.get("recent") and r["owner"] not in live):
+            print(remove(r)[1] if "--apply" in args else "would remove %s" % r["path"].replace(HOME, "~"))
+    counts = {}
+    for r in rows:
+        counts[r["state"]] = counts.get(r["state"], 0) + 1
+    print("total %d: %s" % (len(rows), ", ".join("%s %d" % kv for kv in sorted(counts.items()))))
+
+
+def main(argv):
+    cmd, args = (argv[0], argv[1:]) if argv else ("audit", [])
+    if cmd == "new":
+        cmd_new(args)
+    elif cmd == "mine":
+        cmd_mine(args)
+    elif cmd == "done":
+        cmd_done(args)
+    elif cmd in ("audit", "sweep"):
+        cmd_audit(cmd, args)
+    else:
+        sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

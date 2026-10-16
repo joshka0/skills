@@ -10,7 +10,7 @@ description: "Find who owns a local process or port, what runs in your repo, the
 - `local-procs who <port|pid>...` gives the owner chain and a stop verdict: the Herdr pane and agent, the launchd label, the container, the `kubectl` port-forward, the Portless route, and the repo. A number that has a TCP listener is read as a port.
 - `local-procs mine [path]` lists the listeners and the CPU-active processes whose working directory is in the repo. Run it before you start a dev server or a build.
 - `local-procs daemons` lists the user launchd jobs with their state, schedule, log, and restart command.
-- `local-procs load` shows CPU capacity, current use, and the heaviest command groups, with a verdict for a fan-out.
+- `local-procs load` shows CPU capacity, current use, and the heaviest command groups. Its verdict gives the number of one-core jobs that fit in the free CPU after a 25% reserve.
 
 ## Stopping and restarting
 
@@ -25,8 +25,8 @@ description: "Find who owns a local process or port, what runs in your repo, the
 
 - Many agents share this Mac. Assume that each server, port-forward, and build that you did not start belongs to a live agent, even when its pane looks idle.
 - Run one build, render, or test pass per tree at a time. Before you start one, check `mine` for a running one. If another agent changes the same tree, use a worktree (`herdr worktree create`) or wait on its PID.
-- Before a parallel CPU fan-out, run `load`. If it reports `busy`, run one job at a time or wait. Bend has its own per-agent cap: see `bend`.
-- High CPU from Microsoft Defender (`wdavdaemon`), FortiClient, `sysmond`, or OrbStack is normal. Those processes are managed. Never stop them. The 1-minute load average stays far above the core count on this Mac, so judge capacity by `load`'s CPU-use line.
+- Before a parallel CPU fan-out, run `load`. Start at most the number of one-core jobs that its verdict gives; a job with T threads counts as T. If it reports `busy`, run one job at a time or wait. Bend has its own per-agent cap: see `bend`.
+- High CPU from Microsoft Defender (`wdavdaemon`), FortiClient, `sysmond`, or OrbStack is normal. Those processes are managed. Never stop them.
 
 ## Where things run
 

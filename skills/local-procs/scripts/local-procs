@@ -276,14 +276,18 @@ cmd_daemons() {
 }
 
 cmd_load() {
-  local ncpu='' load='' total=''
+  local ncpu='' total='' free='' reserve='' jobs=''
   ncpu="$(sysctl -n hw.ncpu)"
-  load="$(sysctl -n vm.loadavg | awk '{print $2}')"
   total="$(ps -Ao pcpu= | awk '{s += $1} END {printf "%.0f", s}')"
+  free=$((ncpu * 100 - total))
+  # Keep a quarter of the cores free for the operator and interactive agents.
+  reserve=$((ncpu * 25))
+  jobs=$(((free - reserve) / 100))
+  [[ "$jobs" -gt 0 ]] || jobs=0
   printf 'CPU: %s logical (%s P, %s E)\n' "$ncpu" \
     "$(sysctl -n hw.perflevel0.logicalcpu 2>/dev/null || echo '?')" \
     "$(sysctl -n hw.perflevel1.logicalcpu 2>/dev/null || echo '?')"
-  printf 'In use: %s%% of %s%%; free: %s%%; 1-minute load %s\n' "$total" "$((ncpu * 100))" "$((ncpu * 100 - total))" "$load"
+  printf 'In use: %s%% of %s%%; free: %s%%; reserve: %s%%\n' "$total" "$((ncpu * 100))" "$free" "$reserve"
   printf 'Heaviest command groups (%%CPU, process count):\n'
   ps -Ao pcpu=,comm= | awk '{
       name = $2; for (i = 3; i <= NF; i++) name = name " " $i
@@ -291,14 +295,10 @@ cmd_load() {
       cpu[name] += $1; count[name]++
     } END { for (k in cpu) if (cpu[k] >= 10) printf "  %6.0f  %3d  %s\n", cpu[k], count[k], k }' \
     | sort -rn | head -12
-  printf 'Agent build and check processes: bend %s, cargo/rustc %s, mix/beam %s\n' \
-    "$(pgrep -x bend | wc -l | tr -d ' ')" \
-    "$(pgrep -x 'cargo|rustc' | wc -l | tr -d ' ')" \
-    "$(pgrep -x beam.smp | wc -l | tr -d ' ')"
-  if [[ "$total" -ge $((ncpu * 75)) ]]; then
+  if [[ "$jobs" -eq 0 ]]; then
     printf 'Verdict: busy. Do not start a parallel CPU fan-out; run one job at a time or wait.\n'
   else
-    printf 'Verdict: capacity available.\n'
+    printf 'Verdict: room for %s one-core jobs. A job with T threads takes T.\n' "$jobs"
   fi
 }
 

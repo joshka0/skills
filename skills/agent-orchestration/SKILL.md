@@ -109,6 +109,25 @@ description: "Rules for spreading work across other models and harnesses (Codex,
 - To test whether an artifact conveys its intent without its explanations,
   use `cold-read`.
 
+## Bakeoffs
+
+Use a bakeoff when one attempt at an artifact would lock in the wrong shape.
+
+- Give two or more candidates the same brief, from different model families
+  when the work needs judgment. Give each its own worktree.
+- Before you dispatch, write a rubric of 3 to 6 criteria that you can grade.
+  Keep the rubric from the candidates.
+- Read each candidate from start to end and score it per criterion. A blind
+  judge from another family scores in parallel. If you and the judge pick
+  different bases, read both rationales before you decide.
+- Pick one base. Port by hand the one or two best parts of each loser, so
+  the result keeps one design. Never paste a part in unchanged.
+- If the candidates converge on one shape, ship it. If they differ widely,
+  the brief was under-specified: rewrite the brief and run again. Never
+  average the candidates.
+- Verify the result as any other output, and report the base, the grafts
+  with their sources, and what you rejected.
+
 ## Delegation
 
 - One level only: each agent owns a complete task and must not sub-delegate.
@@ -116,6 +135,10 @@ description: "Rules for spreading work across other models and harnesses (Codex,
 - Freeze the acceptance check before you dispatch, and name it in the brief.
   An implementer never writes or changes the check that gates its own work;
   a separate agent writes it.
+- For multi-session work, name each lane's feature note (`agent-memory`) in
+  its brief, and keep your own note for integration steps. Before you ask a
+  lane for status or dispatch its next step, read its note (Now, Blocked,
+  Board). A `DONE` callback is a wake signal: read the note, then act.
 - Bend workers share one CPU budget. Follow the `bend` skill's caps in every Bend brief.
 - Keep Git, publishing, and external side effects with the supervisor unless the brief delegates them.
 - A brief grants the worker the same autonomy: it parks out-of-remit decisions in its report and keeps working.

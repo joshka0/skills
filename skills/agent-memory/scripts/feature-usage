@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Count reads and writes of fleet-memory feature notes in agent transcripts.
+
+Usage: feature-usage [YYYY-MM-DD]   (default: today; scans that day onward)
+
+A cross-read is a read of another agent's note or of the folder: a note
+that the same working directory never wrote, other than the template.
+"""
+import collections, glob, json, os, re, sys, datetime
+
+since = sys.argv[1] if len(sys.argv) > 1 else datetime.date.today().isoformat()
+t0 = datetime.datetime.fromisoformat(since).timestamp()
+home = os.path.expanduser("~")
+NOTE = re.compile(r"fleet-memory/features/?([A-Za-z0-9_.-]+(?: feature)?\.(?:md|base))?")
+WRITE = re.compile(r"apply_patch|\*\*\* (?:Update|Add) File|>>|sed -i|python3? -|cat >|\"(?:Edit|Write)\"")
+
+reads = collections.defaultdict(collections.Counter)
+writes = collections.defaultdict(collections.Counter)
+
+def record(cwd, name, payload):
+    s = json.dumps(payload)
+    notes = {m.group(1) or "(folder)" for m in NOTE.finditer(s)}
+    if not notes:
+        return
+    target = writes if WRITE.search(name + " " + s) else reads
+    for n in notes:
+        target[cwd][n] += 1
+
+def recent(paths):
+    return [p for p in paths if os.path.getmtime(p) >= t0]
+
+claude = []
+for d in glob.glob(home + "/.claude*/projects"):
+    claude += glob.glob(d + "/*/*.jsonl")
+for p in recent(claude):
+    cwd = "?"
+    for line in open(p, errors="ignore"):
+        if "fleet-memory/features" not in line:
+            continue
+        try:
+            j = json.loads(line)
+        except ValueError:
+            continue
+        cwd = j.get("cwd", cwd)
+        if j.get("type") != "assistant":
+            continue
+        for c in j.get("message", {}).get("content", []):
+            if isinstance(c, dict) and c.get("type") == "tool_use":
+                record(cwd, '"%s"' % c.get("name"), c.get("input"))
+
+for p in recent(glob.glob(home + "/.codex/sessions/*/*/*/*.jsonl")):
+    cwd = "?"
+    for line in open(p, errors="ignore"):
+        try:
+            j = json.loads(line)
+        except ValueError:
+            continue
+        pl = j.get("payload", {})
+        if j.get("type") == "session_meta":
+            cwd = pl.get("cwd", cwd)
+        if "fleet-memory/features" in line and pl.get("type") in ("function_call", "custom_tool_call", "local_shell_call"):
+            record(cwd, pl.get("name", ""), pl)
+
+print("since %s" % since)
+print("%-48s %6s %6s %6s" % ("cwd", "reads", "writes", "cross"))
+for cwd in sorted(set(reads) | set(writes)):
+    cross = sum(n for note, n in reads[cwd].items()
+                if note not in writes[cwd] and note != "_template.md")
+    print("%-48s %6d %6d %6d" % (cwd.replace(home, "~")[-48:], sum(reads[cwd].values()),
+                                 sum(writes[cwd].values()), cross))

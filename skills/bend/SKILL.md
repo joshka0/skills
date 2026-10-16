@@ -159,19 +159,19 @@ Several agents run Bend on the same machine at the same time, and every
 `bend` check and every built binary competes for the same cores (16 logical
 on the Mac and on the dev box).
 
-- Run at most 4 Bend processes at a time per agent. Set a runner's `--jobs`
-  to 4 or less. Never set it to the CPU count.
-- Pass `--threads 4` to a built binary. The default takes every logical CPU.
-- Before a fan-out, count the live checks: `pgrep -x bend | wc -l`. If 8 or
-  more run, use 2 jobs, or wait.
-- Your Bend workers share your budget of 4. Put each worker's `--jobs` and
+- Before a fan-out, read the free CPU. On the Mac, run `local-procs load` and
+  use the job count in its verdict. On the dev box, take the idle % from
+  `top -bn1`, multiply by 16, subtract a 400% reserve, and divide by 100.
+- Your budget is that job count, capped at 4. Set a runner's `--jobs` to it.
+  Never set `--jobs` to the CPU count. If the budget is 0, run one check at a
+  time or wait.
+- A built binary takes every logical CPU by default. Pass `--threads` equal
+  to your budget, at most 4. Each thread counts as one job.
+- Your Bend workers share your budget. Put each worker's `--jobs` and
   `--threads` caps in its brief.
-- Time a benchmark only on a quiet machine: no other `bend` process, and at
-  least 200% free CPU per benchmark thread (800% for `--threads 4`). On the
-  Mac, read free CPU from `local-procs load`, not the load average: the Mac's
-  load average stays far above the core count even when cores are free. On
-  the dev box, read it from `top -bn1`. Otherwise record the measurement with
-  the result and mark it contended.
+- Time a benchmark only when at least 200% CPU is free per benchmark thread
+  (800% for `--threads 4`). Otherwise record the free CPU with the result and
+  mark it contended.
 
 ## Writing Bend
 

@@ -24,6 +24,7 @@
 - If I ask for something that contradicts a rule in this file, name the rule
   and ask if I waive it for this case. If I say yes, do the task. The waiver
   lasts only for this session, and the rule stays unchanged.
+- When I correct the same mistake a second time, run `mistake-proofing`.
 
 ## Engineering
 
@@ -44,6 +45,9 @@
   working product for unfinished complexity.
 - Check a dependency's docs and types before you decide a capability is
   missing.
+- When two fixes that share one premise fail the same check, write the
+  premise down and test it before you write a third fix.
+- Before you change code whose reason you do not know, run `why`.
 - CI pipelines are a bottleneck. If work would open several PRs in one repo,
   stack the related commits on one integration branch and open one PR. If
   related PRs are already open, `git merge` their branches into one
@@ -60,7 +64,8 @@ reader as "you". Put the condition before the instruction. Use sentence-case
 headings, numbered lists only for sequences, descriptive link text, and
 unambiguous dates (2026-08-18). Put code in code font and UI names in bold.
 In docs, describe only what exists. Plans, backlog items, `Parked` sections,
-and ADR consequences may state future work if labeled as such.
+and ADR consequences may state future work if labeled as such. For prose that
+a person reads, also apply `unslop`.
 
 ## Reports
 
@@ -89,10 +94,23 @@ chat.
   at medium effort for hard work: adversarial review, deep reasoning, and
   security. Pick the agent whose pinned model fits the task, or pass `model`
   for one call.
-- "Done" includes cleanup. Close the panes, worktrees, watches, and scratch
-  files you created, and never ones you did not create. Keep a worktree or
-  branch with unmerged or unpushed commits and report it instead of deleting
-  it. Keep anything I asked for.
+- Create worktrees only with `wt new <repo> <branch>` (`worktrees` skill).
+  It puts them under `~/.herdr/worktrees/<repo>/<branch>` and records the
+  owner pane. Never use `git worktree add`, a bare `herdr worktree create`,
+  or subagent worktree isolation. Put this rule in every brief.
+- Keep the machine clean, and leave it cleaner than you found it. The disk
+  is nearly full.
+  - "Done" includes cleanup. Close the panes, watches, and scratch files you
+    created. Remove your worktrees with `wt done` (`worktrees` skill). Keep
+    a worktree or branch with unmerged or unpushed commits and report it.
+    Keep anything I asked for.
+  - Rebuild a Docker image, app build, or dependency tree only when its
+    inputs changed. Reuse caches and incremental builds. Remove the images,
+    containers, build outputs, and logs you made and no longer need.
+  - You may remove another agent's leftovers only when a tool proves them
+    safe: `wt sweep <repo> --apply` for merged worktrees in your repository,
+    `docker image prune` for dangling images. Report any other leftovers you
+    find; do not delete them.
 - Memory: the fleet memory logs every agent's replies. End a reply with one
   memo line of at most 400 bytes when the turn settled a decision (also
   your restatement of an operator's answer), verified a result, found a
@@ -162,6 +180,12 @@ chat.
   facts. To find prior work, run `mem topics`, `mem topic <name>` and
   `mem find <words>`, then `mem zoom <id>+1` to read a message.
   Tell pane agents to do the same.
+- Feature notes: track multi-session work in
+  `~/vaults/fleet-memory/features/<topic> feature.md` (format and rules:
+  `agent-memory` skill). Before you start a step, tag it
+  `@<your pane label>`; when you finish or get blocked, update the note in
+  the same turn. Subagents never edit feature notes; they report to their
+  parent.
 - Pane messages: when you type into another agent's pane (a brief, a
   follow-up or a callback such as DONE), start the text with
   `[agent <your pane label>]`. The fleet memory then does not record it as
@@ -214,3 +238,7 @@ chat.
 - When a wrong guess about my intent would change visible behavior or a
   contract, append an `observation` to `~/.config/spec-ledger/spec-ledger.md`.
   Briefs load the digest, never the raw ledger.
+- Before you report a performance number, run `benchmark-checklist`.
+- If a repo has no scripted way to prove behavior in the real app, create
+  one with `verification-skill`.
+- For a small diff you do not trust, run `blast-radius`.
