@@ -1,6 +1,6 @@
 ---
 name: infra-kit
-description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 storage, Postgres backups, VPS containers, public ingress, tailnet joins, LLM calls, app auth. Use when an app needs any of these."
+description: "Compose app infrastructure from proven Alchemy v2 Layers: R2, Postgres databases and backups, VPS containers, public ingress, tailnet joins, LLM calls, app auth. Use when an app needs any of these."
 ---
 
 # Infra kit
@@ -11,6 +11,7 @@ description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 stora
 | --- | --- | --- | --- |
 | `infra-kit/object-store` | R2 storage | `ObjectStoreBucket` (CORS from origins, per-prefix expiry, multipart abort) | `ObjectStore.layerS3("<PREFIX>")`: put, get, delete, presignPut, presignGet |
 | `infra-kit/postgres-backup` | Postgres backups | `PostgresBackupContainer` beside the database server | `pg_dump` of each database in `PGDATABASES` (comma list) on a cron to `<BACKUP_PREFIX>/<db>/<UTC>.dump`; one failure alerts and the rest still run; retention is the bucket's lifecycle rule |
+| `infra-kit/database` | App database on shared Postgres | `AppDatabase({ context, database, role?, passwordVar, onDestroy? })`: login role and database on `shared-pg`, no `CONNECT` for `PUBLIC`; the server gets only a SCRAM verifier and state holds no secret; adopts an existing pair when the role owns the database and is not a superuser; destroy keeps the data and sets `NOLOGIN` unless `onDestroy: "drop"`; add `providers()` beside `Docker.providers()` (ADR 0001) | `Database.layerPg("<PREFIX>")`: `@effect/sql-pg` client from `<PREFIX>_HOST`, `_PORT` (5432), `_NAME`, `_USER`, `_PASSWORD` |
 | `infra-kit/app-host` | App container | `VpsContext("<name>")`: the shared VPS Docker engine (logical ID `Vps`); `AppContainer`: build on the engine, start, restart, loopback-only ports, healthcheck | none |
 | `infra-kit/ingress` | Public HTTPS through a Cloudflare Tunnel | `PublicApp({ context, name, network, hostname, zoneId, service: { host, port } })`: tunnel (token never in state), one ingress rule then `http_status:404`, proxied CNAME, hardened `cloudflared` on the app network; add `providers()` beside `Cloudflare.providers()` and `Docker.providers()`. Deploy token: account `Cloudflare Tunnel Write`; on one zone, `DNS Write` and `Zone Read` | none |
 | `infra-kit/tailnet` | Tailnet join | `JoinTailnet` action, `installTailscale` cloud-init lines | none |
