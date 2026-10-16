@@ -46,6 +46,14 @@ description: "Find prior work and preserve useful session context. Use for proje
   memo: decided context cap returns for Pi because the subscription has no reliable cache; done cap in Compactor.ts (verified by a 15-node run, 2,713 input tokens per call); failed Luna backlog run: 1% cache, ~58k tokens per call; open restart with the cap; ids commit 40fef98 [[memoryd-compactor-cost]] [[memoryd-context-cap]]
   ```
 
+  Write each item so that a later `mem find` with two or three keywords
+  finds it. Name the thing in plain words: the component, feature, file
+  or symptom ("ensure-service from a shell fails silently"). Pane labels,
+  draft numbers and question codes (`w55:p2A`, `pC`, `DQ4`) go in `ids`
+  or after the words, never in place of them. To carry an open item
+  forward, keep it with `open <id>+1`; a restatement in new words adds a
+  duplicate to every search.
+
   Put it as the last paragraph of the reply. Write `done` only for verified
   work; otherwise `running`, `planned` or `blocked`. When a topic is
   superseded, write `retired <why>` with a link to that topic only. When

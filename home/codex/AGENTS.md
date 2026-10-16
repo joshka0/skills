@@ -96,6 +96,11 @@
   `memo: decided <what> because <why>; done <what> (verified by <check>);
   failed <what>: <cause>; open <what>; ids <commit, branch <name>, /absolute/path, key, adr-NNNN>
   [[topic]]`
+  Write each item so that a keyword search finds it: name the component,
+  feature, file or symptom in plain words. Put pane labels, draft numbers
+  and question codes in `ids` or after the words, never in place of them.
+  To carry an open item forward, keep it with `open <id>+1`; a
+  restatement in new words adds a duplicate to every search.
   Use only the labels that apply. Write `done` only for verified work;
   otherwise write `running`, `planned` or `blocked`. When a topic is
   superseded, write `retired <why>` with a link to that topic only. When
