@@ -55,7 +55,11 @@ description: "Find prior work and preserve useful session context. Use for proje
   duplicate to every search.
 
   Put it as the last paragraph of the reply. Write `done` only for verified
-  work; otherwise `running`, `planned` or `blocked`. When a topic is
+  work; otherwise `running`, `planned` or `blocked`. To hold an item open
+  while you wait for a callback, a run or another agent, write
+  `waiting <what> until <event or YYYY-MM-DD>`: the turn-end hook stays
+  quiet about it until that day, or for 24 hours after its memo when it
+  names an event. When a topic is
   superseded, write `retired <why>` with a link to that topic only. When
   your decision replaces an earlier memo item, add `supersedes <id>+1
   because <why>`, where `<id>+1` is the earlier memo's message address; when
@@ -70,7 +74,7 @@ description: "Find prior work and preserve useful session context. Use for proje
   without restating them, write `open <id>+1`. A keep cannot reopen a
   closed item: restate that item in words. End your items with
   `closed rest` to close every other open item of this session, on every
-  topic. A subagent report never holds `closed rest`. Write the memo in
+  topic; it closes no waiting item. A subagent report never holds `closed rest`. Write the memo in
   your final reply, after your last tool call. When the turn-end hook
   lists unsettled items, write the memo again that way.
   Name a topic after the lasting thing the work changes (a component,

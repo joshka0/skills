@@ -108,7 +108,11 @@ chat.
   To carry an open item forward, keep it with `open <id>+1`; a
   restatement in new words adds a duplicate to every search.
   Use only the labels that apply. Write `done` only for verified work;
-  otherwise write `running`, `planned` or `blocked`. When a topic is
+  otherwise write `running`, `planned` or `blocked`. To hold an item
+  open while you wait for a callback, a run or another agent, write
+  `waiting <what> until <event or YYYY-MM-DD>`: the turn-end hook stays
+  quiet about it until that day, or for 24 hours after its memo when it
+  names an event. When a topic is
   superseded, write `retired <why>` with a link to that topic only. When
   your decision replaces an earlier memo item, add `supersedes <id>+1
   because <why>`, where `<id>+1` is the earlier memo's message address; when
@@ -123,7 +127,7 @@ chat.
   without restating them, write `open <id>+1`. A keep cannot reopen a
   closed item: restate that item in words. End your items with
   `closed rest` to close every other open item of this session, on every
-  topic. A subagent report never holds `closed rest`. Write the memo in
+  topic; it closes no waiting item. A subagent report never holds `closed rest`. Write the memo in
   your final reply, after your last tool call. When the turn-end hook
   lists unsettled items, write the memo again that way. Add one to three
   `[[topic]]` links. Name a topic after the lasting thing the work
