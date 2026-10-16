@@ -1,6 +1,6 @@
 ---
 name: infra-kit
-description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 storage, Postgres backups, VPS containers, tailnet joins, LLM calls, app auth. Use when an app needs any of these."
+description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 storage, Postgres backups, VPS containers, public ingress, tailnet joins, LLM calls, app auth. Use when an app needs any of these."
 ---
 
 # Infra kit
@@ -11,7 +11,8 @@ description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 stora
 | --- | --- | --- | --- |
 | `infra-kit/object-store` | R2 storage | `ObjectStoreBucket` (CORS from origins, per-prefix expiry, multipart abort) | `ObjectStore.layerS3("<PREFIX>")`: put, get, delete, presignPut, presignGet |
 | `infra-kit/postgres-backup` | Postgres backups | `PostgresBackupContainer` beside the database server | `pg_dump` of each database in `PGDATABASES` (comma list) on a cron to `<BACKUP_PREFIX>/<db>/<UTC>.dump`; one failure alerts and the rest still run; retention is the bucket's lifecycle rule |
-| `infra-kit/app-host` | App container | `AppContainer`: build on the engine, start, restart, loopback-only ports, healthcheck | none |
+| `infra-kit/app-host` | App container | `VpsContext("<name>")`: the shared VPS Docker engine (logical ID `Vps`); `AppContainer`: build on the engine, start, restart, loopback-only ports, healthcheck | none |
+| `infra-kit/ingress` | Public HTTPS through a Cloudflare Tunnel | `PublicApp({ context, name, network, hostname, zoneId, service: { host, port } })`: tunnel (token never in state), one ingress rule then `http_status:404`, proxied CNAME, hardened `cloudflared` on the app network; add `providers()` beside `Cloudflare.providers()` and `Docker.providers()`. Deploy token: account `Cloudflare Tunnel Write`; on one zone, `DNS Write` and `Zone Read` | none |
 | `infra-kit/tailnet` | Tailnet join | `JoinTailnet` action, `installTailscale` cloud-init lines | none |
 | `infra-kit/llm` | LLM calls | none | `Llm.layerOpenRouter("<PREFIX>")` with typed errors |
 | `infra-kit/alerts` | Alerts | none | `Alerts.layerNtfy("<KEY>")` |
@@ -32,7 +33,7 @@ description: "Compose app infrastructure from proven Alchemy v2 Layers: R2 stora
 - Docker `--env-file` keeps quotes. Write it from `infisical export --format json | jq -r '.[] | "\(.key)=\(.value)"'`, mode 600, at a stable path: a new path replaces the container. Delete it after deploy.
 - A Docker `Container` starts only with `start: true` (`AppContainer` sets it).
 - A healthcheck array loses its quoting; `AppContainer` takes one shell string.
-- The shared VPS context is `Docker.Context` named `infra-kit-vps` (`host=ssh://vps`). Two stacks that declare it adopt it, and destroying one deletes it for both.
+- Declare the shared VPS engine with `VpsContext("<name>")` (`host=ssh://vps`). The kit examples use `infra-kit-vps`. Two stacks with one name share the context, and destroying one deletes it for both. A new name replaces the context and every container on it. A new logical ID makes Alchemy remove the old context by name, which is the same context.
 - Run the project-local `node_modules/.bin/alchemy`. `alchemy dev` and deploys need `@effect/platform-bun` and `@effect/platform-node` at the same effect version.
 
 ## Proofs
