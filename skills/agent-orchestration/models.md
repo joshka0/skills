@@ -69,8 +69,7 @@ missed, record it with `scripts/router harness add <command> "<what it is>"`.
 | Harness | Class | Use |
 | --- | --- | --- |
 | `claude` | primary | Claude family. The default for most work. |
-| `pi` | primary | GPT family. |
-| `codex` | secondary | GPT, only when a workflow needs a Codex session. |
+| `codex` | primary | GPT family. |
 | `opencode` | secondary | Open-weight models. |
 | `cursor-agent` | secondary | Kimi for Foxway. |
 | `devin` | secondary | Kimi, personal only. |
@@ -79,7 +78,7 @@ missed, record it with `scripts/router harness add <command> "<what it is>"`.
 | `pi-vm-agent` | specialist | GLM uncensored, personal only. |
 | `claudex` | specialist | A selected final adversarial pass only. |
 | `hermes` | specialist | Personal GPT or Kimi work. |
-| `gemini`, `amp`, `kimi`, `agy` | not routed | Installed, but no role. Use only when the user asks for it. |
+| `pi`, `gemini`, `amp`, `kimi`, `agy` | not routed | Installed, but no role. Use only when the user asks for it. |
 
 - Use a primary harness unless the role table or a route names another one.
 - A harness that `router harnesses` marks `IDLE` (no use in 30 days) or
@@ -92,8 +91,7 @@ Each launch starts the interactive TUI in a Herdr pane. Send the brief with
 
 | Family | Route | Launch |
 | --- | --- | --- |
-| GPT | `pi` (preferred) | `pi --model openai/<id> --thinking <effort>` |
-| GPT, when a workflow needs a Codex session (`herdr-goal`, Codex integrations) | `codex` | `codex -m <id> -c model_reasoning_effort=<effort>` |
+| GPT | `codex` | `codex -m <id> -c model_reasoning_effort=<effort>` |
 | Claude | `claude` under an account | `CLAUDE_CONFIG_DIR="$HOME/<dir>" claude --model <alias>` |
 | Open-weight | `opencode` | `opencode -m opencode-go/<id>` |
 | DeepSeek, Qwen | `droid` | `droid`, then its model picker (IDs from `scripts/router models --harness droid`) |

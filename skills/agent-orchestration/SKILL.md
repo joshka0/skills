@@ -1,6 +1,6 @@
 ---
 name: agent-orchestration
-description: "Rules for spreading work across other models and harnesses (pi, Codex, opencode, Claude accounts, Herdr panes), and the model-role registry. Use for delegation, model choice, or a rate limit."
+description: "Rules for spreading work across other models and harnesses (Codex, opencode, Claude accounts, Herdr panes), and the model-role registry. Use for delegation, model choice, or a rate limit."
 ---
 
 # Agent orchestration
@@ -75,8 +75,7 @@ description: "Rules for spreading work across other models and harnesses (pi, Co
 
 | Harness | Rule |
 | --- | --- |
-| pi | Preferred route for GPT. Set `--model openai/<id>` and `--thinking` at launch. |
-| Codex | Use when a workflow needs a Codex session. Set the model at launch; the in-session picker can change shared config. |
+| Codex | Route for GPT. Set the model and effort at launch; the in-session picker can change shared config. |
 | Claude Code | Never an OpenAI ID in a Claude model field. Choose the account with `CLAUDE_CONFIG_DIR`. |
 | claudex | Only for an explicitly selected final adversarial pass. Verify the actual proxied model. Forbid subagents. |
 | Hermes | Personal GPT/Kimi work when `command -v hermes` succeeds and live help confirms the model. Not for workflows that need a Codex session. |
