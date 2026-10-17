@@ -50,16 +50,15 @@ description: "Find prior work and preserve useful session context. Use for proje
   finds it. Name the thing in plain words: the component, feature, file
   or symptom ("ensure-service from a shell fails silently"). Pane labels,
   draft numbers and question codes (`w55:p2A`, `pC`, `DQ4`) go in `ids`
-  or after the words, never in place of them. To carry an open item
-  forward, keep it with `open <id>+1`; a restatement in new words adds a
-  duplicate to every search.
+  or after the words, never in place of them. An open item stays open
+  until a memo closes it, so do not repeat it in later memos; a
+  restatement in new words adds a duplicate to every search.
 
   Put it as the last paragraph of the reply. Write `done` only for verified
-  work; otherwise `running`, `planned` or `blocked`. To hold an item open
-  while you wait for a callback, a run or another agent, write
-  `waiting <what> until <event or YYYY-MM-DD>`: the turn-end hook stays
-  quiet about it until that day, or for 24 hours after its memo when it
-  names an event. When a topic is
+  work; otherwise `running`, `planned` or `blocked`. To record that an
+  item waits for a callback, a run or another agent, write `waiting <what>
+  until <event or YYYY-MM-DD>`. Nothing alerts you when that day or event
+  comes: check it yourself. When a topic is
   superseded, write `retired <why>` with a link to that topic only. When
   your decision replaces an earlier memo item, add `supersedes <id>+1
   because <why>`, where `<id>+1` is the earlier memo's message address; when
@@ -70,13 +69,15 @@ description: "Find prior work and preserve useful session context. Use for proje
   session opened, close it too: find it with `mem topic <name>`, and write
   `done <id>+1` only if you settled every open item of that message, else
   `done` and its words. A memo here does not close an item of another
-  repository; name that item in your reply. To keep the still-open items of an earlier message
-  without restating them, write `open <id>+1`. A keep cannot reopen a
-  closed item: restate that item in words. End your items with
-  `closed rest` to close every other open item of this session, on every
-  topic; it closes no waiting item. A subagent report never holds `closed rest`. Write the memo in
+  repository; name that item in your reply. Close an item with `done` or
+  `failed` when you really settle it, not to tidy the list. Keeping items
+  is optional: `open <id>+1` keeps the open items of an earlier message,
+  and `closed rest` closes every other open item of this session on every
+  topic, but no waiting item. A keep cannot reopen a closed item: restate
+  that item in words. A subagent report never holds `closed rest`. Write
+  the memo in
   your final reply, after your last tool call. When the turn-end hook
-  lists unsettled items, write the memo again that way.
+  rejects your memo line, write it again as it says.
   Name a topic after the lasting thing the work changes (a component,
   feature, contract or decision area) as `<scope>-<thing>` in lowercase
   kebab. The scope is the project (`[[yada-room-kernel]]`), or `fleet`
