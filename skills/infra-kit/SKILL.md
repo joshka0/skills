@@ -18,7 +18,7 @@ description: "Compose app infrastructure from proven Alchemy v2 Layers: R2, Post
 | `infra-kit/llm` | LLM calls | none | `Llm.layerOpenRouter("<PREFIX>")` with typed errors |
 | `infra-kit/alerts` | Alerts | none | `Alerts.layerNtfy("<KEY>")` |
 | `infra-kit/telemetry` | Telemetry to Maple Local | `Telemetry.containerEnv({ serviceName, namespace, endpoint })`: `OTEL_*` for a stock-SDK container's `environment` | `Telemetry.layerMaple({ serviceName, namespace })`: spans, logs and metrics as OTLP protobuf to `MAPLE_OTLP_URL`, 200 per batch; each sending host needs a Tailscale ACL grant to `tcp:4318` |
-| `infra-kit/auth` | Better Auth on a Worker | D1 database; schema migrates on each deploy; signing secret made once | `AppAuth({ appScheme, webOrigins, ... })` at `/api/auth`; rules in the `app-auth` skill |
+| `infra-kit/auth` | Better Auth on a Worker | `AuthD1(db)`: D1, schema migrates on each deploy. `AuthPostgres(AuthHyperdrive(...), { migrateUrlVar? })`: Postgres through Hyperdrive with caching off; the origin password comes from `passwordVar` at deploy and never reaches state; tables only with `migrateUrlVar`; add `providers()` beside `Cloudflare.providers()`. Signing secret made once | `AppAuth({ appScheme, webOrigins, baseURL, ... })` at `/api/auth`; rules in the `app-auth` skill |
 
 ## Credentials
 
